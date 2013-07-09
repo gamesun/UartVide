@@ -3,10 +3,12 @@
 #import sys,os
 import wx
 import GUI as ui
-import multiprocessing
-import UartProcess
+# import multiprocessing
+import threading, Queue
+# import UartProcess
 import re
 import serial
+import time
 
 SUBMENU   = 0
 MENUITEM  = 1
@@ -22,9 +24,9 @@ MenuDefs = (
     (MENUITEM,  wx.NewId(), '&Exit MyTerm',       'Exit this tool',     'self.OnExitApp'   ),
 )),
 ('&Display', (
+    (MENUITEM,  wx.NewId(), 'Show S&etting Bar',  'Show Setting Bar',    'self.OnShowSettingBar' ),
     (CHECKITEM, wx.NewId(), 'Always on top',      'always on most top',  'self.OnAlwayOnTop'     ),
     (CHECKITEM, wx.NewId(), 'Local echo',         'echo what you typed', 'self.OnShowStatusBar'  ),
-    (MENUITEM,  wx.NewId(), 'Show S&etting Bar',  'Show Setting Bar',    'self.OnShowSettingBar' ),
     (SUBMENU, 'Rx display as', (
         (RADIOITEM, wx.NewId(), 'ASCII', '', 'self.OnRxAsciiMode' ),
         (RADIOITEM, wx.NewId(), 'HEX',   '', 'self.OnRxHexMode'   ),
@@ -42,6 +44,21 @@ MenuDefs = (
 
 regex_matchPort = re.compile('(?P<port>\d+)')
 
+def UartCommunicate(evtWork, evtExit, rxQueue, txQueue, serial, ctrl):
+    """ sub process for receive data from uart port """
+    while 1:
+        evtWork.wait()
+        if evtExit.is_set():
+            return 0
+        else:
+            print 'running'
+            text = serial.read(1)
+            if text:
+                n = serial.inWaiting()
+                if n:
+                    text = text + self.serial.read(n)
+                ctrl.Append(text)
+
 class MyApp(wx.App):
     def OnInit(self):
         self.frame = ui.MyFrame(None, wx.ID_ANY, "")
@@ -50,16 +67,10 @@ class MyApp(wx.App):
         self.frame.SplitterWindow.SetSashPosition(160, True)
         
         self.frame.chiocePort.AppendItems(('COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8'))
-        self.frame.chiocePort.Select(0)
-        # initial variables
+        self.frame.chiocePort.Select(2)
 
+        # initial variables
         self.serialport = serial.Serial()
-#         print self.GetPort()
-#         print self.GetBaudRate()
-#         print self.GetDataBits()
-#         print self.GetParity()
-#         print self.GetStopBits()
-#         print self.GetHandShake()
         
         # Make a menu
         menuBar = wx.MenuBar()
@@ -72,16 +83,22 @@ class MyApp(wx.App):
         self.frame.SetMenuBar(menuBar)
         
         self.frame.btnHideBar.Bind(wx.EVT_BUTTON, self.OnHideSettingBar)
+        self.frame.btnOpen.Bind(wx.EVT_BUTTON, self.OnBtnOpen)
+        
         self.frame.Bind(wx.EVT_WINDOW_DESTROY, self.Cleanup)
  
         self.SetTopWindow(self.frame)
         self.frame.Show()
         
-        self.processCommunicate = multiprocessing.Process(name = 'Uart_Communicate',
-                                    target = UartProcess.UartCommunicate, 
-                                    args = (None, None))
+        self.evtPortOpen = threading.Event()
+        self.evtAppExit = threading.Event()
+        self.rxQueue = Queue.Queue()
+        self.txQueue = Queue.Queue()
+        self.threadCommunicate = threading.Thread(name = 'Uart Communicate',
+                                    target = UartCommunicate, 
+                                    args = (self.evtPortOpen, self.evtAppExit, self.rxQueue, self.txQueue, self.serialport, self.frame.txtctlMain))
         
-#         self.processCommunicate.start()
+        self.threadCommunicate.start()
         
         return True
 
@@ -146,6 +163,12 @@ class MyApp(wx.App):
                 self.MakeMenu(submenu, i)
             menu.AppendSubMenu(submenu, args[1])
             
+    def OnBtnOpen(self, evt = None):
+        if self.serialport.isOpen():
+            self.OnClosePort(evt)
+        else:
+            self.OnOpenPort(evt)
+        
     def OnOpenPort(self, evt = None):
         self.serialport.port     = self.GetPort()
         self.serialport.baudrate = self.GetBaudRate()
@@ -161,21 +184,30 @@ class MyApp(wx.App):
             dlg.ShowModal()
             dlg.Destroy()
         else:
-#             self.StartThread()
-            self.SetTitle("Serial Terminal on %s [%s, %s%s%s%s%s]" % (
-                self.serial.portstr,
-                self.serial.baudrate,
-                self.serial.bytesize,
-                self.serial.parity,
-                self.serial.stopbits,
-                self.serial.rtscts and ' RTS/CTS' or '',
-                self.serial.xonxoff and ' Xon/Xoff' or '',
+            self.evtPortOpen.set()
+            self.frame.SetTitle("MyTerm on %s [%s, %s%s%s%s%s]" % (
+                self.serialport.portstr,
+                self.serialport.baudrate,
+                self.serialport.bytesize,
+                self.serialport.parity,
+                self.serialport.stopbits,
+                self.serialport.rtscts and ' RTS/CTS' or '',
+                self.serialport.xonxoff and ' Xon/Xoff' or '',
                 )
             )
+            self.frame.btnOpen.SetBackgroundColour((0,0xff,0x7f))
+            self.frame.btnOpen.SetLabel('Opened')
+            self.frame.btnOpen.Refresh()
+            
     
     def OnClosePort(self, evt = None):
         if self.serialport.isOpen():
             self.serialport.close()
+            self.evtPortOpen.clear()
+            self.frame.SetTitle('MyTerm')
+            self.frame.btnOpen.SetBackgroundColour(wx.NullColour)
+            self.frame.btnOpen.SetLabel('Open')
+            self.frame.btnOpen.Refresh()
     
     def OnHideSettingBar(self, evt = None):
         self.frame.SplitterWindow.SetSashPosition(1, True)
@@ -207,7 +239,7 @@ class MyApp(wx.App):
             style = self.frame.GetWindowStyle()
             # stay on top
             self.frame.SetWindowStyle( style | wx.STAY_ON_TOP )
-        else:
+        elif evt.Selection == 0:
             style = self.frame.GetWindowStyle()
             # normal behaviour again
             self.frame.SetWindowStyle( style & ~wx.STAY_ON_TOP )
@@ -219,8 +251,10 @@ class MyApp(wx.App):
         self.frame.Close(True)
     
     def Cleanup(self, evt = None):
-        if self.processCommunicate.is_alive():
-            self.processCommunicate.terminate()
+        if self.threadCommunicate.is_alive():
+#             self.threadCommunicate.terminate()
+            self.evtPortOpen.set()
+            self.evtAppExit.set()
         self.OnClosePort()
 
 
