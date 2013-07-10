@@ -44,20 +44,6 @@ MenuDefs = (
 
 regex_matchPort = re.compile('(?P<port>\d+)')
 
-def UartCommunicate(evtWork, evtExit, rxQueue, txQueue, serial, ctrl):
-    """ sub process for receive data from uart port """
-    while 1:
-        evtWork.wait()
-        if evtExit.is_set():
-            return 0
-        else:
-            print 'running'
-            text = serial.read(1)
-            if text:
-                n = serial.inWaiting()
-                if n:
-                    text = text + self.serial.read(n)
-                ctrl.Append(text)
 
 class MyApp(wx.App):
     def OnInit(self):
@@ -91,14 +77,8 @@ class MyApp(wx.App):
         self.frame.Show()
         
         self.evtPortOpen = threading.Event()
-        self.evtAppExit = threading.Event()
         self.rxQueue = Queue.Queue()
         self.txQueue = Queue.Queue()
-        self.threadCommunicate = threading.Thread(name = 'Uart Communicate',
-                                    target = UartCommunicate, 
-                                    args = (self.evtPortOpen, self.evtAppExit, self.rxQueue, self.txQueue, self.serialport, self.frame.txtctlMain))
-        
-        self.threadCommunicate.start()
         
         return True
 
@@ -177,6 +157,7 @@ class MyApp(wx.App):
         self.serialport.parity   = self.GetParity()
         self.serialport.rtscts   = self.frame.chkboxrtscts.IsChecked()
         self.serialport.xonxoff  = self.frame.chkboxxonxoff.IsChecked()
+        self.serialport.timeout  = 0.1
         try:
             self.serialport.open()
         except serial.SerialException, e:
@@ -184,7 +165,7 @@ class MyApp(wx.App):
             dlg.ShowModal()
             dlg.Destroy()
         else:
-            self.evtPortOpen.set()
+            self.StartThread()
             self.frame.SetTitle("MyTerm on %s [%s, %s%s%s%s%s]" % (
                 self.serialport.portstr,
                 self.serialport.baudrate,
@@ -202,13 +183,40 @@ class MyApp(wx.App):
     
     def OnClosePort(self, evt = None):
         if self.serialport.isOpen():
+            self.StopThread()
             self.serialport.close()
-            self.evtPortOpen.clear()
             self.frame.SetTitle('MyTerm')
             self.frame.btnOpen.SetBackgroundColour(wx.NullColour)
             self.frame.btnOpen.SetLabel('Open')
             self.frame.btnOpen.Refresh()
     
+    def StartThread(self):
+        """Start the receiver thread"""
+        self.thread = threading.Thread(target = self.UartCommThread)
+        self.thread.setDaemon(1)
+        self.evtPortOpen.set()
+        self.thread.start()
+
+    def StopThread(self):
+        """Stop the receiver thread, wait util it's finished."""
+        if self.thread is not None:
+            self.evtPortOpen.clear()        #clear alive event for thread
+            self.thread.join()              #wait until thread has finished
+            self.thread = None
+    
+    def UartCommThread(self):
+        """ sub process for receive data from uart port """
+        while self.evtPortOpen.is_set():
+            print 'running'
+            text = self.serialport.read(1)
+            if text:
+                n = self.serialport.inWaiting()
+                if n:
+                    text = text + self.serialport.read(n)
+                self.frame.txtctlMain.AppendText(text)
+        print 'exit thread'
+    
+
     def OnHideSettingBar(self, evt = None):
         self.frame.SplitterWindow.SetSashPosition(1, True)
         
@@ -251,7 +259,8 @@ class MyApp(wx.App):
         self.frame.Close(True)
     
     def Cleanup(self, evt = None):
-        if self.threadCommunicate.is_alive():
+        if self.thread is not None:
+            print 'thread is alive:' + self.thread.is_alive()
 #             self.threadCommunicate.terminate()
             self.evtPortOpen.set()
             self.evtAppExit.set()
