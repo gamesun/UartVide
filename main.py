@@ -16,6 +16,11 @@ CHECKITEM = 2
 SEPARATOR = 3
 RADIOITEM = 4
 
+ASCII = 0
+HEX   = 1
+
+THREAD_TIMEOUT = 0.1
+
 MenuDefs = (
 ('&Operation', (
     (MENUITEM,  wx.NewId(), '&Open Port',         'Open the Port' ,     'self.OnOpenPort'  ),
@@ -57,6 +62,8 @@ class MyApp(wx.App):
 
         # initial variables
         self.serialport = serial.Serial()
+        self.rxmode = ASCII
+        self.txmode = ASCII
         
         # Make a menu
         menuBar = wx.MenuBar()
@@ -71,7 +78,9 @@ class MyApp(wx.App):
         self.frame.btnHideBar.Bind(wx.EVT_BUTTON, self.OnHideSettingBar)
         self.frame.btnOpen.Bind(wx.EVT_BUTTON, self.OnBtnOpen)
         
-        self.frame.Bind(wx.EVT_WINDOW_DESTROY, self.Cleanup)
+#         self.frame.Bind(wx.EVT_WINDOW_DESTROY, self.Cleanup)
+        self.frame.Bind(wx.EVT_CLOSE, self.Cleanup)
+
  
         self.SetTopWindow(self.frame)
         self.frame.Show()
@@ -157,7 +166,7 @@ class MyApp(wx.App):
         self.serialport.parity   = self.GetParity()
         self.serialport.rtscts   = self.frame.chkboxrtscts.IsChecked()
         self.serialport.xonxoff  = self.frame.chkboxxonxoff.IsChecked()
-        self.serialport.timeout  = 0.1
+        self.serialport.timeout  = THREAD_TIMEOUT
         try:
             self.serialport.open()
         except serial.SerialException, e:
@@ -193,7 +202,7 @@ class MyApp(wx.App):
     def StartThread(self):
         """Start the receiver thread"""
         self.thread = threading.Thread(target = self.UartCommThread)
-        self.thread.setDaemon(1)
+#         self.thread.setDaemon(1)
         self.evtPortOpen.set()
         self.thread.start()
 
@@ -207,16 +216,25 @@ class MyApp(wx.App):
     def UartCommThread(self):
         """ sub process for receive data from uart port """
         while self.evtPortOpen.is_set():
-            print 'running'
-            text = self.serialport.read(1)
-            if text:
-                n = self.serialport.inWaiting()
-                if n:
-                    text = text + self.serialport.read(n)
-                self.frame.txtctlMain.AppendText(text)
+#             print 'running'
+            try:
+                text = self.serialport.read(1)
+            except e:
+                pass    #TODO
+            finally:
+                if text:
+    #                 print ord(text),
+                    n = self.serialport.inWaiting()
+                    if n:
+                        text = text + self.serialport.read(n)
+                    if self.rxmode == ASCII:
+                        self.frame.txtctlMain.AppendText(text)
+                    elif self.rxmode == HEX:
+                        self.frame.txtctlMain.AppendText(''.join(str(ord(t)) + ' ' for t in text))
+    #                 self.frame.txtctlMain.AppendText()
+                    
         print 'exit thread'
     
-
     def OnHideSettingBar(self, evt = None):
         self.frame.SplitterWindow.SetSashPosition(1, True)
         
@@ -227,20 +245,20 @@ class MyApp(wx.App):
         pass
     
     def OnRxAsciiMode(self, evt = None):
-        
-        pass
+        self.rxmode = ASCII
+        print 'ra'
     
     def OnRxHexMode(self, evt = None):
-        
-        pass
+        self.rxmode = HEX
+        print 'rh'
         
     def OnTxAsciiMode(self, evt = None):
-        
-        pass
+        self.txmode = ASCII
+        print 'ta'
     
     def OnTxHexMode(self, evt = None):
-        
-        pass
+        self.txmode = HEX
+        print 'th'
 
     def OnAlwayOnTop(self, evt = None):
         if evt.Selection == 1:
@@ -256,17 +274,20 @@ class MyApp(wx.App):
         pass
     
     def OnExitApp(self, evt = None):
-        self.frame.Close(True)
+        self.frame.Close(True)      # send EVT_CLOSE
+        print 'exit'
     
     def Cleanup(self, evt = None):
-        if self.thread is not None:
-            print 'thread is alive:' + self.thread.is_alive()
-#             self.threadCommunicate.terminate()
-            self.evtPortOpen.set()
-            self.evtAppExit.set()
+        self.frame.Destroy()
         self.OnClosePort()
+#         for t in threading.enumerate():
+#             print t.getName()
+        if hasattr(self, 'thread'):
+            if self.thread is not None:
+                assert not self.thread.is_alive(), "the thread should be dead but isn't!"
+#             self.threadCommunicate.terminate()
 
-
+        
 if __name__ == '__main__':
     app = MyApp(0)
     app.MainLoop()
