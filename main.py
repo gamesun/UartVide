@@ -19,7 +19,30 @@ RADIOITEM = 4
 ASCII = 0
 HEX   = 1
 
-THREAD_TIMEOUT = 0.1
+THREAD_TIMEOUT = 0.5
+
+SERIALRX = wx.NewEventType()                    # Create an own event type
+EVT_SERIALRX = wx.PyEventBinder(SERIALRX, 0)    # bind to serial data receive events
+class SerialRxEvent(wx.PyCommandEvent):
+    eventType = SERIALRX
+    def __init__(self, windowID, data):
+        wx.PyCommandEvent.__init__(self, self.eventType, windowID)
+        self.data = data
+
+    def Clone(self):
+        self.__class__(self.GetId(), self.data)
+        
+
+SERIALEXCEPT = wx.NewEventType()
+EVT_SERIALEXCEPT = wx.PyEventBinder(SERIALEXCEPT, 0)
+class SerialExceptEvent(wx.PyCommandEvent):
+    eventType = SERIALEXCEPT
+    def __init__(self, windowID, param):
+        wx.PyCommandEvent.__init__(self, self.eventType ,windowID)
+        self.param = param
+    
+    def Clone(self):
+        self.__class__(self.GetId(), self.param)
 
 MenuDefs = (
 ('&Operation', (
@@ -81,7 +104,9 @@ class MyApp(wx.App):
 #         self.frame.Bind(wx.EVT_WINDOW_DESTROY, self.Cleanup)
         self.frame.Bind(wx.EVT_CLOSE, self.Cleanup)
 
- 
+        self.Bind(EVT_SERIALRX, self.OnSerialRead)
+        self.Bind(EVT_SERIALEXCEPT, self.OnSerialExcept)
+        
         self.SetTopWindow(self.frame)
         self.frame.Show()
         
@@ -219,22 +244,45 @@ class MyApp(wx.App):
 #             print 'running'
             try:
                 text = self.serialport.read(1)
-            except e:
-                pass    #TODO
-            finally:
-                if text:
-    #                 print ord(text),
-                    n = self.serialport.inWaiting()
-                    if n:
-                        text = text + self.serialport.read(n)
-                    if self.rxmode == ASCII:
-                        self.frame.txtctlMain.AppendText(text)
-                    elif self.rxmode == HEX:
-                        self.frame.txtctlMain.AppendText(''.join(str(ord(t)) + ' ' for t in text))
-    #                 self.frame.txtctlMain.AppendText()
-                    
+            except serial.serialutil.SerialException:
+                evt = SerialExceptEvent(self.frame.GetId(), -1)
+                self.frame.GetEventHandler().AddPendingEvent(evt)
+                print 'thread exit for except'
+                return -1
+
+            if text:
+#                 print ord(text),
+                n = self.serialport.inWaiting()
+                if n:
+                    text = text + self.serialport.read(n)
+
+                if self.rxmode == HEX:
+                    text = ''.join(str(ord(t)) + ' ' for t in text)     # text = ''.join([(c >= ' ') and c or '<%d>' % ord(c)  for c in text])
+                self.frame.txtctlMain.AppendText(text)
+                            
+#                 evt = SerialRxEvent(self.frame.GetId(), text)
+#                 self.frame.GetEventHandler().AddPendingEvent(evt)
         print 'exit thread'
     
+    def OnSerialRead(self, evt):
+        """Handle input from the serial port."""
+        text = evt.data
+        if self.rxmode == HEX:
+            text = ''.join(str(ord(t)) + ' ' for t in text)     # text = ''.join([(c >= ' ') and c or '<%d>' % ord(c)  for c in text])
+        self.frame.txtctlMain.AppendText(text)
+        
+    def OnSerialExcept(self, evt):
+        param = evt.param
+        if param == -1:
+            self.StopThread()
+            self.serialport.close()
+            self.frame.SetTitle('MyTerm')
+            self.frame.btnOpen.SetBackgroundColour(wx.NullColour)
+            self.frame.btnOpen.SetLabel('Open')
+            self.frame.btnOpen.Refresh()
+        else:
+            print 'OnSerialExcept() invalid parameter:%d' % param
+        
     def OnHideSettingBar(self, evt = None):
         self.frame.SplitterWindow.SetSashPosition(1, True)
         
