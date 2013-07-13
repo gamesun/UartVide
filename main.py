@@ -9,6 +9,7 @@ import threading, Queue
 import re
 import serial
 import time
+from wx.lib.wordwrap import wordwrap
 
 SUBMENU   = 0
 MENUITEM  = 1
@@ -55,11 +56,11 @@ MenuDefs = (
     (MENUITEM,  wx.NewId(), 'Show S&etting Bar',  'Show Setting Bar',    'self.OnShowSettingBar' ),
     (CHECKITEM, wx.NewId(), 'Always on top',      'always on most top',  'self.OnAlwayOnTop'     ),
     (CHECKITEM, wx.NewId(), 'Local echo',         'echo what you typed', 'self.OnLocalEcho'  ),
-    (SUBMENU, 'Rx display as', (
+    (SUBMENU, 'Rx view as', (
         (RADIOITEM, wx.NewId(), 'ASCII', '', 'self.OnRxAsciiMode' ),
         (RADIOITEM, wx.NewId(), 'HEX',   '', 'self.OnRxHexMode'   ),
     )),
-    (SUBMENU, 'Tx display as', (
+    (SUBMENU, 'Tx view as', (
         (RADIOITEM, wx.NewId(), 'ASCII', '', 'self.OnTxAsciiMode' ),
         (RADIOITEM, wx.NewId(), 'HEX',   '', 'self.OnTxHexMode'   ),
     )),
@@ -88,6 +89,8 @@ class MyApp(wx.App):
         self.rxmode = ASCII
         self.txmode = ASCII
         self.localEcho = False
+        self.rxCount = 0
+        self.txCount = 0
         
         # Make a menu
         menuBar = wx.MenuBar()
@@ -99,6 +102,7 @@ class MyApp(wx.App):
 
         self.frame.SetMenuBar(menuBar)
         
+        # bind events
         self.frame.btnHideBar.Bind(wx.EVT_BUTTON, self.OnHideSettingBar)
         self.frame.btnOpen.Bind(wx.EVT_BUTTON, self.OnBtnOpen)
         
@@ -262,10 +266,12 @@ class MyApp(wx.App):
                 if self.rxmode == HEX:
                     text = ''.join(str(ord(t)) + ' ' for t in text)     # text = ''.join([(c >= ' ') and c or '<%d>' % ord(c)  for c in text])
                 self.frame.txtctlMain.AppendText(text)
-
+                
                 """Using event to display is slow when the data is too big."""
 #                 evt = SerialRxEvent(self.frame.GetId(), text)
 #                 self.frame.GetEventHandler().AddPendingEvent(evt)
+                self.rxCount += len(text)
+                self.frame.statusbar.SetStatusText('Rx:%d' % self.rxCount, 1)
         print 'exit thread'
     
     def OnSerialRead(self, evt):
@@ -292,6 +298,8 @@ class MyApp(wx.App):
         if self.serialport.isOpen():
             if keycode < 256:
                 self.serialport.write(chr(keycode))
+                self.txCount += 1
+                self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
             else:
                 print "Extra Key:", keycode
         
@@ -318,19 +326,19 @@ class MyApp(wx.App):
     
     def OnRxAsciiMode(self, evt = None):
         self.rxmode = ASCII
-        print 'ra'
+        self.frame.statusbar.SetStatusText('Rx:ASCII', 3)
     
     def OnRxHexMode(self, evt = None):
         self.rxmode = HEX
-        print 'rh'
+        self.frame.statusbar.SetStatusText('Rx:HEX', 3)
         
     def OnTxAsciiMode(self, evt = None):
         self.txmode = ASCII
-        print 'ta'
+        self.frame.statusbar.SetStatusText('Tx:ASCII', 4)
     
     def OnTxHexMode(self, evt = None):
         self.txmode = HEX
-        print 'th'
+        self.frame.statusbar.SetStatusText('Tx:HEX', 4)
 
     def OnAlwayOnTop(self, evt = None):
         if evt.Selection == 1:
@@ -339,7 +347,7 @@ class MyApp(wx.App):
             self.frame.SetWindowStyle( style | wx.STAY_ON_TOP )
         elif evt.Selection == 0:
             style = self.frame.GetWindowStyle()
-            # normal behaviour again
+            # normal behavior again
             self.frame.SetWindowStyle( style & ~wx.STAY_ON_TOP )
     
     def OnLocalEcho(self, evt = None):
@@ -349,7 +357,8 @@ class MyApp(wx.App):
             self.localEcho = False
         
     def OnAbout(self, evt = None):
-        pass
+        AboutPanel(self.frame).OnShow()
+        
     
     def OnExitApp(self, evt = None):
         self.frame.Close(True)      # send EVT_CLOSE
@@ -365,6 +374,27 @@ class MyApp(wx.App):
                 assert not self.thread.is_alive(), "the thread should be dead but isn't!"
 #             self.threadCommunicate.terminate()
 
+class AboutPanel(wx.Panel):
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent, -1)
+
+    def OnShow(self):
+        # First we create and fill the info object
+        info = wx.AboutDialogInfo()
+        info.Name = "MyTerm"
+        info.Version = "1.0"
+        info.Copyright = "(C) 2013 Programmers and Coders Everywhere"
+        info.Description = wordwrap(
+            '\nMyTerm offer a great solution for RS232 serial port communication.'
+            '\n\nIts other features including receiving data from serial ports and '
+            'viewing it in ASCII text or hexadecimal formats, echoing the sending data in local.',
+            350, wx.ClientDC(self))
+        info.WebSite = ("https://github.com/gamesun/MyTerm", "\n\nMyTerm \n\nHome Page")
+        info.Developers = [ "sun.yt" ]
+        info.License = wordwrap("Copywrong All Lefts Unreserved.", 500, wx.ClientDC(self))
+
+        # Then we call wx.AboutBox giving it that info object
+        wx.AboutBox(info)
         
 if __name__ == '__main__':
     app = MyApp(0)
