@@ -10,6 +10,8 @@ import re
 import serial
 import time
 from wx.lib.wordwrap import wordwrap
+import _winreg as winreg
+import itertools
 
 SUBMENU   = 0
 MENUITEM  = 1
@@ -45,6 +47,24 @@ class SerialExceptEvent(wx.PyCommandEvent):
     def Clone(self):
         self.__class__(self.GetId(), self.param)
 
+def EnumerateSerialPorts():
+    """ Uses the Win32 registry to return an 
+        iterator of serial (COM) ports 
+        existing on this computer.
+    """
+    path = r'HARDWARE\DEVICEMAP\SERIALCOMM'
+    try:
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, path)
+    except WindowsError:
+        raise IterationError
+    
+    for i in itertools.count():
+        try:
+            val = winreg.EnumValue(key, i)
+            yield str(val[1])
+        except EnvironmentError:
+            break
+            
 MenuDefs = (
 ('&Operation', (
     (MENUITEM,  wx.NewId(), '&Open Port',         'Open the Port' ,     'self.OnOpenPort'  ),
@@ -71,7 +91,7 @@ MenuDefs = (
 ))
 )
 
-regex_matchPort = re.compile('(?P<port>\d+)')
+regex_matchPort = re.compile('COM(?P<port>\d+)')
 
 
 class MyApp(wx.App):
@@ -81,8 +101,10 @@ class MyApp(wx.App):
         self.frame.SplitterWindow.SetSashSize(0)
         self.frame.SplitterWindow.SetSashPosition(160, True)
         
-        self.frame.chiocePort.AppendItems(('COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8'))
-        self.frame.chiocePort.Select(2)
+#         self.frame.choicePort.AppendItems(('COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8'))
+
+        self.OnEnumPorts()
+        self.frame.choicePort.Select(0)
 
         # initial variables
         self.serialport = serial.Serial()
@@ -105,6 +127,7 @@ class MyApp(wx.App):
         # bind events
         self.frame.btnHideBar.Bind(wx.EVT_BUTTON, self.OnHideSettingBar)
         self.frame.btnOpen.Bind(wx.EVT_BUTTON, self.OnBtnOpen)
+        self.frame.btnEnumPorts.Bind(wx.EVT_BUTTON, self.OnEnumPorts)
         
 #         self.frame.Bind(wx.EVT_WINDOW_DESTROY, self.Cleanup)
         self.frame.Bind(wx.EVT_CLOSE, self.Cleanup)
@@ -124,7 +147,7 @@ class MyApp(wx.App):
         return True
 
     def GetPort(self):
-        r = regex_matchPort.search(self.frame.chiocePort.GetLabelText())
+        r = regex_matchPort.search(self.frame.choicePort.GetLabelText())
         if r:
             return int(r.group('port')) - 1
         return
@@ -183,7 +206,12 @@ class MyApp(wx.App):
             for i in args[2:][0]:
                 self.MakeMenu(submenu, i)
             menu.AppendSubMenu(submenu, args[1])
-            
+
+    def OnEnumPorts(self, evt = None):
+        self.frame.choicePort.Clear()
+        for p in EnumerateSerialPorts():
+            self.frame.choicePort.AppendItems((p,))
+        
     def OnBtnOpen(self, evt = None):
         if self.serialport.isOpen():
             self.OnClosePort(evt)
@@ -386,10 +414,11 @@ class AboutPanel(wx.Panel):
         info.Copyright = "(C) 2013 Programmers and Coders Everywhere"
         info.Description = wordwrap(
             '\nMyTerm offer a great solution for RS232 serial port communication.'
-            '\n\nIts other features including receiving data from serial ports and '
-            'viewing it in ASCII text or hexadecimal formats, echoing the sending data in local.',
+            '\n\nIts other features including detecting the valid serial ports, '
+            'receiving data from serial ports and viewing it in ASCII text or hexadecimal formats, '
+            'echoing the sending data in local or not.',
             350, wx.ClientDC(self))
-        info.WebSite = ("https://github.com/gamesun/MyTerm", "\n\nMyTerm \n\nHome Page")
+        info.WebSite = ("https://github.com/gamesun/MyTerm", "MyTerm Home Page")
         info.Developers = [ "sun.yt" ]
         info.License = wordwrap("Copywrong All Lefts Unreserved.", 500, wx.ClientDC(self))
 
