@@ -54,7 +54,7 @@ MenuDefs = (
 ('&Display', (
     (MENUITEM,  wx.NewId(), 'Show S&etting Bar',  'Show Setting Bar',    'self.OnShowSettingBar' ),
     (CHECKITEM, wx.NewId(), 'Always on top',      'always on most top',  'self.OnAlwayOnTop'     ),
-    (CHECKITEM, wx.NewId(), 'Local echo',         'echo what you typed', 'self.OnShowStatusBar'  ),
+    (CHECKITEM, wx.NewId(), 'Local echo',         'echo what you typed', 'self.OnLocalEcho'  ),
     (SUBMENU, 'Rx display as', (
         (RADIOITEM, wx.NewId(), 'ASCII', '', 'self.OnRxAsciiMode' ),
         (RADIOITEM, wx.NewId(), 'HEX',   '', 'self.OnRxHexMode'   ),
@@ -87,6 +87,7 @@ class MyApp(wx.App):
         self.serialport = serial.Serial()
         self.rxmode = ASCII
         self.txmode = ASCII
+        self.localEcho = False
         
         # Make a menu
         menuBar = wx.MenuBar()
@@ -106,9 +107,11 @@ class MyApp(wx.App):
 
         self.Bind(EVT_SERIALRX, self.OnSerialRead)
         self.Bind(EVT_SERIALEXCEPT, self.OnSerialExcept)
+        self.frame.txtctlMain.Bind(wx.EVT_CHAR, self.OnSerialWrite)
         
         self.SetTopWindow(self.frame)
         self.frame.Show()
+        
         
         self.evtPortOpen = threading.Event()
         self.rxQueue = Queue.Queue()
@@ -259,7 +262,8 @@ class MyApp(wx.App):
                 if self.rxmode == HEX:
                     text = ''.join(str(ord(t)) + ' ' for t in text)     # text = ''.join([(c >= ' ') and c or '<%d>' % ord(c)  for c in text])
                 self.frame.txtctlMain.AppendText(text)
-                            
+
+                """Using event to display is slow when the data is too big."""
 #                 evt = SerialRxEvent(self.frame.GetId(), text)
 #                 self.frame.GetEventHandler().AddPendingEvent(evt)
         print 'exit thread'
@@ -270,6 +274,26 @@ class MyApp(wx.App):
         if self.rxmode == HEX:
             text = ''.join(str(ord(t)) + ' ' for t in text)     # text = ''.join([(c >= ' ') and c or '<%d>' % ord(c)  for c in text])
         self.frame.txtctlMain.AppendText(text)
+        
+    def OnSerialWrite(self, evt = None):
+        keycode = evt.GetKeyCode()
+#         controlDown = evt.CmdDown()
+#         altDown = evt.AltDown()
+#         shiftDown = evt.ShiftDown()
+ 
+        print keycode,
+#         if keycode == wx.WXK_SPACE:
+#             print "you pressed the spacebar!"
+#         elif controlDown and altDown:
+#             print keycode
+        if self.localEcho:
+            evt.Skip()
+            
+        if self.serialport.isOpen():
+            if keycode < 256:
+                self.serialport.write(chr(keycode))
+            else:
+                print "Extra Key:", keycode
         
     def OnSerialExcept(self, evt):
         param = evt.param
@@ -318,6 +342,12 @@ class MyApp(wx.App):
             # normal behaviour again
             self.frame.SetWindowStyle( style & ~wx.STAY_ON_TOP )
     
+    def OnLocalEcho(self, evt = None):
+        if evt.Selection == 1:
+            self.localEcho = True
+        elif evt.Selection == 0:
+            self.localEcho = False
+        
     def OnAbout(self, evt = None):
         pass
     
