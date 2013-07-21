@@ -73,12 +73,12 @@ MenuDefs = (
     (MENUITEM,  wx.NewId(), '&Exit MyTerm',       'Exit this tool',     'self.OnExitApp'   ),
 )),
 ('&Display', (
-    (MENUITEM,  wx.NewId(), 'Show S&etting Bar',  'Show Setting Bar',    'self.OnShowSettingBar' ),
-    (CHECKITEM, wx.NewId(), 'Always on top',      'always on most top',  'self.OnAlwayOnTop'     ),
-    (CHECKITEM, wx.NewId(), 'Local echo',         'echo what you typed', 'self.OnLocalEcho'  ),
-    (SUBMENU, 'Rx view as', (
-        (RADIOITEM, wx.NewId(), 'ASCII', '', 'self.OnRxAsciiMode' ),
-        (RADIOITEM, wx.NewId(), 'HEX',   '', 'self.OnRxHexMode'   ),
+    (MENUITEM,  wx.NewId(), '&Show Setting Bar',  'Show Setting Bar',    'self.OnShowSettingBar' ),
+    (CHECKITEM, wx.NewId(), '&Always on top',      'always on most top',  'self.OnAlwayOnTop'     ),
+    (CHECKITEM, wx.NewId(), '&Local echo',         'echo what you typed', 'self.OnLocalEcho'  ),
+    (SUBMENU, '&Rx view as', (
+        (RADIOITEM, wx.NewId(), '&Ascii', '', 'self.OnRxAsciiMode' ),
+        (RADIOITEM, wx.NewId(), '&Hex',   '', 'self.OnRxHexMode'   ),
     )),
 #     (SUBMENU, 'Tx view as', (
 #         (RADIOITEM, wx.NewId(), 'ASCII', '', 'self.OnTxAsciiMode' ),
@@ -354,19 +354,19 @@ class MyApp(wx.App):
     
     def OnRxAsciiMode(self, evt = None):
         self.rxmode = ASCII
-        self.frame.statusbar.SetStatusText('Rx:ASCII', 3)
+        self.frame.statusbar.SetStatusText('Rx:Ascii', 3)
     
     def OnRxHexMode(self, evt = None):
         self.rxmode = HEX
-        self.frame.statusbar.SetStatusText('Rx:HEX', 3)
+        self.frame.statusbar.SetStatusText('Rx:Hex', 3)
         
     def OnTxAsciiMode(self, evt = None):
         self.txmode = ASCII
-        self.frame.statusbar.SetStatusText('Tx:ASCII', 4)
+        self.frame.statusbar.SetStatusText('Tx:Ascii', 4)
     
     def OnTxHexMode(self, evt = None):
         self.txmode = HEX
-        self.frame.statusbar.SetStatusText('Tx:HEX', 4)
+        self.frame.statusbar.SetStatusText('Tx:Hex', 4)
 
     def OnAlwayOnTop(self, evt = None):
         if evt.Selection == 1:
@@ -381,8 +381,10 @@ class MyApp(wx.App):
     def OnLocalEcho(self, evt = None):
         if evt.Selection == 1:
             self.localEcho = True
+            self.frame.statusbar.SetStatusText('Local echo:On', 4)
         elif evt.Selection == 0:
             self.localEcho = False
+            self.frame.statusbar.SetStatusText('Local echo:Off', 4)
         
     def OnAbout(self, evt = None):
         AboutPanel(self.frame).OnShow()
