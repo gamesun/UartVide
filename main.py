@@ -80,10 +80,10 @@ MenuDefs = (
         (RADIOITEM, wx.NewId(), 'ASCII', '', 'self.OnRxAsciiMode' ),
         (RADIOITEM, wx.NewId(), 'HEX',   '', 'self.OnRxHexMode'   ),
     )),
-    (SUBMENU, 'Tx view as', (
-        (RADIOITEM, wx.NewId(), 'ASCII', '', 'self.OnTxAsciiMode' ),
-        (RADIOITEM, wx.NewId(), 'HEX',   '', 'self.OnTxHexMode'   ),
-    )),
+#     (SUBMENU, 'Tx view as', (
+#         (RADIOITEM, wx.NewId(), 'ASCII', '', 'self.OnTxAsciiMode' ),
+#         (RADIOITEM, wx.NewId(), 'HEX',   '', 'self.OnTxHexMode'   ),
+#     )),
 #     (CHECKITEM, wx.NewId(), 'S&tatus Bar',        'Show Status Bar',    'self.OnShowStatusBar'  ),
 )),
 ('&Help', (
