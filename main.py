@@ -70,12 +70,12 @@ MenuDefs = (
     (MENUITEM,  wx.NewId(), '&Open Port',         'Open the Port' ,     'self.OnOpenPort'  ),
     (MENUITEM,  wx.NewId(), '&Close Port',        'Close the Port',     'self.OnClosePort' ),
     (SEPARATOR,),
-    (MENUITEM,  wx.NewId(), '&Exit MyTerm',       'Exit this tool',     'self.OnExitApp'   ),
+    (MENUITEM,  wx.NewId(), '&Exit MyTerm',       'Exit MyTerm',        'self.OnExitApp'   ),
 )),
 ('&Display', (
     (MENUITEM,  wx.NewId(), '&Show Setting Bar',  'Show Setting Bar',    'self.OnShowSettingBar' ),
-    (CHECKITEM, wx.NewId(), '&Always on top',      'always on most top',  'self.OnAlwayOnTop'     ),
-    (CHECKITEM, wx.NewId(), '&Local echo',         'echo what you typed', 'self.OnLocalEcho'  ),
+    (CHECKITEM, wx.NewId(), '&Always on top',     'always on most top',  'self.OnAlwayOnTop'     ),
+    (CHECKITEM, wx.NewId(), '&Local echo',        'echo what you typed', 'self.OnLocalEcho'      ),
     (SUBMENU, '&Rx view as', (
         (RADIOITEM, wx.NewId(), '&Ascii', '', 'self.OnRxAsciiMode' ),
         (RADIOITEM, wx.NewId(), '&Hex',   '', 'self.OnRxHexMode'   ),
