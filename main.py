@@ -52,11 +52,24 @@ def EnumerateSerialPorts():
         iterator of serial (COM) ports 
         existing on this computer.
     """
-    path = r'HARDWARE\DEVICEMAP\SERIALCOMM'
+    pathDevi = r'HARDWARE\DEVICEMAP'
     try:
-        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, path)
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, pathDevi)
     except WindowsError:
-        raise IterationError
+        # failed in reading registry.
+        # return COM1 ~ COM16
+        for i in range(1, 17):
+            yield "COM" + str(i)
+        return
+
+    pathCOMM = r'HARDWARE\DEVICEMAP\SERIALCOMM'
+    try:
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, pathCOMM)
+    except WindowsError:
+        # when getting none serial port, 
+        # SERIALCOMM is not exist in "HARDWARE\DEVICEMAP\".
+        # return nothing.
+        return
     
     for i in itertools.count():
         try:
