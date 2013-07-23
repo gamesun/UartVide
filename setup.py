@@ -87,7 +87,7 @@ MyTerm_windows = Target(
     # what to build
     script = "main.py",
     dest_base = "MyTerm",
-#     icon_resources = [(1, "icon.ico")],
+    icon_resources = [(1, "icon.ico")],
     other_resources= [(RT_MANIFEST, 1, manifest_template)]
 )
 
