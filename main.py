@@ -437,6 +437,8 @@ class AboutPanel(wx.Panel):
         info.Developers = [ "sun.yt" ]
         info.License = wordwrap("Copywrong All Lefts Unreserved.", 500, wx.ClientDC(self))
 
+        info.Icon = wx.Icon("icon.ico", wx.BITMAP_TYPE_ICO)
+
         # Then we call wx.AboutBox giving it that info object
         wx.AboutBox(info)
         
