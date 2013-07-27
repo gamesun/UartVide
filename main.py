@@ -13,11 +13,12 @@ from wx.lib.wordwrap import wordwrap
 import _winreg as winreg
 import itertools
 
-SUBMENU   = 0
-MENUITEM  = 1
-CHECKITEM = 2
-SEPARATOR = 3
-RADIOITEM = 4
+MAINMENU  = 0
+SUBMENU   = 1
+MENUITEM  = 2
+CHECKITEM = 3
+SEPARATOR = 4
+RADIOITEM = 5
 
 ASCII = 0
 HEX   = 1
@@ -79,6 +80,7 @@ def EnumerateSerialPorts():
             break
             
 MenuDefs = (
+MAINMENU,
 ('&Operation', (
     (MENUITEM,  wx.NewId(), '&Open Port',         'Open the Port' ,     'self.OnOpenPort'  ),
     (MENUITEM,  wx.NewId(), '&Close Port',        'Close the Port',     'self.OnClosePort' ),
@@ -129,12 +131,7 @@ class MyApp(wx.App):
         
         # Make a menu
         menuBar = wx.MenuBar()
-        for m in MenuDefs:
-            menu = wx.Menu()
-            for k in m[1]:
-                self.MakeMenu(menu, k)
-            menuBar.Append(menu, m[0])
-
+        self.MakeMenu(menuBar, MenuDefs)
         self.frame.SetMenuBar(menuBar)
         
         # bind events
@@ -201,9 +198,8 @@ class MyApp(wx.App):
         elif s == '2': 
             return serial.STOPBITS_TWO
             
-    def MakeMenu(self, menu, args = ()):
-#         print args
-        if args[0] == 1:
+    def MakeMenu(self, menuBar, args, menu = None):
+        if args[0] == MENUITEM:
             menu.Append(args[1], args[2], args[3])
             eval('self.frame.Bind(wx.EVT_MENU,' + args[4] + ', id = args[1])')
         elif args[0] == CHECKITEM:
@@ -217,8 +213,14 @@ class MyApp(wx.App):
         elif args[0] == SUBMENU:
             submenu = wx.Menu() 
             for i in args[2:][0]:
-                self.MakeMenu(submenu, i)
+                self.MakeMenu(menuBar, i, submenu)
             menu.AppendSubMenu(submenu, args[1])
+        elif args[0] == MAINMENU:
+            for a in args[1:]:
+                m = wx.Menu()
+                for i in a[1]:
+                    self.MakeMenu(menuBar, i, m)
+                menuBar.Append(m, a[0])
 
     def OnEnumPorts(self, evt = None):
         self.frame.choicePort.Clear()
