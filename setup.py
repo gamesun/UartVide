@@ -14,7 +14,7 @@ manifestVersion="1.0">
 <assemblyIdentity
 version="0.6.8.0"
 processorArchitecture="x86"
-name="YourApp"
+name="MyTerm"
 type="win32"
 />
 <description>MyTerm</description>
@@ -60,8 +60,8 @@ myOptions = {
         "compressed": 1,
         "optimize": 2,
         "ascii": 1,
-#         "includes":includes,
-        "dll_excludes": ["MSVCP90.dll"],
+        "includes":['icon\icon16.ico'],
+        "dll_excludes": ["MSVCP90.dll","w9xpopen.exe"],
         "bundle_files": 2
      }
 }
@@ -76,7 +76,6 @@ MyTerm_windows = Target(
     # used for the versioninfo resource
     copyright = "(C) 2013 Programmers and Coders Everywhere",
     company_name = "No company",
-    fullname = 'fn',
     name = 'MyTerm',
     version = '1.0',
     description = 'MyTerm',
@@ -87,19 +86,14 @@ MyTerm_windows = Target(
     # what to build
     script = "main.py",
     dest_base = "MyTerm",
-    icon_resources = [(1, "icon.ico")],
+    icon_resources = [(1, "icon\icon.ico")],
     other_resources= [(RT_MANIFEST, 1, manifest_template)]
 )
 
 setup(
     options = myOptions,
 #     zipfile = None,
-#     name = 'MyTerm',
-#     version = '1.0',
-#     description = 'MyTerm',
-#     long_description = 'MyTerm offer a great solution for RS232 serial port communication.',
-#     author = 'gamesun',
-#     url = r'https://github.com/gamesun/MyTerm',
 #     zipfile = "lib/shared.zip",
+#    data_files = [('', ['icon\icon16.ico',])],
     windows = [MyTerm_windows]
 )
