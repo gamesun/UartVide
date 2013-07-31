@@ -12,6 +12,8 @@ import time
 from wx.lib.wordwrap import wordwrap
 import _winreg as winreg
 import itertools
+import icon16
+import icon32
 
 MAINMENU  = 0
 SUBMENU   = 1
@@ -112,6 +114,10 @@ regex_matchPort = re.compile('COM(?P<port>\d+)')
 class MyApp(wx.App):
     def OnInit(self):
         self.frame = ui.MyFrame(None, wx.ID_ANY, "")
+        
+        self.frame.SetIcon(icon16.geticon16Icon())
+#         self.frame.SetIcon(wx.Icon("icon\icon16.ico", wx.BITMAP_TYPE_ICO, 16, 16))
+        
         
         self.frame.SplitterWindow.SetSashSize(0)
         self.frame.SplitterWindow.SetSashPosition(160, True)
@@ -439,7 +445,7 @@ class AboutPanel(wx.Panel):
         info.Developers = [ "sun.yt" ]
         info.License = wordwrap("Copywrong All Lefts Unreserved.", 500, wx.ClientDC(self))
 
-        info.Icon = wx.Icon("icon.ico", wx.BITMAP_TYPE_ICO)
+        info.Icon = icon32.geticon32Icon()
 
         # Then we call wx.AboutBox giving it that info object
         wx.AboutBox(info)
