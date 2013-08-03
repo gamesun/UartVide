@@ -3,6 +3,9 @@
 from distutils.core import setup
 import sys
 import py2exe
+import os
+import glob
+from py2exe.build_exe import py2exe as build_exe
 
 if len(sys.argv) == 1:
     sys.argv.append("py2exe")
@@ -54,6 +57,35 @@ language="*"
 </assembly>
 ''' 
 
+CONTENT_DIRS = [ "media" ]
+# EXTRA_FILES = [ "./media/icon16.ico", "./media/icon32.ico" ]
+EXTRA_FILES = []
+
+class MediaCollector(build_exe):
+    def addDirectoryToZip(self, folder):
+        full = os.path.join(self.collect_dir, folder)
+        if not os.path.exists(full):
+            self.mkpath(full)
+
+        for f in glob.glob("%s/*" % folder):
+            if os.path.isdir(f):
+                self.addDirectoryToZip(f)
+            else:
+                name = os.path.basename(f)
+                self.copy_file(f, os.path.join(full, name))
+                self.compiled_files.append(os.path.join(folder, name))
+
+    def copy_extensions(self, extensions):
+        #super(MediaCollector, self).copy_extensions(extensions)
+        build_exe.copy_extensions(self, extensions)
+
+        for folder in CONTENT_DIRS:
+            self.addDirectoryToZip(folder)
+
+        for fileName in EXTRA_FILES:
+            name = os.path.basename(fileName)
+            self.copy_file(fileName, os.path.join(self.collect_dir, name))
+            self.compiled_files.append(name)
 
 myOptions = {
     "py2exe":{
@@ -62,6 +94,7 @@ myOptions = {
         "ascii": 1,
 #         "includes":,
         "dll_excludes": ["MSVCP90.dll","w9xpopen.exe"],
+#         "packages": ["pkg_resources"],
         "bundle_files": 2
      }
 }
@@ -90,6 +123,7 @@ MyTerm_windows = Target(
 
 setup(
     options = myOptions,
+    cmdclass= {'py2exe': MediaCollector},
 #     zipfile = None,
 #     zipfile = "lib/shared.zip",
 #    data_files = [('', ['icon\icon16.ico',])],
