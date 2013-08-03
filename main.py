@@ -3,17 +3,18 @@
 #import sys,os
 import wx
 import GUI as ui
-# import multiprocessing
-import threading, Queue
-# import UartProcess
+import threading
 import re
 import serial
-import time
+# import time
 from wx.lib.wordwrap import wordwrap
 import _winreg as winreg
 import itertools
-import icon16
 import icon32
+import pkg_resources
+import zipfile
+from cStringIO import StringIO
+
 
 MAINMENU  = 0
 SUBMENU   = 1
@@ -114,10 +115,18 @@ regex_matchPort = re.compile('COM(?P<port>\d+)')
 class MyApp(wx.App):
     def OnInit(self):
         self.frame = ui.MyFrame(None, wx.ID_ANY, "")
+
+        my_data = pkg_resources.resource_string(__name__,"library.zip")
+        filezip = StringIO(my_data)
+        zip = zipfile.ZipFile(filezip)
+        data = zip.read("media/icon16.ico")
+#         self.frame.SetIcon(icon16.geticon16Icon())
         
-        self.frame.SetIcon(icon16.geticon16Icon())
-#         self.frame.SetIcon(wx.Icon("icon\icon16.ico", wx.BITMAP_TYPE_ICO, 16, 16))
+        icon = wx.EmptyIcon()
+        icon.CopyFromBitmap(wx.ImageFromStream(StringIO(data), wx.BITMAP_TYPE_ICO).ConvertToBitmap())
+        self.frame.SetIcon(icon)
         
+#         self.frame.SetIcon(wx.Icon("media\icon16.ico", wx.BITMAP_TYPE_ICO, 16, 16))
         
         self.frame.SplitterWindow.SetSashSize(0)
         self.frame.SplitterWindow.SetSashPosition(160, True)
@@ -155,10 +164,9 @@ class MyApp(wx.App):
         self.SetTopWindow(self.frame)
         self.frame.Show()
         
-        
         self.evtPortOpen = threading.Event()
-        self.rxQueue = Queue.Queue()
-        self.txQueue = Queue.Queue()
+#         self.rxQueue = Queue.Queue()
+#         self.txQueue = Queue.Queue()
         
         return True
 
@@ -408,8 +416,25 @@ class MyApp(wx.App):
             self.frame.statusbar.SetStatusText('Local echo:Off', 4)
         
     def OnAbout(self, evt = None):
-        AboutPanel(self.frame).OnShow()
-        
+        # First we create and fill the info object
+        info = wx.AboutDialogInfo()
+        info.Name = "MyTerm"
+        info.Version = "1.1"
+        info.Copyright = "Copywrong All Lefts Unreserved."
+        info.Description = wordwrap(
+            '\nMyTerm offer a great solution for RS232 serial port communication.'
+            '\n\nIts other features including detecting the valid serial ports, '
+            'receiving data from serial ports and viewing it in ASCII text or hexadecimal formats, '
+            'echoing the sending data in local or not.',
+            350, wx.ClientDC(self.frame))
+        info.WebSite = ("https://github.com/gamesun/MyTerm#myterm", "MyTerm Home Page")
+        info.Developers = [ "sun.yt" ]
+        info.License = wordwrap("(C) 2013 Programmers and Coders Everywhere", 500, wx.ClientDC(self.frame))
+
+        info.Icon = icon32.geticon32Icon()
+
+        # Then we call wx.AboutBox giving it that info object
+        wx.AboutBox(info)
     
     def OnExitApp(self, evt = None):
         self.frame.Close(True)      # send EVT_CLOSE
@@ -425,30 +450,6 @@ class MyApp(wx.App):
                 assert not self.thread.is_alive(), "the thread should be dead but isn't!"
 #             self.threadCommunicate.terminate()
 
-class AboutPanel(wx.Panel):
-    def __init__(self, parent):
-        wx.Panel.__init__(self, parent, -1)
-
-    def OnShow(self):
-        # First we create and fill the info object
-        info = wx.AboutDialogInfo()
-        info.Name = "MyTerm"
-        info.Version = "1.0"
-        info.Copyright = "(C) 2013 Programmers and Coders Everywhere"
-        info.Description = wordwrap(
-            '\nMyTerm offer a great solution for RS232 serial port communication.'
-            '\n\nIts other features including detecting the valid serial ports, '
-            'receiving data from serial ports and viewing it in ASCII text or hexadecimal formats, '
-            'echoing the sending data in local or not.',
-            350, wx.ClientDC(self))
-        info.WebSite = ("https://github.com/gamesun/MyTerm", "MyTerm Home Page")
-        info.Developers = [ "sun.yt" ]
-        info.License = wordwrap("Copywrong All Lefts Unreserved.", 500, wx.ClientDC(self))
-
-        info.Icon = icon32.geticon32Icon()
-
-        # Then we call wx.AboutBox giving it that info object
-        wx.AboutBox(info)
         
 if __name__ == '__main__':
     app = MyApp(0)
