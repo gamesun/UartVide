@@ -27,18 +27,6 @@ HEX   = 1
 
 THREAD_TIMEOUT = 0.5
 
-SERIALRX = wx.NewEventType()                    # Create an own event type
-EVT_SERIALRX = wx.PyEventBinder(SERIALRX, 0)    # bind to serial data receive events
-class SerialRxEvent(wx.PyCommandEvent):
-    eventType = SERIALRX
-    def __init__(self, windowID, data):
-        wx.PyCommandEvent.__init__(self, self.eventType, windowID)
-        self.data = data
-
-    def Clone(self):
-        self.__class__(self.GetId(), self.data)
-        
-
 SERIALEXCEPT = wx.NewEventType()
 EVT_SERIALEXCEPT = wx.PyEventBinder(SERIALEXCEPT, 0)
 class SerialExceptEvent(wx.PyCommandEvent):
@@ -164,11 +152,11 @@ class MyApp(wx.App):
         self.frame.btnHideBar.Bind(wx.EVT_BUTTON, self.OnHideSettingBar)
         self.frame.btnOpen.Bind(wx.EVT_BUTTON, self.OnBtnOpen)
         self.frame.btnEnumPorts.Bind(wx.EVT_BUTTON, self.OnEnumPorts)
+        self.frame.btnClear.Bind(wx.EVT_BUTTON, self.OnClear)
         
 #         self.frame.Bind(wx.EVT_WINDOW_DESTROY, self.Cleanup)
         self.frame.Bind(wx.EVT_CLOSE, self.Cleanup)
 
-        self.Bind(EVT_SERIALRX, self.OnSerialRead)
         self.Bind(EVT_SERIALEXCEPT, self.OnSerialExcept)
         self.frame.txtctlMain.Bind(wx.EVT_KEY_DOWN, self.OnSerialWrite)
         
@@ -180,6 +168,13 @@ class MyApp(wx.App):
 #         self.txQueue = Queue.Queue()
         
         return True
+        
+    def OnClear(self, evt = None):
+        self.frame.txtctlMain.Clear()
+        self.rxCount = 0
+        self.txCount = 0
+        self.frame.statusbar.SetStatusText('Rx:%d' % self.rxCount, 1)
+        self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
         
     def OnSave(self, evt = None):
         dlg = wx.FileDialog(self.frame,
@@ -353,7 +348,14 @@ class MyApp(wx.App):
 
                 if self.rxmode == HEX:
                     text = ''.join(str(ord(t)) + ' ' for t in text)     # text = ''.join([(c >= ' ') and c or '<%d>' % ord(c)  for c in text])
-                self.frame.txtctlMain.AppendText(text)
+                    self.frame.txtctlMain.AppendText(text)
+                else:
+                    for t in text:
+                        if t == chr(wx.WXK_BACK):
+                            pass
+#                             self.frame.txtctlMain.EmulateKeyPress(evt.Clone(wx.))
+                        else:
+                            self.frame.txtctlMain.AppendText(t)
                 
                 """Using event to display is slow when the data is too big."""
 #                 evt = SerialRxEvent(self.frame.GetId(), text)
@@ -361,13 +363,6 @@ class MyApp(wx.App):
                 self.rxCount += len(text)
                 self.frame.statusbar.SetStatusText('Rx:%d' % self.rxCount, 1)
         print 'exit thread'
-    
-    def OnSerialRead(self, evt):
-        """Handle input from the serial port."""
-        text = evt.data
-        if self.rxmode == HEX:
-            text = ''.join(str(ord(t)) + ' ' for t in text)     # text = ''.join([(c >= ' ') and c or '<%d>' % ord(c)  for c in text])
-        self.frame.txtctlMain.AppendText(text)
         
     def OnSerialWrite(self, evt = None):
         keycode = evt.GetKeyCode()
