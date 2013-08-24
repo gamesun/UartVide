@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-#import sys,os
+import sys
 import wx
 import GUI as ui
 import threading
@@ -14,7 +14,6 @@ import icon32
 import pkg_resources
 import zipfile
 from cStringIO import StringIO
-
 
 MAINMENU  = 0
 SUBMENU   = 1
@@ -51,36 +50,45 @@ class SerialExceptEvent(wx.PyCommandEvent):
     def Clone(self):
         self.__class__(self.GetId(), self.param)
 
-def EnumerateSerialPorts():
-    """ Uses the Win32 registry to return an 
-        iterator of serial (COM) ports 
-        existing on this computer.
-    """
-    pathDevi = r'HARDWARE\DEVICEMAP'
-    try:
-        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, pathDevi)
-    except WindowsError:
-        # failed in reading registry.
-        # return COM1 ~ COM16
-        for i in range(1, 17):
-            yield "COM" + str(i)
-        return
-
-    pathCOMM = r'HARDWARE\DEVICEMAP\SERIALCOMM'
-    try:
-        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, pathCOMM)
-    except WindowsError:
-        # when getting none serial port, 
-        # SERIALCOMM is not exist in "HARDWARE\DEVICEMAP\".
-        # return nothing.
-        return
-    
-    for i in itertools.count():
+regex_matchTTY = re.compile('/tty/(?P<tty>\w+)')
+def EnumerateSerialPorts(): 
+    if sys.platform == 'win32':
+        """ Uses the Win32 registry to return an 
+            iterator of serial (COM) ports 
+            existing on this computer.
+        """
+        pathDevi = r'HARDWARE\DEVICEMAP'
         try:
-            val = winreg.EnumValue(key, i)
-            yield str(val[1])
-        except EnvironmentError:
-            break
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, pathDevi)
+        except WindowsError:
+            # failed in reading registry.
+            # return COM1 ~ COM16
+            for i in range(1, 17):
+                yield "COM" + str(i)
+            return
+
+        pathCOMM = r'HARDWARE\DEVICEMAP\SERIALCOMM'
+        try:
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, pathCOMM)
+        except WindowsError:
+            # when getting none serial port, 
+            # SERIALCOMM is not exist in "HARDWARE\DEVICEMAP\".
+            # return nothing.
+            return
+        
+        for i in itertools.count():
+            try:
+                val = winreg.EnumValue(key, i)
+                yield str(val[1])
+            except EnvironmentError:
+                break
+    elif sys.platform.startswith('linux'):
+        for t in glob.glob('/sys/class/tty/*/device/driver'):
+            r = regex_matchTTY.search(t)
+            if r:
+                yield '/dev/%s' % r.group('tty') 
+
+        
             
 MenuDefs = (
 MAINMENU,
@@ -177,7 +185,7 @@ class MyApp(wx.App):
         return
 
     def GetBaudRate(self):
-        return int(self.frame.cmbBaudRate.GetLabelText())
+        return int(self.frame.cmbBaudRate.GetValue())
 
     def GetDataBits(self):
         s = self.frame.choiceDataBits.GetLabelText()
