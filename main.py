@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-import sys
+import sys, os
 import wx
 import GUI as ui
 import threading
@@ -92,11 +92,14 @@ def EnumerateSerialPorts():
             
 MenuDefs = (
 MAINMENU,
-('&Operation', (
-    (MENUITEM,  wx.NewId(), '&Open Port',         'Open the Port' ,     'self.OnOpenPort'  ),
-    (MENUITEM,  wx.NewId(), '&Close Port',        'Close the Port',     'self.OnClosePort' ),
+('&File', (
+    (MENUITEM,  wx.NewId(), '&Save',              'Save to a file' ,    'self.OnSave'      ),
     (SEPARATOR,),
     (MENUITEM,  wx.NewId(), '&Exit MyTerm',       'Exit MyTerm',        'self.OnExitApp'   ),
+)),
+('&Port', (
+    (MENUITEM,  wx.NewId(), '&Open',              'Open the Port' ,     'self.OnOpenPort'  ),
+    (MENUITEM,  wx.NewId(), '&Close',             'Close the Port',     'self.OnClosePort' ),
 )),
 ('&Display', (
     (MENUITEM,  wx.NewId(), '&Show Setting Bar',  'Show Setting Bar',    'self.OnShowSettingBar' ),
@@ -167,7 +170,7 @@ class MyApp(wx.App):
 
         self.Bind(EVT_SERIALRX, self.OnSerialRead)
         self.Bind(EVT_SERIALEXCEPT, self.OnSerialExcept)
-        self.frame.txtctlMain.Bind(wx.EVT_CHAR, self.OnSerialWrite)
+        self.frame.txtctlMain.Bind(wx.EVT_KEY_DOWN, self.OnSerialWrite)
         
         self.SetTopWindow(self.frame)
         self.frame.Show()
@@ -177,7 +180,27 @@ class MyApp(wx.App):
 #         self.txQueue = Queue.Queue()
         
         return True
+        
+    def OnSave(self, evt = None):
+        dlg = wx.FileDialog(self.frame,
+                            message="Save file as ...",
+                            defaultDir = os.getcwd(),
+                            wildcard = "Text Files|*.txt",
+                            style = wx.SAVE | wx.CHANGE_DIR)
 
+        if dlg.ShowModal() == wx.ID_OK:
+            path = dlg.GetPath()
+            print "You selected %s\n" % path,
+            
+            # read file
+            file = open(path, 'w')
+            
+            file.write(self.frame.txtctlMain.GetValue())
+            
+            file.close()
+            
+        dlg.Destroy()
+            
     def GetPort(self):
         r = regex_matchPort.search(self.frame.choicePort.GetLabelText())
         if r:
