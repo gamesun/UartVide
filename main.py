@@ -160,6 +160,7 @@ class MyApp(wx.App):
         self.Bind(EVT_SERIALEXCEPT, self.OnSerialExcept)
         self.frame.txtctlMain.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
         self.frame.txtctlMain.Bind(wx.EVT_CHAR, self.OnSerialWrite)
+        self.frame.txtctlMain.Bind(wx.EVT_TEXT_PASTE, self.OnPaste)
         
         self.SetTopWindow(self.frame)
         self.frame.Show()
@@ -405,6 +406,18 @@ class MyApp(wx.App):
             else:
                 evt.Skip()
             
+    def OnPaste(self ,evt = None):
+        data = wx.TextDataObject()
+        wx.TheClipboard.GetData(data)
+
+        if self.serialport.isOpen():
+            self.serialport.write( data.GetText() )
+            self.txCount += len( data.GetText() )
+            self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
+                    
+        if self.localEcho:
+            evt.Skip()
+    
     def OnSerialExcept(self, evt):
         param = evt.param
         if param == -1:
