@@ -351,9 +351,9 @@ class MyApp(wx.App):
                     self.frame.txtctlMain.AppendText(text)
                 else:
                     for t in text:
-                        if t == chr(wx.WXK_BACK):
-                            pass
-#                             self.frame.txtctlMain.EmulateKeyPress(evt.Clone(wx.))
+                        if t == chr(wx.WXK_BACK):   #0x08
+                            self.frame.txtctlMain.Remove(self.frame.txtctlMain.GetLastPosition() - 1,
+                                                         self.frame.txtctlMain.GetLastPosition() )
                         else:
                             self.frame.txtctlMain.AppendText(t)
                 
