@@ -158,7 +158,8 @@ class MyApp(wx.App):
         self.frame.Bind(wx.EVT_CLOSE, self.Cleanup)
 
         self.Bind(EVT_SERIALEXCEPT, self.OnSerialExcept)
-        self.frame.txtctlMain.Bind(wx.EVT_KEY_DOWN, self.OnSerialWrite)
+        self.frame.txtctlMain.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
+        self.frame.txtctlMain.Bind(wx.EVT_CHAR, self.OnSerialWrite)
         
         self.SetTopWindow(self.frame)
         self.frame.Show()
@@ -350,12 +351,16 @@ class MyApp(wx.App):
                     text = ''.join(str(ord(t)) + ' ' for t in text)     # text = ''.join([(c >= ' ') and c or '<%d>' % ord(c)  for c in text])
                     self.frame.txtctlMain.AppendText(text)
                 else:
-                    for t in text:
-                        if t == chr(wx.WXK_BACK):   #0x08
-                            self.frame.txtctlMain.Remove(self.frame.txtctlMain.GetLastPosition() - 1,
-                                                         self.frame.txtctlMain.GetLastPosition() )
-                        else:
-                            self.frame.txtctlMain.AppendText(t)
+                    text = text.replace('\n', '')
+                    if -1 != text.find(chr(wx.WXK_BACK)):
+                        for t in text:
+                            if t == chr(wx.WXK_BACK):   #0x08
+                                self.frame.txtctlMain.Remove(self.frame.txtctlMain.GetLastPosition() - 1,
+                                                             self.frame.txtctlMain.GetLastPosition() )
+                            else:
+                                self.frame.txtctlMain.AppendText(t)
+                    else:
+                        self.frame.txtctlMain.AppendText(text)
                 
                 """Using event to display is slow when the data is too big."""
 #                 evt = SerialRxEvent(self.frame.GetId(), text)
@@ -386,6 +391,20 @@ class MyApp(wx.App):
             else:
                 print "Extra Key:", keycode
         
+    def OnKeyDown(self ,evt = None):
+        if self.localEcho:
+            evt.Skip()
+        else:
+            keycode = evt.GetKeyCode()
+            if wx.WXK_RETURN == keycode:
+                print keycode,
+                if self.serialport.isOpen():
+                    self.serialport.write(chr(keycode))
+                    self.txCount += 1
+                    self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
+            else:
+                evt.Skip()
+            
     def OnSerialExcept(self, evt):
         param = evt.param
         if param == -1:
