@@ -14,6 +14,7 @@ import icon32
 import pkg_resources
 import zipfile
 from cStringIO import StringIO
+import webbrowser
 
 MAINMENU  = 0
 SUBMENU   = 1
@@ -161,6 +162,7 @@ class MyApp(wx.App):
         self.frame.txtctlMain.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
         self.frame.txtctlMain.Bind(wx.EVT_CHAR, self.OnSerialWrite)
         self.frame.txtctlMain.Bind(wx.EVT_TEXT_PASTE, self.OnPaste)
+        self.frame.txtctlMain.Bind(wx.EVT_TEXT_URL, self.OnURL)
         
         self.SetTopWindow(self.frame)
         self.frame.Show()
@@ -170,6 +172,11 @@ class MyApp(wx.App):
 #         self.txQueue = Queue.Queue()
         
         return True
+        
+    def OnURL(self, evt = None):
+        if evt.MouseEvent.LeftUp():
+            webbrowser.open(evt.GetEventObject().GetValue())
+        evt.Skip()
         
     def OnClear(self, evt = None):
         self.frame.txtctlMain.Clear()
@@ -397,7 +404,7 @@ class MyApp(wx.App):
             evt.Skip()
         else:
             keycode = evt.GetKeyCode()
-            if wx.WXK_RETURN == keycode:
+            if wx.WXK_RETURN == keycode or wx.WXK_BACK == keycode:
                 print keycode,
                 if self.serialport.isOpen():
                     self.serialport.write(chr(keycode))
