@@ -108,14 +108,14 @@ MyTerm_windows = Target(
     # used for the versioninfo resource
     copyright = "Copywrong All Lefts Unreserved.",
     name = 'MyTerm',
-    version = '1.2',
+    version = '1.3',
     description = 'MyTerm',
     author = 'gamesun',
     url = r'https://github.com/gamesun/MyTerm',
     
     # what to build
     script = "main.py",
-    dest_base = "MyTerm 1.2",
+    dest_base = "MyTerm 1.3",
     icon_resources = [(1, "icon\icon.ico")],
     other_resources= [(RT_MANIFEST, 1, manifest_template % dict(prog = "MyTerm"))]
 )

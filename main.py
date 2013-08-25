@@ -484,7 +484,7 @@ class MyApp(wx.App):
         # First we create and fill the info object
         info = wx.AboutDialogInfo()
         info.Name = "MyTerm"
-        info.Version = "1.2"
+        info.Version = "1.3"
         info.Copyright = "Copywrong All Lefts Unreserved."
         info.Description = wordwrap(
             '\nMyTerm offer a great solution for RS232 serial port communication.'
