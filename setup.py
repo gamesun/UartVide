@@ -94,7 +94,6 @@ myOptions = {
         "ascii": 1,
 #         "includes":,
         "dll_excludes": ["MSVCP90.dll","w9xpopen.exe"],
-#         "packages": ["pkg_resources"],
         "bundle_files": 2
      }
 }
@@ -109,14 +108,14 @@ MyTerm_windows = Target(
     # used for the versioninfo resource
     copyright = "Copywrong All Lefts Unreserved.",
     name = 'MyTerm',
-    version = '1.1',
+    version = '1.2',
     description = 'MyTerm',
     author = 'gamesun',
     url = r'https://github.com/gamesun/MyTerm',
     
     # what to build
     script = "main.py",
-    dest_base = "MyTerm",
+    dest_base = "MyTerm 1.2",
     icon_resources = [(1, "icon\icon.ico")],
     other_resources= [(RT_MANIFEST, 1, manifest_template % dict(prog = "MyTerm"))]
 )
@@ -124,8 +123,5 @@ MyTerm_windows = Target(
 setup(
     options = myOptions,
     cmdclass= {'py2exe': MediaCollector},
-#     zipfile = None,
-#     zipfile = "lib/shared.zip",
-#    data_files = [('', ['icon\icon16.ico',])],
     windows = [MyTerm_windows]
 )
