@@ -6,7 +6,7 @@ import GUI as ui
 import threading
 import re
 import serial
-# import time
+import time
 from wx.lib.wordwrap import wordwrap
 import _winreg as winreg
 import itertools
@@ -29,6 +29,19 @@ ASCII = 0
 HEX   = 1
 
 THREAD_TIMEOUT = 0.5
+
+
+SERIALRX = wx.NewEventType()                    # Create an own event type
+EVT_SERIALRX = wx.PyEventBinder(SERIALRX, 0)    # bind to serial data receive events
+class SerialRxEvent(wx.PyCommandEvent):
+    eventType = SERIALRX
+    def __init__(self, windowID, data):
+        wx.PyCommandEvent.__init__(self, self.eventType, windowID)
+        self.data = data
+
+    def Clone(self):
+        self.__class__(self.GetId(), self.data)
+        
 
 SERIALEXCEPT = wx.NewEventType()
 EVT_SERIALEXCEPT = wx.PyEventBinder(SERIALEXCEPT, 0)
@@ -112,6 +125,8 @@ MAINMENU,
 )
 
 regex_matchPort = re.compile('COM(?P<port>\d+)')
+regex_matchCmdList = re.compile(
+    '\|\s+(?P<index>\d)\s+\|\s+(?P<time>\d+|-)\s+\|\s+(?P<count>\d+|-)\s+\|\s+(?P<setvolt>\d+|-)\s+\|\s+(?P<realvolt>[0-9.]+|-)\s+\|')
 
 
 serialport = serial.Serial()
@@ -139,6 +154,7 @@ class MyApp(wx.App):
 
         self.OnEnumPorts()
         self.frame.choicePort.Select(0)
+        self.frame.cmbBaudRate.Select(6)
 
         # initial variables
         
@@ -163,21 +179,109 @@ class MyApp(wx.App):
         self.frame.Bind(wx.EVT_CLOSE, self.Cleanup)
 
         self.Bind(EVT_SERIALEXCEPT, self.OnSerialExcept)
+        self.Bind(EVT_SERIALRX, self.OnSerialRx)
         self.frame.txtctlMain.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
         self.frame.txtctlMain.Bind(wx.EVT_CHAR, self.OnSerialWrite)
         self.frame.txtctlMain.Bind(wx.EVT_TEXT_PASTE, self.OnPaste)
         self.frame.txtctlMain.Bind(wx.EVT_TEXT_URL, self.OnURL)
+        
+        self.frame.btnGetInfo.Bind(wx.EVT_BUTTON, self.OnBtnGetInfo)
+        self.frame.btnSetInfo.Bind(wx.EVT_BUTTON, self.OnBtnSetInfo)
+        self.frame.btnSave.Bind(wx.EVT_BUTTON, self.OnBtnSave)
         
         self.SetTopWindow(self.frame)
         self.frame.SetTitle( appInfo.title )
         self.frame.Show()
         
         self.evtPortOpen = threading.Event()
-#         self.rxQueue = Queue.Queue()
-#         self.txQueue = Queue.Queue()
+        self.evtSerialCmdBuffComplete = threading.Event()
+        self.IsSerialCmdBuffForAnalysis = False
+        self.SerialCmdBuffForAnalysis = ''
         
         return True
         
+        
+    def OnBtnGetInfo(self, evt = None):
+        if serialport.isOpen():
+            serialport.write('\n')
+            serialport.write('list\n')
+            self.IsSerialCmdBuffForAnalysis = True
+            t = threading.Thread(target = self.ThreadAnalysis)
+            t.start()
+    
+    def ThreadAnalysis(self):
+        """ 
+        the string to analysis looks like as follow:
+        
+        |No.| Time  | Count | Set Volt | Real Volt |
+        |   | (ms)  |       |   (mV)   |   (mV)    |
+        |---+-------+-------+----------+-----------|
+        | 1 | 12345 |   -   | 111      | 1111.111  |
+        | 2 |   -   | 22    | 222      | 2222.222  |
+        | 3 |   -   | 33    | 333      | 3333.333  |
+        | 4 |   -   | 44    | 444      | 4444.444  |
+        | 5 |   -   | 55    | 555      | 5555.555  |
+        | 6 |   -   |   -   | 666      | 6666.666  |
+        
+        """
+        if self.evtSerialCmdBuffComplete.wait(1.0):
+            self.evtSerialCmdBuffComplete.clear()
+            for l in self.SerialCmdBuffForAnalysis.splitlines():
+                r = regex_matchCmdList.search(l)
+                if r:
+                    i = int(r.group('index'))
+                    if 1 <= i <= 1: 
+                        self.SetT(i, int(r.group('time')))
+                    if 2 <= i <= 5:
+                        self.SetC(i, int(r.group('count')))
+                    if 1 <= i <= 6:
+                        self.SetV(i, int(r.group('setvolt')))
+                        self.SetRV(i, r.group('realvolt'))
+            self.SerialCmdBuffForAnalysis = ''
+        else:
+            print 'wait list timeout.'
+            
+    def OnBtnSetInfo(self, evt = None):
+        if serialport.isOpen():
+            data = (((1, self.GetT(1)),),
+                    ((2, self.GetC(2)), (3, self.GetC(3)), (4, self.GetC(4)), (5, self.GetC(5)),),
+                    ((1, self.GetV(1)), (2, self.GetV(2)), (3, self.GetV(3)), (4, self.GetV(4)), (5, self.GetV(5)), (6, self.GetV(6)),),)
+            t = threading.Thread(target = ThreadSetInfo, args = (data,))
+            t.start()
+    
+    def OnBtnSave(self, evt = None):
+        if serialport.isOpen():
+            serialport.write('\n')
+            serialport.write('save\n')
+
+    def GetT(self, index):
+        if 1 <= index <= 1:
+            return eval('self.frame.spin_ctrl_T' + ('%s' % index) + '.GetValue()')
+
+    def GetC(self, index):
+        if 2 <= index <= 5:
+            return eval('self.frame.spin_ctrl_C' + ('%s' % index) + '.GetValue()')
+        
+    def GetV(self, index):
+        if 1 <= index <= 6:
+            return eval('self.frame.spin_ctrl_V' + ('%s' % index) + '.GetValue()')
+        
+    def SetT(self, index, value):
+        if 1 <= index <= 1:
+            eval('self.frame.spin_ctrl_T' + ('%s' % index) + '.SetValue(value)')
+        
+    def SetC(self, index, value):
+        if 2 <= index <= 5:
+            eval('self.frame.spin_ctrl_C' + ('%s' % index) + '.SetValue(value)')
+            
+    def SetV(self, index, value):
+        if 1 <= index <= 6:
+            eval('self.frame.spin_ctrl_V' + ('%s' % index) + '.SetValue(value)')
+    
+    def SetRV(self, index, label):
+        if 1 <= index <= 6:
+            eval('self.frame.label_RV' + ('%s' % index) + '.SetLabel("  %s" % label)')
+            
     def OnURL(self, evt = None):
         if evt.MouseEvent.LeftUp():
             webbrowser.open(evt.GetEventObject().GetValue())
@@ -374,14 +478,29 @@ class MyApp(wx.App):
                             else:
                                 self.frame.txtctlMain.AppendText(t)
                     else:
-                        self.frame.txtctlMain.AppendText(text)
-                
+                        if self.IsSerialCmdBuffForAnalysis:
+                            self.SerialCmdBuffForAnalysis += text
+                            if '\r\r' in self.SerialCmdBuffForAnalysis:
+                                evt = SerialRxEvent(self.frame.GetId(), self.SerialCmdBuffForAnalysis)
+                                self.frame.GetEventHandler().AddPendingEvent(evt)
+                                self.IsSerialCmdBuffForAnalysis = False
+                                self.evtSerialCmdBuffComplete.set()
+                        else:
+                            self.frame.txtctlMain.AppendText(text)
                 """Using event to display is slow when the data is too big."""
 #                 evt = SerialRxEvent(self.frame.GetId(), text)
 #                 self.frame.GetEventHandler().AddPendingEvent(evt)
                 self.rxCount += len(text)
                 self.frame.statusbar.SetStatusText('Rx:%d' % self.rxCount, 1)
         print 'exit thread'
+        
+    def OnSerialRx(self, evt):
+        """Handle input from the serial port."""
+        text = evt.data
+        if self.rxmode == HEX:
+            text = ''.join(str(ord(t)) + ' ' for t in text)     # text = ''.join([(c >= ' ') and c or '<%d>' % ord(c)  for c in text])
+        self.frame.txtctlMain.AppendText(text)
+
         
     def OnSerialWrite(self, evt = None):
         keycode = evt.GetKeyCode()
@@ -521,7 +640,21 @@ class MyApp(wx.App):
                 assert not self.thread.is_alive(), "the thread should be dead but isn't!"
 #             self.threadCommunicate.terminate()
 
+
+def ThreadSetInfo(data):
+    serialport.write('\n')
+    for d in data[0]:
+        time.sleep(0.15)
+        serialport.write('settime %d %s\n' % (d[0], d[1]))
+            
+    for d in data[1]:
+        time.sleep(0.15)
+        serialport.write('setcnt %d %s\n' % (d[0], d[1]))
         
+    for d in data[2]:
+        time.sleep(0.15)
+        serialport.write('setvol %d %s\n' % (d[0], d[1]))
+           
 if __name__ == '__main__':
     app = MyApp(0)
     app.MainLoop()
