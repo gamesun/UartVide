@@ -15,6 +15,7 @@ import pkg_resources
 import zipfile
 from cStringIO import StringIO
 import webbrowser
+import appInfo
 
 MAINMENU  = 0
 SUBMENU   = 1
@@ -299,7 +300,8 @@ class MyApp(wx.App):
             dlg.Destroy()
         else:
             self.StartThread()
-            self.frame.SetTitle("MyTerm on %s [%s, %s%s%s%s%s]" % (
+            self.frame.SetTitle("%s on %s [%s, %s%s%s%s%s]" % (
+                appInfo.title,
                 self.serialport.portstr,
                 self.serialport.baudrate,
                 self.serialport.bytesize,
@@ -318,7 +320,7 @@ class MyApp(wx.App):
         if self.serialport.isOpen():
             self.StopThread()
             self.serialport.close()
-            self.frame.SetTitle('MyTerm')
+            self.frame.SetTitle(appInfo.title)
             self.frame.btnOpen.SetBackgroundColour(wx.NullColour)
             self.frame.btnOpen.SetLabel('Open')
             self.frame.btnOpen.Refresh()
@@ -430,7 +432,7 @@ class MyApp(wx.App):
         if param == -1:
             self.StopThread()
             self.serialport.close()
-            self.frame.SetTitle('MyTerm')
+            self.frame.SetTitle(appInfo.title)
             self.frame.btnOpen.SetBackgroundColour(wx.NullColour)
             self.frame.btnOpen.SetLabel('Open')
             self.frame.btnOpen.Refresh()
@@ -483,8 +485,8 @@ class MyApp(wx.App):
     def OnAbout(self, evt = None):
         # First we create and fill the info object
         info = wx.AboutDialogInfo()
-        info.Name = "MyTerm"
-        info.Version = "1.3"
+        info.Name = appInfo.title
+        info.Version = appInfo.version
         info.Copyright = "Copywrong All Lefts Unreserved."
         info.Description = wordwrap(
             '\nMyTerm offer a great solution for RS232 serial port communication.'
