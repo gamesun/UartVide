@@ -195,8 +195,8 @@ class MyApp(wx.App):
         
         self.evtPortOpen = threading.Event()
         self.evtSerialCmdBuffComplete = threading.Event()
-        self.IsSerialCmdBuffForAnalysis = False
-        self.SerialCmdBuffForAnalysis = ''
+        self.IsWaitingSerialReplyForAnalysis = False
+        self.SerialReplyForAnalysisBuff = ''
         
         return True
         
@@ -205,7 +205,7 @@ class MyApp(wx.App):
         if serialport.isOpen():
             serialport.write('\n')
             serialport.write('list\n')
-            self.IsSerialCmdBuffForAnalysis = True
+            self.IsWaitingSerialReplyForAnalysis = True
             t = threading.Thread(target = self.ThreadAnalysis)
             t.start()
     
@@ -226,7 +226,7 @@ class MyApp(wx.App):
         """
         if self.evtSerialCmdBuffComplete.wait(1.0):
             self.evtSerialCmdBuffComplete.clear()
-            for l in self.SerialCmdBuffForAnalysis.splitlines():
+            for l in self.SerialReplyForAnalysisBuff.splitlines():
                 r = regex_matchCmdList.search(l)
                 if r:
                     i = int(r.group('index'))
@@ -237,7 +237,7 @@ class MyApp(wx.App):
                     if 1 <= i <= 6:
                         self.SetV(i, int(r.group('setvolt')))
                         self.SetRV(i, r.group('realvolt'))
-            self.SerialCmdBuffForAnalysis = ''
+            self.SerialReplyForAnalysisBuff = ''
         else:
             print 'wait list timeout.'
             
@@ -478,12 +478,12 @@ class MyApp(wx.App):
                             else:
                                 self.frame.txtctlMain.AppendText(t)
                     else:
-                        if self.IsSerialCmdBuffForAnalysis:
-                            self.SerialCmdBuffForAnalysis += text
-                            if '\r\r' in self.SerialCmdBuffForAnalysis:
-                                evt = SerialRxEvent(self.frame.GetId(), self.SerialCmdBuffForAnalysis)
+                        if self.IsWaitingSerialReplyForAnalysis:
+                            self.SerialReplyForAnalysisBuff += text
+                            if '\r\r' in self.SerialReplyForAnalysisBuff:
+                                evt = SerialRxEvent(self.frame.GetId(), self.SerialReplyForAnalysisBuff)
                                 self.frame.GetEventHandler().AddPendingEvent(evt)
-                                self.IsSerialCmdBuffForAnalysis = False
+                                self.IsWaitingSerialReplyForAnalysis = False
                                 self.evtSerialCmdBuffComplete.set()
                         else:
                             self.frame.txtctlMain.AppendText(text)
