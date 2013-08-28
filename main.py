@@ -16,6 +16,7 @@ import zipfile
 from cStringIO import StringIO
 import webbrowser
 import appInfo
+import glob
 
 MAINMENU  = 0
 SUBMENU   = 1
@@ -113,14 +114,16 @@ MAINMENU,
 regex_matchPort = re.compile('COM(?P<port>\d+)')
 
 
+serialport = serial.Serial()
+
 class MyApp(wx.App):
     def OnInit(self):
         self.frame = ui.MyFrame(None, wx.ID_ANY, "")
 
         my_data = pkg_resources.resource_string(__name__,"library.zip")
         filezip = StringIO(my_data)
-        zip = zipfile.ZipFile(filezip)
-        data = zip.read("media/icon16.ico")
+        zf = zipfile.ZipFile(filezip)
+        data = zf.read("media/icon16.ico")
 #         self.frame.SetIcon(icon16.geticon16Icon())
         
         icon = wx.EmptyIcon()
@@ -138,7 +141,7 @@ class MyApp(wx.App):
         self.frame.choicePort.Select(0)
 
         # initial variables
-        self.serialport = serial.Serial()
+        
         self.rxmode = ASCII
         self.txmode = ASCII
         self.localEcho = False
@@ -166,6 +169,7 @@ class MyApp(wx.App):
         self.frame.txtctlMain.Bind(wx.EVT_TEXT_URL, self.OnURL)
         
         self.SetTopWindow(self.frame)
+        self.frame.SetTitle( appInfo.title )
         self.frame.Show()
         
         self.evtPortOpen = threading.Event()
@@ -198,11 +202,11 @@ class MyApp(wx.App):
             print "You selected %s\n" % path,
             
             # read file
-            file = open(path, 'w')
+            f = open(path, 'w')
             
-            file.write(self.frame.txtctlMain.GetValue())
+            f.write(self.frame.txtctlMain.GetValue())
             
-            file.close()
+            f.close()
             
         dlg.Destroy()
             
@@ -278,22 +282,22 @@ class MyApp(wx.App):
             self.frame.choicePort.AppendItems((p,))
         
     def OnBtnOpen(self, evt = None):
-        if self.serialport.isOpen():
+        if serialport.isOpen():
             self.OnClosePort(evt)
         else:
             self.OnOpenPort(evt)
         
     def OnOpenPort(self, evt = None):
-        self.serialport.port     = self.GetPort()
-        self.serialport.baudrate = self.GetBaudRate()
-        self.serialport.bytesize = self.GetDataBits()
-        self.serialport.stopbits = self.GetStopBits()
-        self.serialport.parity   = self.GetParity()
-        self.serialport.rtscts   = self.frame.chkboxrtscts.IsChecked()
-        self.serialport.xonxoff  = self.frame.chkboxxonxoff.IsChecked()
-        self.serialport.timeout  = THREAD_TIMEOUT
+        serialport.port     = self.GetPort()
+        serialport.baudrate = self.GetBaudRate()
+        serialport.bytesize = self.GetDataBits()
+        serialport.stopbits = self.GetStopBits()
+        serialport.parity   = self.GetParity()
+        serialport.rtscts   = self.frame.chkboxrtscts.IsChecked()
+        serialport.xonxoff  = self.frame.chkboxxonxoff.IsChecked()
+        serialport.timeout  = THREAD_TIMEOUT
         try:
-            self.serialport.open()
+            serialport.open()
         except serial.SerialException, e:
             dlg = wx.MessageDialog(None, str(e), "Serial Port Error", wx.OK | wx.ICON_ERROR)
             dlg.ShowModal()
@@ -302,13 +306,13 @@ class MyApp(wx.App):
             self.StartThread()
             self.frame.SetTitle("%s on %s [%s, %s%s%s%s%s]" % (
                 appInfo.title,
-                self.serialport.portstr,
-                self.serialport.baudrate,
-                self.serialport.bytesize,
-                self.serialport.parity,
-                self.serialport.stopbits,
-                self.serialport.rtscts and ' RTS/CTS' or '',
-                self.serialport.xonxoff and ' Xon/Xoff' or '',
+                serialport.portstr,
+                serialport.baudrate,
+                serialport.bytesize,
+                serialport.parity,
+                serialport.stopbits,
+                serialport.rtscts and ' RTS/CTS' or '',
+                serialport.xonxoff and ' Xon/Xoff' or '',
                 )
             )
             self.frame.btnOpen.SetBackgroundColour((0,0xff,0x7f))
@@ -317,9 +321,9 @@ class MyApp(wx.App):
             
     
     def OnClosePort(self, evt = None):
-        if self.serialport.isOpen():
+        if serialport.isOpen():
             self.StopThread()
-            self.serialport.close()
+            serialport.close()
             self.frame.SetTitle(appInfo.title)
             self.frame.btnOpen.SetBackgroundColour(wx.NullColour)
             self.frame.btnOpen.SetLabel('Open')
@@ -344,7 +348,7 @@ class MyApp(wx.App):
         while self.evtPortOpen.is_set():
 #             print 'running'
             try:
-                text = self.serialport.read(1)
+                text = serialport.read(1)      # block for THREAD_TIMEOUT = 0.5s
             except serial.serialutil.SerialException:
                 evt = SerialExceptEvent(self.frame.GetId(), -1)
                 self.frame.GetEventHandler().AddPendingEvent(evt)
@@ -353,9 +357,9 @@ class MyApp(wx.App):
 
             if text:
 #                 print ord(text),
-                n = self.serialport.inWaiting()
+                n = serialport.inWaiting()
                 if n:
-                    text = text + self.serialport.read(n)
+                    text = text + serialport.read(n)
 
                 if self.rxmode == HEX:
                     text = ''.join(str(ord(t)) + ' ' for t in text)     # text = ''.join([(c >= ' ') and c or '<%d>' % ord(c)  for c in text])
@@ -393,9 +397,9 @@ class MyApp(wx.App):
         if self.localEcho:
             evt.Skip()
             
-        if self.serialport.isOpen():
+        if serialport.isOpen():
             if keycode < 256:
-                self.serialport.write(chr(keycode))
+                serialport.write(chr(keycode))
                 self.txCount += 1
                 self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
             else:
@@ -408,8 +412,8 @@ class MyApp(wx.App):
             keycode = evt.GetKeyCode()
             if wx.WXK_RETURN == keycode or wx.WXK_BACK == keycode:
                 print keycode,
-                if self.serialport.isOpen():
-                    self.serialport.write(chr(keycode))
+                if serialport.isOpen():
+                    serialport.write(chr(keycode))
                     self.txCount += 1
                     self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
             else:
@@ -419,8 +423,8 @@ class MyApp(wx.App):
         data = wx.TextDataObject()
         wx.TheClipboard.GetData(data)
 
-        if self.serialport.isOpen():
-            self.serialport.write( data.GetText() )
+        if serialport.isOpen():
+            serialport.write( data.GetText() )
             self.txCount += len( data.GetText() )
             self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
                     
@@ -431,7 +435,7 @@ class MyApp(wx.App):
         param = evt.param
         if param == -1:
             self.StopThread()
-            self.serialport.close()
+            serialport.close()
             self.frame.SetTitle(appInfo.title)
             self.frame.btnOpen.SetBackgroundColour(wx.NullColour)
             self.frame.btnOpen.SetLabel('Open')
