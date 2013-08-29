@@ -610,14 +610,15 @@ class MyApp(wx.App):
         info = wx.AboutDialogInfo()
         info.Name = appInfo.title
         info.Version = appInfo.version
-        info.Copyright = "Copywrong All Lefts Unreserved."
+        info.Copyright = appInfo.copyright
         info.Description = wordwrap(
-            '\nMyTerm offer a great solution for RS232 serial port communication.'
-            '\n\nIts other features including detecting the valid serial ports, '
-            'receiving data from serial ports and viewing it in ASCII text or hexadecimal formats, '
-            'echoing the sending data in local or not.',
-            350, wx.ClientDC(self.frame))
-        info.WebSite = ("https://github.com/gamesun/MyTerm#myterm", "MyTerm Home Page")
+            '\nMyTerm for FCVS offer a great solution for communication with the "Frequency-Controlled Voltage Source".\n\n'
+            '"MyTerm for FCVS" development is based on MyTerm, the "MyTerm" offer a great solution for RS232 serial port communication.\n\n'
+            'Press button "GetInfo" to display all parameters setting in FCVS.\n'
+            'Press button "SetInfo" to transmit all parameters to FCVS.\n'
+            'Press button "Save" to let FCVS save all parameters into its EEPROM.\n',
+            550, wx.ClientDC(self.frame))
+        info.WebSite = (appInfo.url, ("%s Home Page" % appInfo.title))
         info.Developers = [ "sun.yt" ]
         info.License = wordwrap("(C) 2013 Programmers and Coders Everywhere", 500, wx.ClientDC(self.frame))
 

@@ -107,12 +107,12 @@ class Target:
         
 MyTerm_windows = Target(
     # used for the versioninfo resource
-    copyright = "Copywrong All Lefts Unreserved.",
+    copyright = appInfo.copyright,
     name = appInfo.title,
     version = appInfo.version,
     description = appInfo.file_name,
-    author = 'gamesun',
-    url = r'https://github.com/gamesun/MyTerm',
+    author = appInfo.author,
+    url = appInfo.url,
     
     # what to build
     script = "main.py",
