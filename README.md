@@ -1,13 +1,16 @@
-MyTerm
-=======
+MyTerm for FCVS
+===============
 
-MyTerm offer a great solution for RS232 serial port communication.
+MyTerm for FCVS offer a great solution for communication with the 
+[Frequency-Controlled Voltage Source](https://github.com/gamesun/Frequency-Controlled-Voltage-Source#frequency-controlled-voltage-source).  
 
-Its other features including detecting the valid serial ports,
-receiving data from serial ports and viewing it in ASCII text or hexadecimal formats,
-echoing the sending data in local or not.
+"MyTerm for FCVS" development is based on [MyTerm](https://github.com/gamesun/MyTerm/tree/master#myterm), 
+the "MyTerm" offer a great solution for RS232 serial port communication.
+
+Press button "GetInfo" to display all parameters setting in FCVS.  
+Press button "SetInfo" to transmit all parameters to FCVS.  
+Press button "Save" to let FCVS save all parameters into its EEPROM.  
 
 
 ![](doc/screenshot.jpg "screenshot")
 
-![](doc/hidebar.jpg "the setting bar is hiding")
