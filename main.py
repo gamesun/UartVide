@@ -147,6 +147,9 @@ class MyApp(wx.App):
         
 #         self.frame.SetIcon(wx.Icon("media\icon16.ico", wx.BITMAP_TYPE_ICO, 16, 16))
         
+        picture = zf.read("media/VoltageWave.bmp")
+        self.frame.bitmap_1.SetBitmap(wx.ImageFromStream(StringIO(picture), wx.BITMAP_TYPE_ANY).ConvertToBitmap())
+        
         self.frame.SplitterWindow.SetSashSize(0)
         self.frame.SplitterWindow.SetSashPosition(160, True)
         
