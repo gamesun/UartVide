@@ -267,7 +267,11 @@ class MyApp(wx.App):
         
     def GetV(self, index):
         if 1 <= index <= 6:
-            return eval('self.frame.spin_ctrl_V' + ('%s' % index) + '.GetValue()')
+            v = eval('self.frame.spin_ctrl_V' + ('%s' % index) + '.GetValue()')
+            return str(max(0, int(v) + int(self.GetVoffset())))
+        
+    def GetVoffset(self):
+        return self.frame.spin_ctrl_Voffset.GetValue()
         
     def SetT(self, index, value):
         if 1 <= index <= 1:
