@@ -211,16 +211,19 @@ class MyApp(wx.App):
         dlg.Destroy()
             
     def GetPort(self):
-        r = regex_matchPort.search(self.frame.choicePort.GetLabelText())
-        if r:
-            return int(r.group('port')) - 1
-        return
+        if sys.platform == 'win32':
+            r = regex_matchPort.search(self.frame.choicePort.GetStringSelection())
+            if r:
+                return int(r.group('port')) - 1
+            return
+        elif sys.platform.startswith('linux'):
+            return  self.frame.choicePort.GetStringSelection()
 
     def GetBaudRate(self):
         return int(self.frame.cmbBaudRate.GetValue())
 
     def GetDataBits(self):
-        s = self.frame.choiceDataBits.GetLabelText()
+        s = self.frame.choiceDataBits.GetStringSelection()
         if s == '5': 
             return serial.FIVEBITS
         elif s == '6': 
@@ -231,7 +234,7 @@ class MyApp(wx.App):
             return serial.EIGHTBITS
     
     def GetParity(self):
-        s = self.frame.choiceParity.GetLabelText()
+        s = self.frame.choiceParity.GetStringSelection()
         if s == 'None': 
             return serial.PARITY_NONE
         elif s == 'Even': 
@@ -244,7 +247,7 @@ class MyApp(wx.App):
             return serial.PARITY_SPACE
         
     def GetStopBits(self):
-        s = self.frame.choiceStopBits.GetLabelText()
+        s = self.frame.choiceStopBits.GetStringSelection()
         if s == '1': 
             return serial.STOPBITS_ONE
         elif s == '1.5': 
