@@ -30,6 +30,8 @@ HEX   = 1
 
 THREAD_TIMEOUT = 0.5
 
+SASHPOSITION = 180
+
 SERIALEXCEPT = wx.NewEventType()
 EVT_SERIALEXCEPT = wx.PyEventBinder(SERIALEXCEPT, 0)
 class SerialExceptEvent(wx.PyCommandEvent):
@@ -133,12 +135,11 @@ class MyApp(wx.App):
 #         self.frame.SetIcon(wx.Icon("media\icon16.ico", wx.BITMAP_TYPE_ICO, 16, 16))
         
         self.frame.SplitterWindow.SetSashSize(0)
-        self.frame.SplitterWindow.SetSashPosition(160, True)
+        self.frame.SplitterWindow.SetSashPosition(SASHPOSITION, True)
         
 #         self.frame.choicePort.AppendItems(('COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8'))
 
         self.OnEnumPorts()
-        self.frame.choicePort.Select(0)
 
         # initial variables
         
@@ -167,11 +168,14 @@ class MyApp(wx.App):
         self.frame.txtctlMain.Bind(wx.EVT_CHAR, self.OnSerialWrite)
         self.frame.txtctlMain.Bind(wx.EVT_TEXT_PASTE, self.OnPaste)
         self.frame.txtctlMain.Bind(wx.EVT_TEXT_URL, self.OnURL)
-        self.frame.btn_SaveToFileSW.Bind(wx.EVT_BUTTON, self.OnBtnSaveToFileSW)
+        self.frame.btnSaveToFileSW.Bind(wx.EVT_BUTTON, self.OnBtnSaveToFileSW)
+        self.frame.btnPortSettingSW.Bind(wx.EVT_BUTTON, self.OnBtnPortSettingSW)
         
         self.SetTopWindow(self.frame)
         self.frame.SetTitle( appInfo.title )
         self.frame.Show()
+        
+        self.OnBtnSaveToFileSW()
         
         self.evtPortOpen = threading.Event()
 #         self.rxQueue = Queue.Queue()
@@ -179,13 +183,30 @@ class MyApp(wx.App):
         
         return True
     
-    def OnBtnSaveToFileSW(self, evt = None):
-        if self.frame.btn_SaveToFileSW.GetLabel().endswith('>>'):
-            self.frame.btn_SaveToFileSW.SetLabel('Save to File <<')
-            self.frame.pnl_SaveToFile.Hide()
+    def OnBtnPortSettingSW(self, evt = None):
+        if self.frame.btnPortSettingSW.GetLabel().endswith('>>'):
+            self.HidePortSetting()
         else:
-            self.frame.btn_SaveToFileSW.SetLabel('Save to File >>')
-            self.frame.pnl_SaveToFile.Show()
+            self.ShowPortSetting()
+    
+    def HidePortSetting(self):
+        self.frame.btnPortSettingSW.SetLabel('Port Setting <<')
+        self.frame.pnlPortSetting.Hide()
+        self.frame.pnlSettingBar.GetSizer().Layout()
+        
+    def ShowPortSetting(self):
+        self.frame.btnPortSettingSW.SetLabel('Port Setting >>')
+        self.frame.pnlPortSetting.Show()
+        self.frame.pnlSettingBar.GetSizer().Layout()
+        
+    def OnBtnSaveToFileSW(self, evt = None):
+        if self.frame.btnSaveToFileSW.GetLabel().endswith('>>'):
+            self.frame.btnSaveToFileSW.SetLabel('Save to File <<')
+            self.frame.pnlSaveToFile.Hide()
+        else:
+            self.frame.btnSaveToFileSW.SetLabel('Save to File >>')
+            self.frame.pnlSaveToFile.Show()
+        self.frame.pnlSettingBar.GetSizer().Layout()
         
     def OnURL(self, evt):
         if evt.MouseEvent.LeftUp():
@@ -296,6 +317,7 @@ class MyApp(wx.App):
         self.frame.choicePort.Clear()
         for p in EnumerateSerialPorts():
             self.frame.choicePort.AppendItems((p,))
+        self.frame.choicePort.Select(0)
         
     def OnBtnOpen(self, evt = None):
         if serialport.isOpen():
@@ -332,9 +354,9 @@ class MyApp(wx.App):
                 )
             )
             self.frame.btnOpen.SetBackgroundColour((0,0xff,0x7f))
-            self.frame.btnOpen.SetLabel('Opened')
+            self.frame.btnOpen.SetLabel('Close')
             self.frame.btnOpen.Refresh()
-            
+            self.HidePortSetting()
     
     def OnClosePort(self, evt = None):
         if serialport.isOpen():
@@ -344,6 +366,7 @@ class MyApp(wx.App):
             self.frame.btnOpen.SetBackgroundColour(wx.NullColour)
             self.frame.btnOpen.SetLabel('Open')
             self.frame.btnOpen.Refresh()
+            self.ShowPortSetting()
     
     def StartThread(self):
         """Start the receiver thread"""
@@ -456,6 +479,7 @@ class MyApp(wx.App):
             self.frame.btnOpen.SetBackgroundColour(wx.NullColour)
             self.frame.btnOpen.SetLabel('Open')
             self.frame.btnOpen.Refresh()
+            self.ShowPortSetting()
         else:
             print 'OnSerialExcept() invalid parameter:%d' % param
         
@@ -463,7 +487,7 @@ class MyApp(wx.App):
         self.frame.SplitterWindow.SetSashPosition(1, True)
         
     def OnShowSettingBar(self, evt = None):
-        self.frame.SplitterWindow.SetSashPosition(160, True)
+        self.frame.SplitterWindow.SetSashPosition(SASHPOSITION, True)
     
     def OnShowStatusBar(self, evt = None):
         pass
