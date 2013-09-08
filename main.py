@@ -167,6 +167,7 @@ class MyApp(wx.App):
         self.frame.txtctlMain.Bind(wx.EVT_CHAR, self.OnSerialWrite)
         self.frame.txtctlMain.Bind(wx.EVT_TEXT_PASTE, self.OnPaste)
         self.frame.txtctlMain.Bind(wx.EVT_TEXT_URL, self.OnURL)
+        self.frame.btn_SaveToFileSW.Bind(wx.EVT_BUTTON, self.OnBtnSaveToFileSW)
         
         self.SetTopWindow(self.frame)
         self.frame.SetTitle( appInfo.title )
@@ -177,6 +178,14 @@ class MyApp(wx.App):
 #         self.txQueue = Queue.Queue()
         
         return True
+    
+    def OnBtnSaveToFileSW(self, evt = None):
+        if self.frame.btn_SaveToFileSW.GetLabel().endswith('>>'):
+            self.frame.btn_SaveToFileSW.SetLabel('Save to File <<')
+            self.frame.pnl_SaveToFile.Hide()
+        else:
+            self.frame.btn_SaveToFileSW.SetLabel('Save to File >>')
+            self.frame.pnl_SaveToFile.Show()
         
     def OnURL(self, evt):
         if evt.MouseEvent.LeftUp():
