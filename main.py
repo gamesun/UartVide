@@ -30,7 +30,7 @@ HEX   = 1
 
 THREAD_TIMEOUT = 0.5
 
-SASHPOSITION = 180
+SASHPOSITION = 200
 
 SERIALEXCEPT = wx.NewEventType()
 EVT_SERIALEXCEPT = wx.PyEventBinder(SERIALEXCEPT, 0)
@@ -183,6 +183,12 @@ class MyApp(wx.App):
         
         return True
     
+    def OnBtnGenerateName(self , evt = None):
+        strName = self.frame.textctrlRoot.GetLabel()
+        if self.frame.chkboxPrefix.IsChecked():
+            dig = self.frame.spinPrefixDigit.GetValue()
+            strName = self.frame.spinPrefixNext.GetValue()
+    
     def OnBtnPortSettingSW(self, evt = None):
         if self.frame.btnPortSettingSW.GetLabel().endswith('>>'):
             self.HidePortSetting()
@@ -212,8 +218,8 @@ class MyApp(wx.App):
         if evt.MouseEvent.LeftUp():
             s = evt.GetURLStart()
             e = evt.GetURLEnd()
-            str = self.frame.txtctlMain.GetRange(s, e)
-            webbrowser.open(str)
+            strURL = self.frame.txtctlMain.GetRange(s, e)
+            webbrowser.open(strURL)
             return
         evt.Skip()
         
