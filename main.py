@@ -199,11 +199,15 @@ class MyApp(wx.App):
         self.frame.btnPortSettingSW.SetLabel('Port Setting <<')
         self.frame.pnlPortSetting.Hide()
         self.frame.pnlSettingBar.GetSizer().Layout()
+        self.frame.window_1_pane_1.SetScrollbars(10, 10, 30, 300)    # call SetScrollbars() just for refreshing the scroll bar.
+        
         
     def ShowPortSetting(self):
         self.frame.btnPortSettingSW.SetLabel('Port Setting >>')
         self.frame.pnlPortSetting.Show()
         self.frame.pnlSettingBar.GetSizer().Layout()
+        self.frame.window_1_pane_1.SetScrollbars(10, 10, 30, 300)    # call SetScrollbars() just for refreshing the scroll bar.
+        
         
     def OnBtnSaveToFileSW(self, evt = None):
         if self.frame.btnSaveToFileSW.GetLabel().endswith('>>'):
@@ -213,6 +217,8 @@ class MyApp(wx.App):
             self.frame.btnSaveToFileSW.SetLabel('Save to File >>')
             self.frame.pnlSaveToFile.Show()
         self.frame.pnlSettingBar.GetSizer().Layout()
+        self.frame.window_1_pane_1.SetScrollbars(10, 10, 30, 300)    # call SetScrollbars() just for refreshing the scroll bar.
+        
         
     def OnURL(self, evt):
         if evt.MouseEvent.LeftUp():
