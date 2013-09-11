@@ -30,7 +30,7 @@ HEX   = 1
 
 THREAD_TIMEOUT = 0.5
 
-SASHPOSITION = 200
+SASHPOSITION = 220
 
 SERIALEXCEPT = wx.NewEventType()
 EVT_SERIALEXCEPT = wx.PyEventBinder(SERIALEXCEPT, 0)
@@ -171,6 +171,8 @@ class MyApp(wx.App):
         self.frame.btnSaveToFileSW.Bind(wx.EVT_BUTTON, self.OnBtnSaveToFileSW)
         self.frame.btnPortSettingSW.Bind(wx.EVT_BUTTON, self.OnBtnPortSettingSW)
         
+        self.frame.btnGenerateName.Bind(wx.EVT_BUTTON, self.OnBtnGenerateName)
+        
         self.SetTopWindow(self.frame)
         self.frame.SetTitle( appInfo.title )
         self.frame.Show()
@@ -184,10 +186,27 @@ class MyApp(wx.App):
         return True
     
     def OnBtnGenerateName(self , evt = None):
-        strName = self.frame.textctrlRoot.GetLabel()
+        strFileName = self.frame.txtctrlRoot.GetLabel()
         if self.frame.chkboxPrefix.IsChecked():
-            dig = self.frame.spinPrefixDigit.GetValue()
-            strName = self.frame.spinPrefixNext.GetValue()
+            prefixDig = self.frame.spinPrefixDigit.GetValue()
+            prefixNext = self.frame.spinPrefixNext.GetValue()
+            prefixFormat = '%0' + str(prefixDig) + 'd'
+            prefixStr = prefixFormat % prefixNext
+            strFileName = prefixStr + strFileName
+            prefixNext += 1
+            self.frame.spinPrefixNext.SetValue(prefixNext)
+            
+        if self.frame.chkboxSuffix.IsChecked():
+            suffixDig = self.frame.spinSuffixDigit.GetValue()
+            suffixNext = self.frame.spinSuffixNext.GetValue()
+            suffixFormat = '%0' + str(suffixDig) + 'd'
+            suffixStr = suffixFormat % suffixNext
+            strFileName += suffixStr  
+            suffixNext += 1
+            self.frame.spinSuffixNext.SetValue(suffixNext)
+            
+        strFileName += '.txt'
+        self.frame.txtctrlFileName.SetLabel(strFileName)
     
     def OnBtnPortSettingSW(self, evt = None):
         if self.frame.btnPortSettingSW.GetLabel().endswith('>>'):
