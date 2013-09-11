@@ -17,7 +17,8 @@ from cStringIO import StringIO
 import webbrowser
 import appInfo
 import glob
-
+import subprocess
+        
 MAINMENU  = 0
 SUBMENU   = 1
 MENUITEM  = 2
@@ -172,6 +173,9 @@ class MyApp(wx.App):
         self.frame.btnPortSettingSW.Bind(wx.EVT_BUTTON, self.OnBtnPortSettingSW)
         
         self.frame.btnGenerateName.Bind(wx.EVT_BUTTON, self.OnBtnGenerateName)
+        self.frame.btnOpenDir.Bind(wx.EVT_BUTTON, self.OnBtnOpenDir)
+        self.frame.btnSelectDir.Bind(wx.EVT_BUTTON, self.OnBtnSelectDir)
+        self.frame.btnSaveLog.Bind(wx.EVT_BUTTON, self.OnBtnSaveLog)
         
         self.SetTopWindow(self.frame)
         self.frame.SetTitle( appInfo.title )
@@ -184,6 +188,60 @@ class MyApp(wx.App):
 #         self.txQueue = Queue.Queue()
         
         return True
+    
+    def OnBtnOpenDir(self, evt = None):
+        path = self.frame.txtctrlDir.GetLabel()
+        subprocess.Popen('explorer %s' % path)  #subprocess.Popen(r'explorer /select,"C:\path\of\folder\file"')
+    
+    def OnBtnSaveLog(self, evt = None):
+        path = self.frame.txtctrlDir.GetLabel()
+        fileName = self.frame.txtctrlFileName.GetLabel()
+        if path != '' and fileName != '':
+            try:
+                f = open(path + fileName, 'w')
+                f.write(self.frame.txtctlMain.GetValue())
+            except IOError as e:
+                print "I/O error({0}): {1}".format(e.errno, e.strerror)
+                
+                dlg = wx.MessageDialog(self.frame, 
+                                       "I/O error\nErrNo {0}: {1}".format(e.errno, e.strerror),
+                                       'I/O error',
+                                       wx.OK | wx.ICON_INFORMATION
+                                       #wx.YES_NO | wx.NO_DEFAULT | wx.CANCEL | wx.ICON_INFORMATION
+                                       )
+                dlg.ShowModal()
+                dlg.Destroy()
+            except:
+                print "Unexpected error:", sys.exc_info()[0]
+                
+                dlg = wx.MessageDialog(self.frame, 
+                                       "Unexpected error {0}".format(sys.exc_info()[0]),
+                                       'Error',
+                                       wx.OK | wx.ICON_INFORMATION
+                                       #wx.YES_NO | wx.NO_DEFAULT | wx.CANCEL | wx.ICON_INFORMATION
+                                       )
+                dlg.ShowModal()
+                dlg.Destroy()
+                raise
+            else:
+                f.close()
+
+    
+    def OnBtnSelectDir(self, evt = None):
+        setPath = self.frame.txtctrlDir.GetLabel()
+        if setPath is None:
+            setPath = os.getcwd()
+        
+        dlg = wx.DirDialog(self.frame,
+                            message="Select the directory to save log",
+                            defaultPath = setPath)
+
+        if dlg.ShowModal() == wx.ID_OK:
+            path = dlg.GetPath()
+            if not path.endswith('\\'):
+                path += '\\'
+            self.frame.txtctrlDir.SetLabel(path)
+        dlg.Destroy()
     
     def OnBtnGenerateName(self , evt = None):
         strFileName = self.frame.txtctrlRoot.GetLabel()
@@ -266,7 +324,6 @@ class MyApp(wx.App):
             path = dlg.GetPath()
             print "You selected %s\n" % path,
             
-            # read file
             f = open(path, 'w')
             
             f.write(self.frame.txtctlMain.GetValue())
