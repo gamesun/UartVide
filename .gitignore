@@ -70,3 +70,8 @@ nosetests.xml
 
 # backup files
 *.bak
+
+#############
+## wxGlade
+#############
+*~wxg.autosave~*
