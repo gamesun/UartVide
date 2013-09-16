@@ -8,7 +8,6 @@ import re
 import serial
 # import time
 from wx.lib.wordwrap import wordwrap
-import _winreg as winreg
 import itertools
 import icon32
 import pkg_resources
@@ -33,6 +32,12 @@ THREAD_TIMEOUT = 0.5
 
 SASHPOSITION = 220
 
+
+if sys.platform == 'win32':
+    DIRECTORY_SEPARATER = '\\'
+elif sys.platform.startswith('linux'):
+    DIRECTORY_SEPARATER = '/'
+
 SERIALEXCEPT = wx.NewEventType()
 EVT_SERIALEXCEPT = wx.PyEventBinder(SERIALEXCEPT, 0)
 class SerialExceptEvent(wx.PyCommandEvent):
@@ -52,6 +57,8 @@ def EnumerateSerialPorts():
             existing on this computer.
         """
         pathDevi = r'HARDWARE\DEVICEMAP'
+
+        import _winreg as winreg
         try:
             key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, pathDevi)
         except WindowsError:
@@ -190,13 +197,20 @@ class MyApp(wx.App):
         return True
     
     def OnBtnOpenDir(self, evt = None):
-        path = self.frame.txtctrlDir.GetLabel()
-        subprocess.Popen('explorer %s' % path)  #subprocess.Popen(r'explorer /select,"C:\path\of\folder\file"')
+        path = self.frame.txtctrlDir.GetValue()
+        if path != '':
+            if sys.platform == 'win32':
+                subprocess.Popen(['explorer', path])
+                #subprocess.Popen(['explorer', '/select,', 'C:\path\of\folder\file'])
+            elif sys.platform.startswith('linux'):
+                subprocess.Popen(['xdg-open', path])
     
     def OnBtnSaveLog(self, evt = None):
-        path = self.frame.txtctrlDir.GetLabel()
-        fileName = self.frame.txtctrlFileName.GetLabel()
+        path = self.frame.txtctrlDir.GetValue()
+        fileName = self.frame.txtctrlFileName.GetValue()
         if path != '' and fileName != '':
+            if not path.endswith(DIRECTORY_SEPARATER):
+                path += DIRECTORY_SEPARATER
             try:
                 f = open(path + fileName, 'w')
                 f.write(self.frame.txtctlMain.GetValue())
@@ -228,7 +242,7 @@ class MyApp(wx.App):
 
     
     def OnBtnSelectDir(self, evt = None):
-        setPath = self.frame.txtctrlDir.GetLabel()
+        setPath = self.frame.txtctrlDir.GetValue()
         if setPath is None:
             setPath = os.getcwd()
         
@@ -238,13 +252,11 @@ class MyApp(wx.App):
 
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
-            if not path.endswith('\\'):
-                path += '\\'
-            self.frame.txtctrlDir.SetLabel(path)
+            self.frame.txtctrlDir.SetValue(path)
         dlg.Destroy()
     
     def OnBtnGenerateName(self , evt = None):
-        strFileName = self.frame.txtctrlRoot.GetLabel()
+        strFileName = self.frame.txtctrlRoot.GetValue()
         if self.frame.chkboxPrefix.IsChecked():
             prefixDig = self.frame.spinPrefixDigit.GetValue()
             prefixNext = self.frame.spinPrefixNext.GetValue()
@@ -264,7 +276,7 @@ class MyApp(wx.App):
             self.frame.spinSuffixNext.SetValue(suffixNext)
             
         strFileName += '.txt'
-        self.frame.txtctrlFileName.SetLabel(strFileName)
+        self.frame.txtctrlFileName.SetValue(strFileName)
     
     def OnBtnPortSettingSW(self, evt = None):
         if self.frame.btnPortSettingSW.GetLabel().endswith('>>'):
@@ -276,14 +288,18 @@ class MyApp(wx.App):
         self.frame.btnPortSettingSW.SetLabel('Port Setting <<')
         self.frame.pnlPortSetting.Hide()
         self.frame.pnlSettingBar.GetSizer().Layout()
-        self.frame.window_1_pane_1.SetScrollbars(10, 10, 30, 300)    # call SetScrollbars() just for refreshing the scroll bar.
+        
+        # call SetScrollbars() just for refreshing the scroll bar.
+        self.frame.window_1_pane_1.SetScrollbars(10, 10, 30, 300)
         
         
     def ShowPortSetting(self):
         self.frame.btnPortSettingSW.SetLabel('Port Setting >>')
         self.frame.pnlPortSetting.Show()
         self.frame.pnlSettingBar.GetSizer().Layout()
-        self.frame.window_1_pane_1.SetScrollbars(10, 10, 30, 300)    # call SetScrollbars() just for refreshing the scroll bar.
+        
+        # call SetScrollbars() just for refreshing the scroll bar.
+        self.frame.window_1_pane_1.SetScrollbars(10, 10, 30, 300)
         
         
     def OnBtnSaveToFileSW(self, evt = None):
@@ -294,7 +310,9 @@ class MyApp(wx.App):
             self.frame.btnSaveToFileSW.SetLabel('Save to File >>')
             self.frame.pnlSaveToFile.Show()
         self.frame.pnlSettingBar.GetSizer().Layout()
-        self.frame.window_1_pane_1.SetScrollbars(10, 10, 30, 300)    # call SetScrollbars() just for refreshing the scroll bar.
+        
+        # call SetScrollbars() just for refreshing the scroll bar.
+        self.frame.window_1_pane_1.SetScrollbars(10, 10, 30, 300)
         
         
     def OnURL(self, evt):
@@ -339,7 +357,7 @@ class MyApp(wx.App):
                 return int(r.group('port')) - 1
             return
         elif sys.platform.startswith('linux'):
-            return  self.frame.choicePort.GetStringSelection()
+            return self.frame.choicePort.GetStringSelection()
 
     def GetBaudRate(self):
         return int(self.frame.cmbBaudRate.GetValue())
