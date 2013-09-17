@@ -637,16 +637,16 @@ class MyApp(wx.App):
         info = wx.AboutDialogInfo()
         info.Name = appInfo.title
         info.Version = appInfo.version
-        info.Copyright = "Copywrong All Lefts Unreserved."
+        info.Copyright = appInfo.copyright
         info.Description = wordwrap(
             '\nMyTerm offer a great solution for RS232 serial port communication.'
             '\n\nIts other features including detecting the valid serial ports, '
             'receiving data from serial ports and viewing it in ASCII text or hexadecimal formats, '
             'echoing the sending data in local or not.',
             350, wx.ClientDC(self.frame))
-        info.WebSite = ("https://github.com/gamesun/MyTerm#myterm", "MyTerm Home Page")
-        info.Developers = [ "sun.yt" ]
-        info.License = wordwrap("(C) 2013 Programmers and Coders Everywhere", 500, wx.ClientDC(self.frame))
+        info.WebSite = (appInfo.url, "Home Page")
+        info.Developers = [ appInfo.author ]
+        info.License = wordwrap(appInfo.copyright, 500, wx.ClientDC(self.frame))
 
         info.Icon = icon32.geticon32Icon()
 

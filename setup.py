@@ -111,8 +111,8 @@ MyTerm_windows = Target(
     name = appInfo.title,
     version = appInfo.version,
     description = appInfo.file_name,
-    author = 'gamesun',
-    url = r'https://github.com/gamesun/MyTerm',
+    author = appInfo.author,
+    url = appInfo.url,
     
     # what to build
     script = "main.py",
