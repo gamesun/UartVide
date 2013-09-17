@@ -124,5 +124,6 @@ MyTerm_windows = Target(
 setup(
     options = myOptions,
     cmdclass= {'py2exe': MediaCollector},
+    data_files = [("", ["COPYING",]),],
     windows = [MyTerm_windows]
 )
