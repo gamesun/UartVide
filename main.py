@@ -1,4 +1,5 @@
-# -*- coding:utf-8 -*-
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
 #
 # Copyright (c) 2013, gamesun
 # All rights reserved.
