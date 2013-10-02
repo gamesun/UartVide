@@ -60,7 +60,7 @@ ASCII = 0
 HEX   = 1
 
 THREAD_TIMEOUT = 0.5
-
+SERIAL_WRITE_TIMEOUT = 0.5
 SASHPOSITION = 220
 
 
@@ -471,6 +471,7 @@ class MyApp(wx.App):
         serialport.rtscts   = self.frame.chkboxrtscts.IsChecked()
         serialport.xonxoff  = self.frame.chkboxxonxoff.IsChecked()
         serialport.timeout  = THREAD_TIMEOUT
+        serialport.writeTimeout = SERIAL_WRITE_TIMEOUT
         try:
             serialport.open()
         except serial.SerialException, e:
@@ -575,9 +576,14 @@ class MyApp(wx.App):
             
         if serialport.isOpen():
             if keycode < 256:
-                serialport.write(chr(keycode))
-                self.txCount += 1
-                self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
+                try:
+                    serialport.write(chr(keycode))
+                except serial.SerialException, e:
+                    evt = SerialExceptEvent(self.frame.GetId(), e)
+                    self.frame.GetEventHandler().AddPendingEvent(evt)
+                else:
+                    self.txCount += 1
+                    self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
             else:
                 print "Extra Key:", keycode
         
@@ -589,9 +595,14 @@ class MyApp(wx.App):
             if wx.WXK_RETURN == keycode or wx.WXK_BACK == keycode:
                 print keycode,
                 if serialport.isOpen():
-                    serialport.write(chr(keycode))
-                    self.txCount += 1
-                    self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
+                    try:
+                        serialport.write(chr(keycode))
+                    except serial.SerialException, e:
+                        evt = SerialExceptEvent(self.frame.GetId(), e)
+                        self.frame.GetEventHandler().AddPendingEvent(evt)
+                    else:
+                        self.txCount += 1
+                        self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
             else:
                 evt.Skip()
             
@@ -600,26 +611,32 @@ class MyApp(wx.App):
         wx.TheClipboard.GetData(data)
 
         if serialport.isOpen():
-            serialport.write( data.GetText() )
-            self.txCount += len( data.GetText() )
-            self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
+            try:
+                serialport.write( data.GetText() )
+            except serial.SerialException, e:
+                evt = SerialExceptEvent(self.frame.GetId(), e)
+                self.frame.GetEventHandler().AddPendingEvent(evt)
+            else:
+                self.txCount += len( data.GetText() )
+                self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
                     
         if self.localEcho:
             evt.Skip()
     
     def OnSerialExcept(self, evt):
-        param = evt.param
-        if param == -1:
-            self.StopThread()
-            serialport.close()
-            self.frame.SetTitle(appInfo.title)
-            self.frame.btnOpen.SetBackgroundColour(wx.NullColour)
-            self.frame.btnOpen.SetLabel('Open')
-            self.frame.btnOpen.Refresh()
-            self.ShowPortSetting()
-        else:
-            print 'OnSerialExcept() invalid parameter:%d' % param
-        
+        e = evt.param
+        dlg = wx.MessageDialog(None, str(e), "Serial Port Error", wx.OK | wx.ICON_ERROR)
+        dlg.ShowModal()
+        dlg.Destroy()
+
+        self.StopThread()
+        serialport.close()
+        self.frame.SetTitle(appInfo.title)
+        self.frame.btnOpen.SetBackgroundColour(wx.NullColour)
+        self.frame.btnOpen.SetLabel('Open')
+        self.frame.btnOpen.Refresh()
+        self.ShowPortSetting()
+
     def OnHideSettingBar(self, evt = None):
         self.frame.SplitterWindow.SetSashPosition(1, True)
         
