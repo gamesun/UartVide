@@ -687,11 +687,12 @@ class MyApp(wx.App):
         info.Version = appInfo.version
         info.Copyright = appInfo.copyright
         info.Description = wordwrap(
-            '\nMyTerm offer a great solution for RS232 serial port communication.'
-            '\n\nIts other features including detecting the valid serial ports, '
-            'receiving data from serial ports and viewing it in ASCII text or hexadecimal formats, '
-            'echoing the sending data in local or not.',
-            350, wx.ClientDC(self.frame))
+            '\nMyTerm is a RS232 serial port communication utility that can '
+            'display the received data either in hexadecimal or ASCII format, '
+            'allowing you to configure the connection parameters.'
+            '\n\nIts other features including detecting the valid serial '
+            'ports, echoing the sending data in local or not.',
+            335, wx.ClientDC(self.frame))
         info.WebSite = (appInfo.url, "Home Page")
         info.Developers = [ appInfo.author ]
         info.License = wordwrap(appInfo.copyright, 500, wx.ClientDC(self.frame))
