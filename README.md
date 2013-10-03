@@ -1,5 +1,4 @@
-MyTerm
-======
+# MyTerm
 MyTerm is a RS232 serial port communication utility that can display the received data  
 either in hexadecimal or ASCII format, allowing you to configure the connection parameters.
 
@@ -13,8 +12,8 @@ echoing the sending data in local or not.
    </tr>
 </table>
 
-Download Windows Version
-------------------------
+## Download
+### Windows Version
 <table>
    <tr>
       <td>Size</td>
@@ -30,8 +29,12 @@ Download Windows Version
 
 [![](doc/softpedia_free_award.bmp "")](http://www.softpedia.com/progClean/MyTerm-Clean-242031.html)
 
-Screenshot
-----------
+### Linux Version
+The source code is executable in Linux.  
+The package for Linux is being prepared.  
+
+
+## Screenshot
 ![](doc/screenshot.jpg "screenshot")
 
 ![](doc/hidebar.jpg "the setting bar is hiding")
