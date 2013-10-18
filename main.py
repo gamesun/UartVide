@@ -211,6 +211,8 @@ class MyApp(wx.App):
         self.frame.txtctlMain.Bind(wx.EVT_TEXT_PASTE, self.OnPaste)
         self.frame.txtctlMain.Bind(wx.EVT_TEXT_URL, self.OnURL)
 
+        self.frame.btnYSWrite.Bind(wx.EVT_BUTTON, self.OnYSWrite)
+        
         self.SetTopWindow(self.frame)
         self.frame.SetTitle( appInfo.title )
         self.frame.Show()
@@ -221,7 +223,22 @@ class MyApp(wx.App):
         
         return True
 
-
+    def OnYSWrite(self, evt):
+        strYsHdDt = self.frame.txtctlYSHeadData.GetValue()
+        strYsAddr = self.frame.txtctlYSAddress.GetValue()
+        strYsData = self.frame.txtctlYSData.GetValue()
+        text = strYsHdDt + strYsAddr + strYsData
+        text = HexToByte(text)
+        if serialport.isOpen():
+            try:
+                serialport.write( text )
+            except serial.SerialException, e:
+                evt = SerialExceptEvent(self.frame.GetId(), e)
+                self.frame.GetEventHandler().AddPendingEvent(evt)
+            else:
+                self.txCount += len( text )
+                self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
+                    
     def OnURL(self, evt):
         if evt.MouseEvent.LeftUp():
             s = evt.GetURLStart()
@@ -592,6 +609,25 @@ class MyApp(wx.App):
                 assert not self.thread.is_alive(), "the thread should be dead but isn't!"
 #             self.threadCommunicate.terminate()
 
+def HexToByte( hexStr ):
+    """
+    Convert a string hex byte values into a byte string. The Hex Byte values may
+    or may not be space separated.
+    """
+    # The list comprehension implementation is fractionally slower in this case    
+    #
+    #    hexStr = ''.join( hexStr.split(" ") )
+    #    return ''.join( ["%c" % chr( int ( hexStr[i:i+2],16 ) ) \
+    #                                   for i in range(0, len( hexStr ), 2) ] )
+ 
+    bytes = []
+
+    hexStr = ''.join( hexStr.split(" ") )
+
+    for i in range(0, len(hexStr), 2):
+        bytes.append( chr( int (hexStr[i:i+2], 16 ) ) )
+
+    return ''.join( bytes )
         
 if __name__ == '__main__':
     app = MyApp(0)
