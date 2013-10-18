@@ -31,10 +31,10 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-title = 'MyTerm'
-version = '1.3.1'
+title = 'MyTerm for YellowStone'
+version = '1.0'
 file_name = title + ' ' + version
-url = 'http://sourceforge.net/projects/myterm/'
+url = 'https://github.com/gamesun/MyTerm#myterm'
 author = 'gamesun'
 copyright = 'Copyright (c) 2013, gamesun'
 
