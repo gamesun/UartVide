@@ -61,7 +61,7 @@ HEX   = 1
 
 THREAD_TIMEOUT = 0.5
 SERIAL_WRITE_TIMEOUT = 0.5
-SASHPOSITION = 220
+SASHPOSITION = 180
 
 
 if sys.platform == 'win32':
@@ -207,145 +207,18 @@ class MyApp(wx.App):
         self.frame.txtctlMain.Bind(wx.EVT_CHAR, self.OnSerialWrite)
         self.frame.txtctlMain.Bind(wx.EVT_TEXT_PASTE, self.OnPaste)
         self.frame.txtctlMain.Bind(wx.EVT_TEXT_URL, self.OnURL)
-        self.frame.btnSaveToFileSW.Bind(wx.EVT_BUTTON, self.OnBtnSaveToFileSW)
-        self.frame.btnPortSettingSW.Bind(wx.EVT_BUTTON, self.OnBtnPortSettingSW)
-        
-        self.frame.btnGenerateName.Bind(wx.EVT_BUTTON, self.OnBtnGenerateName)
-        self.frame.btnOpenDir.Bind(wx.EVT_BUTTON, self.OnBtnOpenDir)
-        self.frame.btnSelectDir.Bind(wx.EVT_BUTTON, self.OnBtnSelectDir)
-        self.frame.btnSaveLog.Bind(wx.EVT_BUTTON, self.OnBtnSaveLog)
-        
+
         self.SetTopWindow(self.frame)
         self.frame.SetTitle( appInfo.title )
         self.frame.Show()
-        
-        self.OnBtnSaveToFileSW()
         
         self.evtPortOpen = threading.Event()
 #         self.rxQueue = Queue.Queue()
 #         self.txQueue = Queue.Queue()
         
         return True
-    
-    def OnBtnOpenDir(self, evt = None):
-        path = self.frame.txtctrlDir.GetValue()
-        if path != '':
-            if sys.platform == 'win32':
-                subprocess.Popen(['explorer', path])
-                #subprocess.Popen(['explorer', '/select,', 'C:\path\of\folder\file'])
-            elif sys.platform.startswith('linux'):
-                subprocess.Popen(['xdg-open', path])
-    
-    def OnBtnSaveLog(self, evt = None):
-        path = self.frame.txtctrlDir.GetValue()
-        fileName = self.frame.txtctrlFileName.GetValue()
-        if path != '' and fileName != '':
-            if not path.endswith(DIRECTORY_SEPARATER):
-                path += DIRECTORY_SEPARATER
-            try:
-                f = open(path + fileName, 'w')
-                f.write(self.frame.txtctlMain.GetValue())
-            except IOError as e:
-                print "I/O error({0}): {1}".format(e.errno, e.strerror)
-                
-                dlg = wx.MessageDialog(self.frame, 
-                                       "I/O error\nErrNo {0}: {1}".format(e.errno, e.strerror),
-                                       'I/O error',
-                                       wx.OK | wx.ICON_INFORMATION
-                                       #wx.YES_NO | wx.NO_DEFAULT | wx.CANCEL | wx.ICON_INFORMATION
-                                       )
-                dlg.ShowModal()
-                dlg.Destroy()
-            except:
-                print "Unexpected error:", sys.exc_info()[0]
-                
-                dlg = wx.MessageDialog(self.frame, 
-                                       "Unexpected error {0}".format(sys.exc_info()[0]),
-                                       'Error',
-                                       wx.OK | wx.ICON_INFORMATION
-                                       #wx.YES_NO | wx.NO_DEFAULT | wx.CANCEL | wx.ICON_INFORMATION
-                                       )
-                dlg.ShowModal()
-                dlg.Destroy()
-                raise
-            else:
-                f.close()
 
-    
-    def OnBtnSelectDir(self, evt = None):
-        setPath = self.frame.txtctrlDir.GetValue()
-        if setPath is None:
-            setPath = os.getcwd()
-        
-        dlg = wx.DirDialog(self.frame,
-                            message="Select the directory to save log",
-                            defaultPath = setPath)
 
-        if dlg.ShowModal() == wx.ID_OK:
-            path = dlg.GetPath()
-            self.frame.txtctrlDir.SetValue(path)
-        dlg.Destroy()
-    
-    def OnBtnGenerateName(self , evt = None):
-        strFileName = self.frame.txtctrlRoot.GetValue()
-        if self.frame.chkboxPrefix.IsChecked():
-            prefixDig = self.frame.spinPrefixDigit.GetValue()
-            prefixNext = self.frame.spinPrefixNext.GetValue()
-            prefixFormat = '%0' + str(prefixDig) + 'd'
-            prefixStr = prefixFormat % prefixNext
-            strFileName = prefixStr + strFileName
-            prefixNext += 1
-            self.frame.spinPrefixNext.SetValue(prefixNext)
-            
-        if self.frame.chkboxSuffix.IsChecked():
-            suffixDig = self.frame.spinSuffixDigit.GetValue()
-            suffixNext = self.frame.spinSuffixNext.GetValue()
-            suffixFormat = '%0' + str(suffixDig) + 'd'
-            suffixStr = suffixFormat % suffixNext
-            strFileName += suffixStr  
-            suffixNext += 1
-            self.frame.spinSuffixNext.SetValue(suffixNext)
-            
-        strFileName += '.txt'
-        self.frame.txtctrlFileName.SetValue(strFileName)
-    
-    def OnBtnPortSettingSW(self, evt = None):
-        if self.frame.btnPortSettingSW.GetLabel().endswith('>>'):
-            self.HidePortSetting()
-        else:
-            self.ShowPortSetting()
-    
-    def HidePortSetting(self):
-        self.frame.btnPortSettingSW.SetLabel('Port Setting <<')
-        self.frame.pnlPortSetting.Hide()
-        self.frame.pnlSettingBar.GetSizer().Layout()
-        
-        # call SetScrollbars() just for refreshing the scroll bar.
-        self.frame.window_1_pane_1.SetScrollbars(10, 10, 30, 300)
-        
-        
-    def ShowPortSetting(self):
-        self.frame.btnPortSettingSW.SetLabel('Port Setting >>')
-        self.frame.pnlPortSetting.Show()
-        self.frame.pnlSettingBar.GetSizer().Layout()
-        
-        # call SetScrollbars() just for refreshing the scroll bar.
-        self.frame.window_1_pane_1.SetScrollbars(10, 10, 30, 300)
-        
-        
-    def OnBtnSaveToFileSW(self, evt = None):
-        if self.frame.btnSaveToFileSW.GetLabel().endswith('>>'):
-            self.frame.btnSaveToFileSW.SetLabel('Save to File <<')
-            self.frame.pnlSaveToFile.Hide()
-        else:
-            self.frame.btnSaveToFileSW.SetLabel('Save to File >>')
-            self.frame.pnlSaveToFile.Show()
-        self.frame.pnlSettingBar.GetSizer().Layout()
-        
-        # call SetScrollbars() just for refreshing the scroll bar.
-        self.frame.window_1_pane_1.SetScrollbars(10, 10, 30, 300)
-        
-        
     def OnURL(self, evt):
         if evt.MouseEvent.LeftUp():
             s = evt.GetURLStart()
@@ -494,7 +367,6 @@ class MyApp(wx.App):
             self.frame.btnOpen.SetBackgroundColour((0,0xff,0x7f))
             self.frame.btnOpen.SetLabel('Close')
             self.frame.btnOpen.Refresh()
-            self.HidePortSetting()
     
     def OnClosePort(self, evt = None):
         if serialport.isOpen():
@@ -504,7 +376,6 @@ class MyApp(wx.App):
             self.frame.btnOpen.SetBackgroundColour(wx.NullColour)
             self.frame.btnOpen.SetLabel('Open')
             self.frame.btnOpen.Refresh()
-            self.ShowPortSetting()
     
     def StartThread(self):
         """Start the receiver thread"""
