@@ -211,7 +211,7 @@ class MyApp(wx.App):
         self.frame.txtctlMain.Bind(wx.EVT_TEXT_PASTE, self.OnPaste)
         self.frame.txtctlMain.Bind(wx.EVT_TEXT_URL, self.OnURL)
 
-        self.frame.btnYSWrite.Bind(wx.EVT_BUTTON, self.OnYSWrite)
+        self.frame.btnYSTransmit.Bind(wx.EVT_BUTTON, self.OnYSTransmit)
         
         self.SetTopWindow(self.frame)
         self.frame.SetTitle( appInfo.title )
@@ -223,11 +223,11 @@ class MyApp(wx.App):
         
         return True
 
-    def OnYSWrite(self, evt):
-        strYsHdDt = self.frame.txtctlYSHeadData.GetValue()
-        strYsAddr = self.frame.txtctlYSAddress.GetValue()
-        strYsData = self.frame.txtctlYSData.GetValue()
-        text = strYsHdDt + strYsAddr + strYsData
+    def OnYSTransmit(self, evt):
+        strYsD1 = self.frame.txtctlYSData1.GetValue()
+        strYsD2 = self.frame.txtctlYSData2.GetValue()
+        strYsD3 = self.frame.txtctlYSData3.GetValue()
+        text = strYsD1 + strYsD2 + strYsD3
         text = HexToByte(text)
         if serialport.isOpen():
             try:
