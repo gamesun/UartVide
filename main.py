@@ -410,7 +410,7 @@ class MyApp(wx.App):
                     text = text + serialport.read(n)
 
                 if self.rxmode == HEX:
-                    text = ''.join(str(ord(t)) + ' ' for t in text)     # text = ''.join([(c >= ' ') and c or '<%d>' % ord(c)  for c in text])
+                    text = ''.join('%x ' % ord(t) for t in text)
                     self.frame.txtctlMain.AppendText(text)
                 else:
                     text = text.replace('\n', '')
