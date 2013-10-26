@@ -413,9 +413,11 @@ class MyApp(wx.App):
                     text = text + serialport.read(n)
 
                 if self.rxmode == HEX_LOWERCASE:
+                    self.rxCount += len(text)
                     text = ''.join('%02x ' % ord(t) for t in text)
                     self.frame.txtctlMain.AppendText(text)
                 elif self.rxmode == HEX_UPPERCASE:
+                    self.rxCount += len(text)
                     text = ''.join('%02X ' % ord(t) for t in text)
                     self.frame.txtctlMain.AppendText(text)
                 else:
@@ -429,11 +431,12 @@ class MyApp(wx.App):
                                 self.frame.txtctlMain.AppendText(t)
                     else:
                         self.frame.txtctlMain.AppendText(text)
-                
+                    self.rxCount += len(text)
+
                 """Using event to display is slow when the data is too big."""
 #                 evt = SerialRxEvent(self.frame.GetId(), text)
 #                 self.frame.GetEventHandler().AddPendingEvent(evt)
-                self.rxCount += len(text)
+
                 self.frame.statusbar.SetStatusText('Rx:%d' % self.rxCount, 1)
         print 'exit thread'
         
