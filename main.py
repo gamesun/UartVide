@@ -56,8 +56,10 @@ CHECKITEM = 3
 SEPARATOR = 4
 RADIOITEM = 5
 
-ASCII = 0
-HEX   = 1
+ASCII           = 0
+HEX_LOWERCASE   = 1
+HEX_UPPERCASE   = 2
+
 
 THREAD_TIMEOUT = 0.5
 SERIAL_WRITE_TIMEOUT = 0.5
@@ -139,7 +141,8 @@ MAINMENU,
     (CHECKITEM, wx.NewId(), '&Local echo',        'echo what you typed', 'self.OnLocalEcho'      ),
     (SUBMENU, '&Rx view as', (
         (RADIOITEM, wx.NewId(), '&Ascii', '', 'self.OnRxAsciiMode' ),
-        (RADIOITEM, wx.NewId(), '&Hex',   '', 'self.OnRxHexMode'   ),
+        (RADIOITEM, wx.NewId(), '&hex',   '', 'self.OnRxHexModeLowercase'   ),
+        (RADIOITEM, wx.NewId(), '&HEX',   '', 'self.OnRxHexModeUppercase'   ),
     )),
 #     (SUBMENU, 'Tx view as', (
 #         (RADIOITEM, wx.NewId(), 'ASCII', '', 'self.OnTxAsciiMode' ),
@@ -409,8 +412,11 @@ class MyApp(wx.App):
                 if n:
                     text = text + serialport.read(n)
 
-                if self.rxmode == HEX:
-                    text = ''.join('%X ' % ord(t) for t in text)
+                if self.rxmode == HEX_LOWERCASE:
+                    text = ''.join('%02x ' % ord(t) for t in text)
+                    self.frame.txtctlMain.AppendText(text)
+                elif self.rxmode == HEX_UPPERCASE:
+                    text = ''.join('%02X ' % ord(t) for t in text)
                     self.frame.txtctlMain.AppendText(text)
                 else:
                     text = text.replace('\n', '')
@@ -521,17 +527,13 @@ class MyApp(wx.App):
         self.rxmode = ASCII
         self.frame.statusbar.SetStatusText('Rx:Ascii', 3)
     
-    def OnRxHexMode(self, evt = None):
-        self.rxmode = HEX
-        self.frame.statusbar.SetStatusText('Rx:Hex', 3)
+    def OnRxHexModeLowercase(self, evt = None):
+        self.rxmode = HEX_LOWERCASE
+        self.frame.statusbar.SetStatusText('Rx:hex', 3)
         
-    def OnTxAsciiMode(self, evt = None):
-        self.txmode = ASCII
-        self.frame.statusbar.SetStatusText('Tx:Ascii', 4)
-    
-    def OnTxHexMode(self, evt = None):
-        self.txmode = HEX
-        self.frame.statusbar.SetStatusText('Tx:Hex', 4)
+    def OnRxHexModeUppercase(self, evt =None):
+        self.rxmode = HEX_UPPERCASE
+        self.frame.statusbar.SetStatusText('Rx:HEX', 3)
 
     def OnAlwayOnTop(self, evt = None):
         if evt.Selection == 1:
