@@ -190,6 +190,10 @@ class MyApp(wx.App):
         self.localEcho = False
         self.rxCount = 0
         self.txCount = 0
+        self.colW = 20
+        self.chkColW = False
+        
+        self.frame.txtctlColW.SetValue('%d' % self.colW)
         
         # Make a menu
         menuBar = wx.MenuBar()
@@ -212,6 +216,8 @@ class MyApp(wx.App):
         self.frame.txtctlMain.Bind(wx.EVT_TEXT_URL, self.OnURL)
 
         self.frame.btnYSTransmit.Bind(wx.EVT_BUTTON, self.OnYSTransmit)
+        self.frame.btnSetColW.Bind(wx.EVT_BUTTON, self.OnBtnSetColW)
+        self.frame.chkColW.Bind(wx.EVT_CHECKBOX, self.OnChkColW)
         
         self.SetTopWindow(self.frame)
         self.frame.SetTitle( appInfo.title )
@@ -223,7 +229,16 @@ class MyApp(wx.App):
         
         return True
 
-    def OnYSTransmit(self, evt):
+    def OnChkColW(self, evt = None):
+        self.chkColW = self.frame.chkColW.IsChecked()
+
+    def OnBtnSetColW(self, evt = None):
+        self.colW = int(self.frame.txtctlColW.GetValue())
+        if int(self.colW) < 1:
+            self.colW = 1
+            self.frame.txtctlColW.SetValue('%d' % self.colW)
+        
+    def OnYSTransmit(self, evt = None):
         strYsD1 = self.frame.txtctlYSData1.GetValue()
         strYsD2 = self.frame.txtctlYSData2.GetValue()
         strYsD3 = self.frame.txtctlYSData3.GetValue()
