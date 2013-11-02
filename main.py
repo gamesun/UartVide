@@ -294,7 +294,12 @@ class MyApp(wx.App):
             
             f = open(path, 'w')
             
-            f.write(self.frame.txtctlMain.GetValue())
+            w = self.GetColW()
+            txt = self.frame.txtctlMain.GetValue()
+            l = [ txt[i:i+w] for i in range(0, len(txt), w)]
+            result = '\n'.join(l)
+
+            f.write(result)
             
             f.close()
             
