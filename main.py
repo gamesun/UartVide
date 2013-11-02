@@ -141,8 +141,8 @@ MAINMENU,
     (CHECKITEM, wx.NewId(), '&Local echo',        'echo what you typed', 'self.OnLocalEcho'      ),
     (SUBMENU, '&Rx view as', (
         (RADIOITEM, wx.NewId(), '&Ascii', '', 'self.OnRxAsciiMode' ),
-        (RADIOITEM, wx.NewId(), '&hex',   '', 'self.OnRxHexModeLowercase'   ),
-        (RADIOITEM, wx.NewId(), '&HEX',   '', 'self.OnRxHexModeUppercase'   ),
+        (RADIOITEM, wx.NewId(), '&hex(lowercase)',   '', 'self.OnRxHexModeLowercase'   ),
+        (RADIOITEM, wx.NewId(), '&HEX(UPPERCASE)',   '', 'self.OnRxHexModeUppercase'   ),
     )),
 #     (SUBMENU, 'Tx view as', (
 #         (RADIOITEM, wx.NewId(), 'ASCII', '', 'self.OnTxAsciiMode' ),
