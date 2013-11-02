@@ -339,6 +339,9 @@ class MyApp(wx.App):
             self.OnOpenPort(evt)
         
     def OnOpenPort(self, evt = None):
+        if serialport.isOpen():
+            return
+        
         serialport.port     = self.GetPort()
         serialport.baudrate = self.GetBaudRate()
         serialport.bytesize = self.GetDataBits()
