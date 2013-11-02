@@ -216,8 +216,8 @@ class MyApp(wx.App):
         self.frame.txtctlMain.Bind(wx.EVT_TEXT_URL, self.OnURL)
 
         self.frame.btnYSTransmit.Bind(wx.EVT_BUTTON, self.OnYSTransmit)
-        self.frame.btnSetColW.Bind(wx.EVT_BUTTON, self.OnBtnSetColW)
-        self.frame.chkColW.Bind(wx.EVT_CHECKBOX, self.OnChkColW)
+#         self.frame.btnSetColW.Bind(wx.EVT_BUTTON, self.OnBtnSetColW)
+#         self.frame.chkColW.Bind(wx.EVT_CHECKBOX, self.OnChkColW)
         
         self.SetTopWindow(self.frame)
         self.frame.SetTitle( appInfo.title )
@@ -229,15 +229,26 @@ class MyApp(wx.App):
         
         return True
 
-    def OnChkColW(self, evt = None):
-        self.chkColW = self.frame.chkColW.IsChecked()
-
-    def OnBtnSetColW(self, evt = None):
-        self.colW = int(self.frame.txtctlColW.GetValue())
-        if int(self.colW) < 1:
-            self.colW = 1
-            self.frame.txtctlColW.SetValue('%d' % self.colW)
+#     def OnChkColW(self, evt = None):
+#         self.chkColW = self.frame.chkColW.IsChecked()
+# 
+#     def OnBtnSetColW(self, evt = None):
+#         self.colW = int(self.frame.txtctlColW.GetValue())
+#         if int(self.colW) < 1:
+#             self.colW = 1
+#             self.frame.txtctlColW.SetValue('%d' % self.colW)
+    
+    def GetColW(self):
+        colW = self.frame.txtctlColW.GetValue()
+        if colW.isdigit():
+            colW = int(colW)
+        else:
+            return None
         
+        if colW < 1:
+            return None
+        return colW
+    
     def OnYSTransmit(self, evt = None):
         strYsD1 = self.frame.txtctlYSData1.GetValue()
         strYsD2 = self.frame.txtctlYSData2.GetValue()
