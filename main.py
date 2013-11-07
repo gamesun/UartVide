@@ -48,7 +48,8 @@ import webbrowser
 import appInfo
 import glob
 import subprocess
-        
+import ConfigParser
+
 MAINMENU  = 0
 SUBMENU   = 1
 MENUITEM  = 2
@@ -124,6 +125,10 @@ def EnumerateSerialPorts():
 
         
             
+MENU_ID_RX_ASCII = wx.NewId()
+MENU_ID_RX_HEX_L = wx.NewId()
+MENU_ID_RX_HEX_U = wx.NewId()
+
 MenuDefs = (
 MAINMENU,
 ('&File', (
@@ -140,9 +145,9 @@ MAINMENU,
     (CHECKITEM, wx.NewId(), '&Always on top',     'always on most top',  'self.OnAlwayOnTop'     ),
     (CHECKITEM, wx.NewId(), '&Local echo',        'echo what you typed', 'self.OnLocalEcho'      ),
     (SUBMENU, '&Rx view as', (
-        (RADIOITEM, wx.NewId(), '&Ascii', '', 'self.OnRxAsciiMode' ),
-        (RADIOITEM, wx.NewId(), '&hex(lowercase)',   '', 'self.OnRxHexModeLowercase'   ),
-        (RADIOITEM, wx.NewId(), '&HEX(UPPERCASE)',   '', 'self.OnRxHexModeUppercase'   ),
+        (RADIOITEM, MENU_ID_RX_ASCII, '&Ascii', '', 'self.OnRxAsciiMode' ),
+        (RADIOITEM, MENU_ID_RX_HEX_L, '&hex(lowercase)',   '', 'self.OnRxHexModeLowercase'   ),
+        (RADIOITEM, MENU_ID_RX_HEX_U, '&HEX(UPPERCASE)',   '', 'self.OnRxHexModeUppercase'   ),
     )),
 #     (SUBMENU, 'Tx view as', (
 #         (RADIOITEM, wx.NewId(), 'ASCII', '', 'self.OnTxAsciiMode' ),
@@ -183,7 +188,14 @@ class MyApp(wx.App):
 
         self.OnEnumPorts()
 
+        # Make a menu
+        self.menuBar = wx.MenuBar()
+        self.MakeMenu(self.menuBar, MenuDefs)
+        self.frame.SetMenuBar(self.menuBar)
+        
         # initial variables
+        self.config = ConfigParser.RawConfigParser()
+        self.LoadSettings()
         
         self.rxmode = ASCII
         self.txmode = ASCII
@@ -191,10 +203,6 @@ class MyApp(wx.App):
         self.rxCount = 0
         self.txCount = 0
         
-        # Make a menu
-        menuBar = wx.MenuBar()
-        self.MakeMenu(menuBar, MenuDefs)
-        self.frame.SetMenuBar(menuBar)
         
         # bind events
         self.frame.btnHideBar.Bind(wx.EVT_BUTTON, self.OnHideSettingBar)
@@ -220,8 +228,70 @@ class MyApp(wx.App):
 #         self.txQueue = Queue.Queue()
         
         return True
-
-
+    
+    
+    def LoadSettings(self):
+        self.config.read('setting.ini')
+        
+        if self.config.has_section('serial'):
+            self.frame.choicePort.SetStringSelection(self.config.get('serial', 'port'))
+            self.frame.cmbBaudRate.SetStringSelection(self.config.get('serial', 'baudrate'))
+            self.frame.choiceDataBits.SetStringSelection(self.config.get('serial', 'databits'))
+            self.frame.choiceParity.SetStringSelection(self.config.get('serial', 'parity'))
+            self.frame.choiceStopBits.SetStringSelection(self.config.get('serial', 'stopbits'))
+            
+            if self.config.get('serial', 'rtscts') == 'on':
+                self.frame.chkboxrtscts.SetValue(True)
+            else:
+                self.frame.chkboxrtscts.SetValue(False)
+            
+            if self.config.get('serial', 'xonxoff') == 'on':
+                self.frame.chkboxxonxoff.SetValue(True)
+            else:
+                self.frame.chkboxxonxoff.SetValue(False)
+            
+        
+        if self.config.has_section('display'):
+            {'ASCII':  self.OnRxAsciiMode,
+             'hex':    self.OnRxHexModeLowercase,
+             'HEX':    self.OnRxHexModeUppercase,
+             }[self.config.get('display', 'rx_view_as')]()
+            
+            self.menuBar.Check({ASCII:           MENU_ID_RX_ASCII,
+                                HEX_LOWERCASE:   MENU_ID_RX_HEX_L,
+                                HEX_UPPERCASE:   MENU_ID_RX_HEX_U,
+                                }.get(self.rxmode),
+                               True)
+            
+    
+    def SaveSettings(self):
+        if not self.config.has_section('serial'):
+            self.config.add_section('serial')
+        
+        self.config.set('serial', 'port',       str(self.frame.choicePort.GetStringSelection()))
+        self.config.set('serial', 'baudrate',   str(self.frame.cmbBaudRate.GetStringSelection()))
+        self.config.set('serial', 'databits',   str(self.frame.choiceDataBits.GetStringSelection()))
+        self.config.set('serial', 'parity',     str(self.frame.choiceParity.GetStringSelection()))
+        self.config.set('serial', 'stopbits',   str(self.frame.choiceStopBits.GetStringSelection()))
+        self.config.set('serial', 'rtscts',
+                        self.frame.chkboxrtscts.IsChecked() and 'on' or 'off' )
+        self.config.set('serial', 'xonxoff',
+                        self.frame.chkboxxonxoff.IsChecked() and 'on' or 'off' )
+        
+        
+        if not self.config.has_section('display'):
+            self.config.add_section('display')
+        
+        self.config.set('display', 'rx_view_as', 
+                        {ASCII:        'ASCII',
+                         HEX_LOWERCASE:'hex',
+                         HEX_UPPERCASE:'HEX',
+                         }.get(self.rxmode)
+                        )
+                
+        with open('setting.ini', 'w') as configfile:
+            self.config.write(configfile)
+    
     def OnURL(self, evt):
         if evt.MouseEvent.LeftUp():
             s = evt.GetURLStart()
@@ -583,9 +653,10 @@ class MyApp(wx.App):
     
     def OnExitApp(self, evt = None):
         self.frame.Close(True)      # send EVT_CLOSE
-        print 'exit'
     
     def Cleanup(self, evt = None):
+        self.SaveSettings()
+        
         self.frame.Destroy()
         self.OnClosePort()
 #         for t in threading.enumerate():
