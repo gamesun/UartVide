@@ -123,8 +123,9 @@ def EnumerateSerialPorts():
             if r:
                 yield '/dev/%s' % r.group('tty') 
 
-        
-            
+
+MENU_ID_LOCAL_ECHO = wx.NewId()
+
 MENU_ID_RX_ASCII = wx.NewId()
 MENU_ID_RX_HEX_L = wx.NewId()
 MENU_ID_RX_HEX_U = wx.NewId()
@@ -143,7 +144,7 @@ MAINMENU,
 ('&Display', (
     (MENUITEM,  wx.NewId(), '&Show Setting Bar',  'Show Setting Bar',    'self.OnShowSettingBar' ),
     (CHECKITEM, wx.NewId(), '&Always on top',     'always on most top',  'self.OnAlwayOnTop'     ),
-    (CHECKITEM, wx.NewId(), '&Local echo',        'echo what you typed', 'self.OnLocalEcho'      ),
+    (CHECKITEM, MENU_ID_LOCAL_ECHO, '&Local echo','echo what you typed', 'self.OnLocalEcho'      ),
     (SUBMENU, '&Rx view as', (
         (RADIOITEM, MENU_ID_RX_ASCII, '&Ascii', '', 'self.OnRxAsciiMode' ),
         (RADIOITEM, MENU_ID_RX_HEX_L, '&hex(lowercase)',   '', 'self.OnRxHexModeLowercase'   ),
@@ -194,14 +195,14 @@ class MyApp(wx.App):
         self.frame.SetMenuBar(self.menuBar)
         
         # initial variables
-        self.config = ConfigParser.RawConfigParser()
-        self.LoadSettings()
-        
         self.rxmode = ASCII
         self.txmode = ASCII
         self.localEcho = False
         self.rxCount = 0
         self.txCount = 0
+        
+        self.config = ConfigParser.RawConfigParser()
+        self.LoadSettings()
         
         
         # bind events
@@ -262,7 +263,17 @@ class MyApp(wx.App):
                                 HEX_UPPERCASE:   MENU_ID_RX_HEX_U,
                                 }.get(self.rxmode),
                                True)
+
+            if self.config.get('display', 'local_echo') == 'on':
+                self.menuBar.Check(MENU_ID_LOCAL_ECHO, True)
+                self.localEcho = True
+                self.frame.statusbar.SetStatusText('Local echo:On', 4)
+            else:
+                self.menuBar.Check(MENU_ID_LOCAL_ECHO, False)
+                self.localEcho = False
+                self.frame.statusbar.SetStatusText('Local echo:Off', 4)
             
+#             MENU_ID_LOCAL_ECHO
     
     def SaveSettings(self):
         if not self.config.has_section('serial'):
@@ -288,7 +299,9 @@ class MyApp(wx.App):
                          HEX_UPPERCASE:'HEX',
                          }.get(self.rxmode)
                         )
-                
+        
+        self.config.set('display', 'local_echo', self.localEcho and 'on' or 'off')
+        
         with open('setting.ini', 'w') as configfile:
             self.config.write(configfile)
     
