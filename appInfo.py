@@ -32,7 +32,7 @@
 #
 
 title = 'MyTerm'
-version = '1.3.1'
+version = '1.4'
 file_name = title + ' ' + version
 url = 'http://sourceforge.net/projects/myterm/'
 author = 'gamesun'
