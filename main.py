@@ -601,7 +601,6 @@ class MyApp(wx.App):
         self.frame.btnOpen.SetBackgroundColour(wx.NullColour)
         self.frame.btnOpen.SetLabel('Open')
         self.frame.btnOpen.Refresh()
-        self.ShowPortSetting()
 
     def OnHideSettingBar(self, evt = None):
         self.frame.SplitterWindow.SetSashPosition(1, True)
