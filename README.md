@@ -24,10 +24,10 @@ echoing the sending data in local or not.
       <td>Windows XP / Vista / 7 / 8 / 8 64 bit</td>
    </tr>
 </table>
-[Download MyTerm 1.3 from Softpedia](http://www.softpedia.com/get/Network-Tools/Misc-Networking-Tools/MyTerm.shtml)  
-[Download MyTerm 1.3 from SourceForge](https://sourceforge.net/projects/myterm/)
+[Download MyTerm 1.4 from Softpedia](http://www.softpedia.com/get/Network-Tools/Misc-Networking-Tools/MyTerm.shtml)  
+[Download MyTerm 1.4 from SourceForge](https://sourceforge.net/projects/myterm/)
 
-[![](doc/softpedia_free_award.bmp "")](http://www.softpedia.com/progClean/MyTerm-Clean-242031.html)
+[![](doc/softpedia_free_award_f.gif "")](http://www.softpedia.com/progClean/MyTerm-Clean-242031.html)
 
 ### Linux Version
 The source code is executable in Linux.  
