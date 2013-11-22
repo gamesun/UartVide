@@ -72,6 +72,17 @@ if sys.platform == 'win32':
 elif sys.platform.startswith('linux'):
     DIRECTORY_SEPARATER = '/'
 
+
+SERIALRXCNT = wx.NewEventType()                         # Create an own event type
+EVT_SERIALRXCNT = wx.PyEventBinder(SERIALRXCNT, 0)      # bind to serial data receive events
+class SerialRxCntEvent(wx.PyCommandEvent):
+    eventType = SERIALRXCNT
+    def __init__(self, windowID):
+        wx.PyCommandEvent.__init__(self, self.eventType, windowID)
+
+    def Clone(self):
+        self.__class__(self.GetId())
+ 
 SERIALEXCEPT = wx.NewEventType()
 EVT_SERIALEXCEPT = wx.PyEventBinder(SERIALEXCEPT, 0)
 class SerialExceptEvent(wx.PyCommandEvent):
@@ -214,6 +225,7 @@ class MyApp(wx.App):
 #         self.frame.Bind(wx.EVT_WINDOW_DESTROY, self.Cleanup)
         self.frame.Bind(wx.EVT_CLOSE, self.Cleanup)
 
+        self.Bind(EVT_SERIALRXCNT, self.OnSerialRxCnt)
         self.Bind(EVT_SERIALEXCEPT, self.OnSerialExcept)
         self.frame.txtctlMain.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
         self.frame.txtctlMain.Bind(wx.EVT_CHAR, self.OnSerialWrite)
@@ -522,9 +534,19 @@ class MyApp(wx.App):
                 """Using event to display is slow when the data is too big."""
 #                 evt = SerialRxEvent(self.frame.GetId(), text)
 #                 self.frame.GetEventHandler().AddPendingEvent(evt)
+                
+#                 self.frame.statusbar.SetStatusText('Rx:%d' % self.rxCount, 1)
+                """ Under Linux, to update statusbar in threads will cause 
+                assert or X windows error or some other strange errors.
+                Using event to update statusbar can avoid those errors."""
+                evt = SerialRxCntEvent(self.frame.GetId())
+                self.frame.GetEventHandler().AddPendingEvent(evt)                
 
-                self.frame.statusbar.SetStatusText('Rx:%d' % self.rxCount, 1)
         print 'exit thread'
+        
+    def OnSerialRxCnt(self, evt = None):
+        self.frame.statusbar.SetStatusText('Rx:%d' % self.rxCount, 1)
+        
         
     def OnSerialWrite(self, evt = None):
         keycode = evt.GetKeyCode()
