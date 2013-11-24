@@ -196,7 +196,7 @@ class MyApp(wx.App):
         self.frame.SplitterWindow.SetSashSize(0)
         self.frame.SplitterWindow.SetSashPosition(SASHPOSITION, True)
         
-#         self.frame.choicePort.AppendItems(('COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8'))
+#         self.frame.cmbPort.AppendItems(('COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8'))
 
         self.OnEnumPorts()
 
@@ -247,7 +247,7 @@ class MyApp(wx.App):
         self.config.read('setting.ini')
         
         if self.config.has_section('serial'):
-            self.frame.choicePort.SetStringSelection(self.config.get('serial', 'port'))
+            self.frame.cmbPort.SetStringSelection(self.config.get('serial', 'port'))
             self.frame.cmbBaudRate.SetStringSelection(self.config.get('serial', 'baudrate'))
             self.frame.choiceDataBits.SetStringSelection(self.config.get('serial', 'databits'))
             self.frame.choiceParity.SetStringSelection(self.config.get('serial', 'parity'))
@@ -291,7 +291,7 @@ class MyApp(wx.App):
         if not self.config.has_section('serial'):
             self.config.add_section('serial')
         
-        self.config.set('serial', 'port',       str(self.frame.choicePort.GetStringSelection()))
+        self.config.set('serial', 'port',       str(self.frame.cmbPort.GetStringSelection()))
         self.config.set('serial', 'baudrate',   str(self.frame.cmbBaudRate.GetStringSelection()))
         self.config.set('serial', 'databits',   str(self.frame.choiceDataBits.GetStringSelection()))
         self.config.set('serial', 'parity',     str(self.frame.choiceParity.GetStringSelection()))
@@ -354,12 +354,12 @@ class MyApp(wx.App):
             
     def GetPort(self):
         if sys.platform == 'win32':
-            r = regex_matchPort.search(self.frame.choicePort.GetStringSelection())
+            r = regex_matchPort.search(self.frame.cmbPort.GetStringSelection())
             if r:
                 return int(r.group('port')) - 1
             return
         elif sys.platform.startswith('linux'):
-            return self.frame.choicePort.GetStringSelection()
+            return self.frame.cmbPort.GetStringSelection()
 
     def GetBaudRate(self):
         return int(self.frame.cmbBaudRate.GetValue())
@@ -422,10 +422,10 @@ class MyApp(wx.App):
                 menuBar.Append(m, a[0])
 
     def OnEnumPorts(self, evt = None):
-        self.frame.choicePort.Clear()
+        self.frame.cmbPort.Clear()
         for p in EnumerateSerialPorts():
-            self.frame.choicePort.AppendItems((p,))
-        self.frame.choicePort.Select(0)
+            self.frame.cmbPort.AppendItems((p,))
+        self.frame.cmbPort.Select(0)
         
     def OnBtnOpen(self, evt = None):
         if serialport.isOpen():
