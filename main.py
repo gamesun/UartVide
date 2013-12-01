@@ -354,12 +354,12 @@ class MyApp(wx.App):
             
     def GetPort(self):
         if sys.platform == 'win32':
-            r = regex_matchPort.search(self.frame.cmbPort.GetStringSelection())
+            r = regex_matchPort.search(self.frame.cmbPort.GetValue())
             if r:
                 return int(r.group('port')) - 1
             return
         elif sys.platform.startswith('linux'):
-            return self.frame.cmbPort.GetStringSelection()
+            return self.frame.cmbPort.GetValue()
 
     def GetBaudRate(self):
         return int(self.frame.cmbBaudRate.GetValue())
