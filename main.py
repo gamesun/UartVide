@@ -498,8 +498,8 @@ class MyApp(wx.App):
 #             print 'running'
             try:
                 text = serialport.read(1)      # block for THREAD_TIMEOUT = 0.5s
-            except serial.serialutil.SerialException:
-                evt = SerialExceptEvent(self.frame.GetId(), -1)
+            except serial.SerialException, e:
+                evt = SerialExceptEvent(self.frame.GetId(), e)
                 self.frame.GetEventHandler().AddPendingEvent(evt)
                 print 'thread exit for except'
                 return -1
