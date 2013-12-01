@@ -74,7 +74,7 @@ elif sys.platform.startswith('linux'):
 
 
 SERIALRXCNT = wx.NewEventType()                         # Create an own event type
-EVT_SERIALRXCNT = wx.PyEventBinder(SERIALRXCNT, 0)      # bind to serial data receive events
+EVT_SERIALRXCNT = wx.PyEventBinder(SERIALRXCNT, 0)      # bind to serial rxcounter update events
 class SerialRxCntEvent(wx.PyCommandEvent):
     eventType = SERIALRXCNT
     def __init__(self, windowID):
@@ -144,7 +144,7 @@ MENU_ID_RX_HEX_U = wx.NewId()
 MenuDefs = (
 MAINMENU,
 ('&File', (
-    (MENUITEM,  wx.NewId(), '&Save',              'Save to a file' ,    'self.OnSave'      ),
+    (MENUITEM,  wx.NewId(), '&Save',      'Save the log to a file' ,    'self.OnSave'      ),
     (SEPARATOR,),
     (MENUITEM,  wx.NewId(), '&Exit MyTerm',       'Exit MyTerm',        'self.OnExitApp'   ),
 )),
@@ -157,7 +157,7 @@ MAINMENU,
     (CHECKITEM, wx.NewId(), '&Always on top',     'always on most top',  'self.OnAlwayOnTop'     ),
     (CHECKITEM, MENU_ID_LOCAL_ECHO, '&Local echo','echo what you typed', 'self.OnLocalEcho'      ),
     (SUBMENU, '&Rx view as', (
-        (RADIOITEM, MENU_ID_RX_ASCII, '&Ascii', '', 'self.OnRxAsciiMode' ),
+        (RADIOITEM, MENU_ID_RX_ASCII, '&Ascii',            '', 'self.OnRxAsciiMode' ),
         (RADIOITEM, MENU_ID_RX_HEX_L, '&hex(lowercase)',   '', 'self.OnRxHexModeLowercase'   ),
         (RADIOITEM, MENU_ID_RX_HEX_U, '&HEX(UPPERCASE)',   '', 'self.OnRxHexModeUppercase'   ),
     )),
@@ -237,8 +237,6 @@ class MyApp(wx.App):
         self.frame.Show()
         
         self.evtPortOpen = threading.Event()
-#         self.rxQueue = Queue.Queue()
-#         self.txQueue = Queue.Queue()
         
         return True
     
