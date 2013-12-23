@@ -42,8 +42,8 @@ import appInfo
 if len(sys.argv) == 1:
     sys.argv.append("py2exe")
 #     sys.argv.append("-q")
-     
-manifest_template = ''' 
+
+manifest_template = '''
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1"
 manifestVersion="1.0">
 <assemblyIdentity
@@ -87,7 +87,7 @@ language="*"
 </dependentAssembly>
 </dependency>
 </assembly>
-''' 
+'''
 
 CONTENT_DIRS = [ "media" ]
 # EXTRA_FILES = [ "./media/icon16.ico", "./media/icon32.ico" ]
@@ -135,16 +135,16 @@ RT_MANIFEST = 24
 class Target:
     def __init__(self, **kw):
         self.__dict__.update(kw)
-        
+
 MyTerm_windows = Target(
     # used for the versioninfo resource
-    copyright = "Copywrong All Lefts Unreserved.",
+    copyright = appInfo.copyright,
     name = appInfo.title,
     version = appInfo.version,
     description = appInfo.file_name,
     author = appInfo.author,
     url = appInfo.url,
-    
+
     # what to build
     script = "main.py",
     dest_base = appInfo.file_name,
