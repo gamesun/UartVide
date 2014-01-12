@@ -224,6 +224,7 @@ class MyApp(wx.App):
         self.frame.btnOpen.Bind(wx.EVT_BUTTON, self.OnBtnOpen)
         self.frame.btnEnumPorts.Bind(wx.EVT_BUTTON, self.OnEnumPorts)
         self.frame.btnClear.Bind(wx.EVT_BUTTON, self.OnClear)
+        self.frame.btnTransmitHex.Bind(wx.EVT_BUTTON, self.OnTransmitHex)
 
 #         self.frame.Bind(wx.EVT_WINDOW_DESTROY, self.Cleanup)
         self.frame.Bind(wx.EVT_CLOSE, self.Cleanup)
@@ -246,6 +247,19 @@ class MyApp(wx.App):
         self.HideTransmitHexPanel()
 
         return True
+
+    def OnTransmitHex(self, evt = None):
+        hexStr = self.frame.txtctlHex.GetValue()
+        str = HexToByte(hexStr)
+        if serialport.isOpen():
+            try:
+                serialport.write(str)
+            except serial.SerialException, e:
+                evt = SerialExceptEvent(self.frame.GetId(), e)
+                self.frame.GetEventHandler().AddPendingEvent(evt)
+            else:
+                self.txCount += len(str)
+                self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
 
     def OnTransmitHexPanel(self, evt = None):
         if evt.Selection == 1:
@@ -728,6 +742,25 @@ class MyApp(wx.App):
                 assert not self.thread.is_alive(), "the thread should be dead but isn't!"
 #             self.threadCommunicate.terminate()
 
+def HexToByte(hexStr):
+    """
+    Convert a string hex byte values into a byte string. The Hex Byte values may
+    or may not be space separated.
+    """
+    # The list comprehension implementation is fractionally slower in this case
+    #
+    #    hexStr = ''.join( hexStr.split(" ") )
+    #    return ''.join( ["%c" % chr( int ( hexStr[i:i+2],16 ) ) \
+    #                                   for i in range(0, len( hexStr ), 2) ] )
+
+    bytes = []
+
+    hexStr = ''.join( hexStr.split(" ") )
+
+    for i in range(0, len(hexStr), 2):
+        bytes.append( chr( int (hexStr[i:i+2], 16 ) ) )
+
+    return ''.join( bytes )
 
 if __name__ == '__main__':
     app = MyApp(0)
