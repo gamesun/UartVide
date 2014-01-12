@@ -140,6 +140,7 @@ MENU_ID_LOCAL_ECHO = wx.NewId()
 MENU_ID_RX_ASCII = wx.NewId()
 MENU_ID_RX_HEX_L = wx.NewId()
 MENU_ID_RX_HEX_U = wx.NewId()
+MENU_ID_TRNST_HEX_PNL = wx.NewId()
 
 MenuDefs = (
 MAINMENU,
@@ -161,7 +162,7 @@ MAINMENU,
         (RADIOITEM, MENU_ID_RX_HEX_L, '&hex(lowercase)',   '', 'self.OnRxHexModeLowercase'   ),
         (RADIOITEM, MENU_ID_RX_HEX_U, '&HEX(UPPERCASE)',   '', 'self.OnRxHexModeUppercase'   ),
     )),
-    (CHECKITEM, wx.NewId(), 'Show Transmit &Hex',  'Show Transmit Hex Panel', 'self.OnTransmitHexPanel' ),
+    (CHECKITEM, MENU_ID_TRNST_HEX_PNL, 'Show Transmit &Hex',  'Show Transmit Hex Panel', 'self.OnTransmitHexPanel' ),
 #     (SUBMENU, 'Tx view as', (
 #         (RADIOITEM, wx.NewId(), 'ASCII', '', 'self.OnTxAsciiMode' ),
 #         (RADIOITEM, wx.NewId(), 'HEX',   '', 'self.OnTxHexMode'   ),
@@ -214,10 +215,8 @@ class MyApp(wx.App):
         self.localEcho = False
         self.rxCount = 0
         self.txCount = 0
-
-        self.config = ConfigParser.RawConfigParser()
-        self.LoadSettings()
-
+        self.transmitHexPanel = False
+        self.HideTransmitHexPanel()
 
         # bind events
         self.frame.btnHideBar.Bind(wx.EVT_BUTTON, self.OnHideSettingBar)
@@ -242,9 +241,10 @@ class MyApp(wx.App):
         self.frame.SetTitle( appInfo.title )
         self.frame.Show()
 
-        self.evtPortOpen = threading.Event()
+        self.config = ConfigParser.RawConfigParser()
+        self.LoadSettings()
 
-        self.HideTransmitHexPanel()
+        self.evtPortOpen = threading.Event()
 
         return True
 
@@ -268,6 +268,7 @@ class MyApp(wx.App):
             self.HideTransmitHexPanel()
 
     def HideTransmitHexPanel(self):
+        self.transmitHexPanel = False
         self.frame.pnlTransmitHex.Hide()
         self.frame.pnlData.GetSizer().Layout()
 
@@ -276,6 +277,7 @@ class MyApp(wx.App):
 
 
     def ShowTransmitHexPanel(self):
+        self.transmitHexPanel = True
         self.frame.pnlTransmitHex.Show()
         self.frame.pnlData.GetSizer().Layout()
 
@@ -287,47 +289,57 @@ class MyApp(wx.App):
 
     def LoadSettings(self):
         self.config.read('setting.ini')
+        try:
+            if self.config.has_section('serial'):
+                self.frame.cmbPort.SetStringSelection(self.config.get('serial', 'port'))
+                self.frame.cmbBaudRate.SetStringSelection(self.config.get('serial', 'baudrate'))
+                self.frame.choiceDataBits.SetStringSelection(self.config.get('serial', 'databits'))
+                self.frame.choiceParity.SetStringSelection(self.config.get('serial', 'parity'))
+                self.frame.choiceStopBits.SetStringSelection(self.config.get('serial', 'stopbits'))
 
-        if self.config.has_section('serial'):
-            self.frame.cmbPort.SetStringSelection(self.config.get('serial', 'port'))
-            self.frame.cmbBaudRate.SetStringSelection(self.config.get('serial', 'baudrate'))
-            self.frame.choiceDataBits.SetStringSelection(self.config.get('serial', 'databits'))
-            self.frame.choiceParity.SetStringSelection(self.config.get('serial', 'parity'))
-            self.frame.choiceStopBits.SetStringSelection(self.config.get('serial', 'stopbits'))
+                if self.config.get('serial', 'rtscts') == 'on':
+                    self.frame.chkboxrtscts.SetValue(True)
+                else:
+                    self.frame.chkboxrtscts.SetValue(False)
 
-            if self.config.get('serial', 'rtscts') == 'on':
-                self.frame.chkboxrtscts.SetValue(True)
-            else:
-                self.frame.chkboxrtscts.SetValue(False)
-
-            if self.config.get('serial', 'xonxoff') == 'on':
-                self.frame.chkboxxonxoff.SetValue(True)
-            else:
-                self.frame.chkboxxonxoff.SetValue(False)
+                if self.config.get('serial', 'xonxoff') == 'on':
+                    self.frame.chkboxxonxoff.SetValue(True)
+                else:
+                    self.frame.chkboxxonxoff.SetValue(False)
 
 
-        if self.config.has_section('display'):
-            {'ASCII':  self.OnRxAsciiMode,
-             'hex':    self.OnRxHexModeLowercase,
-             'HEX':    self.OnRxHexModeUppercase,
-             }[self.config.get('display', 'rx_view_as')]()
+            if self.config.has_section('display'):
+                {'ASCII':  self.OnRxAsciiMode,
+                 'hex':    self.OnRxHexModeLowercase,
+                 'HEX':    self.OnRxHexModeUppercase,
+                 }[self.config.get('display', 'rx_view_as')]()
 
-            self.menuBar.Check({ASCII:           MENU_ID_RX_ASCII,
-                                HEX_LOWERCASE:   MENU_ID_RX_HEX_L,
-                                HEX_UPPERCASE:   MENU_ID_RX_HEX_U,
-                                }.get(self.rxmode),
-                               True)
+                self.menuBar.Check({ASCII:           MENU_ID_RX_ASCII,
+                                    HEX_LOWERCASE:   MENU_ID_RX_HEX_L,
+                                    HEX_UPPERCASE:   MENU_ID_RX_HEX_U,
+                                    }.get(self.rxmode),
+                                   True)
 
-            if self.config.get('display', 'local_echo') == 'on':
-                self.menuBar.Check(MENU_ID_LOCAL_ECHO, True)
-                self.localEcho = True
-                self.frame.statusbar.SetStatusText('Local echo:On', 4)
-            else:
-                self.menuBar.Check(MENU_ID_LOCAL_ECHO, False)
-                self.localEcho = False
-                self.frame.statusbar.SetStatusText('Local echo:Off', 4)
+                if self.config.get('display', 'local_echo') == 'on':
+                    self.menuBar.Check(MENU_ID_LOCAL_ECHO, True)
+                    self.localEcho = True
+                    self.frame.statusbar.SetStatusText('Local echo:On', 4)
+                else:
+                    self.menuBar.Check(MENU_ID_LOCAL_ECHO, False)
+                    self.localEcho = False
+                    self.frame.statusbar.SetStatusText('Local echo:Off', 4)
 
-#             MENU_ID_LOCAL_ECHO
+                if self.config.get('display', 'transmit_hex_panel') == 'on':
+                    self.transmitHexPanel = True
+                    self.menuBar.Check(MENU_ID_TRNST_HEX_PNL, True)
+                    self.ShowTransmitHexPanel()
+                else:
+                    self.transmitHexPanel = False
+                    self.menuBar.Check(MENU_ID_TRNST_HEX_PNL, False)
+                    self.HideTransmitHexPanel()
+        except:
+            pass
+
 
     def SaveSettings(self):
         if not self.config.has_section('serial'):
@@ -355,6 +367,7 @@ class MyApp(wx.App):
                         )
 
         self.config.set('display', 'local_echo', self.localEcho and 'on' or 'off')
+        self.config.set('display', 'transmit_hex_panel', self.transmitHexPanel and 'on' or 'off')
 
         with open('setting.ini', 'w') as configfile:
             self.config.write(configfile)
