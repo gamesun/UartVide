@@ -36,5 +36,5 @@ version = '1.4.1'
 file_name = title + ' ' + version
 url = 'http://sourceforge.net/projects/myterm/'
 author = 'gamesun'
-copyright = 'Copyright (C) 2013, gamesun'
+copyright = 'Copyright (C) 2013-2014, gamesun'
 
