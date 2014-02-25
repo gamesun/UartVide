@@ -50,6 +50,9 @@ import glob
 import subprocess
 import ConfigParser
 
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 MAINMENU  = 0
 SUBMENU   = 1
 MENUITEM  = 2
@@ -369,7 +372,7 @@ class MyApp(wx.App):
         self.config.set('display', 'local_echo', self.localEcho and 'on' or 'off')
         self.config.set('display', 'transmit_hex_panel', self.transmitHexPanel and 'on' or 'off')
 
-        with open('setting.ini', 'w') as configfile:
+        with open("%s\\setting.ini" % os.path.dirname(os.path.realpath(__file__)), 'w') as configfile:
             self.config.write(configfile)
 
     def OnURL(self, evt):
