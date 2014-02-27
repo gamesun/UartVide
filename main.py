@@ -291,7 +291,8 @@ class MyApp(wx.App):
         evt.Veto()  # disable the feature "unsplit a splitter"
 
     def LoadSettings(self):
-        self.config.read('setting.ini')
+        self.config.read("%s\\setting.ini" % os.path.dirname(os.path.realpath(__file__)))
+        # use unicode(self.config.get('...', '...'), 'utf-8') to convert the ASCII string to utf8 if needed.
         try:
             if self.config.has_section('serial'):
                 self.frame.cmbPort.SetStringSelection(self.config.get('serial', 'port'))
