@@ -1,0 +1,628 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QFrame" name="horizontalFrame">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>1</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QSplitter" name="splitter_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="handleWidth">
+          <number>5</number>
+         </property>
+         <widget class="QFrame" name="frame">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>5</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>1</number>
+             </property>
+             <property name="topMargin">
+              <number>1</number>
+             </property>
+             <property name="rightMargin">
+              <number>1</number>
+             </property>
+             <property name="bottomMargin">
+              <number>1</number>
+             </property>
+             <item>
+              <widget class="QPushButton" name="pushButton">
+               <property name="text">
+                <string>Enum Ports</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Port</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="comboBox">
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                 <italic>false</italic>
+                </font>
+               </property>
+               <property name="editable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_2">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Baud Rate</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="comboBox_2">
+               <property name="editable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_3">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Data Bits</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="comboBox_3">
+               <item>
+                <property name="text">
+                 <string>8</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>7</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>6</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>5</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_4">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Parity</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="comboBox_4">
+               <item>
+                <property name="text">
+                 <string>None</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Even</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Odd</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Mark</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Space</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_5">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Stop Bits</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="comboBox_5">
+               <item>
+                <property name="text">
+                 <string>1</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>1.5</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>2</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="groupBox">
+               <property name="title">
+                <string>HandShake</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_4">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <property name="leftMargin">
+                 <number>5</number>
+                </property>
+                <property name="topMargin">
+                 <number>5</number>
+                </property>
+                <property name="rightMargin">
+                 <number>5</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>5</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="checkBox">
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>22</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>RTS/CTS</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="checkBox_2">
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>22</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Xon/Xoff</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_2">
+               <property name="text">
+                <string>Open</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_3">
+               <property name="text">
+                <string>Clear</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QFrame" name="frame_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QSplitter" name="splitter">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="opaqueResize">
+              <bool>true</bool>
+             </property>
+             <property name="handleWidth">
+              <number>5</number>
+             </property>
+             <property name="childrenCollapsible">
+              <bool>true</bool>
+             </property>
+             <widget class="QTextEdit" name="textEdit">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>3</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+             <widget class="QTextEdit" name="textEdit_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>1</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionSave_Log"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuPort">
+    <property name="title">
+     <string>&amp;Port</string>
+    </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionClose"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <widget class="QMenu" name="menuReceive_view_as">
+     <property name="title">
+      <string>Receive view as</string>
+     </property>
+     <addaction name="actionAscii"/>
+     <addaction name="actionHex_lowercase"/>
+     <addaction name="actionHEX_UPPERCASE"/>
+    </widget>
+    <addaction name="actionShow_SettingBar"/>
+    <addaction name="actionShow_Hex_Transmit_Panel"/>
+    <addaction name="separator"/>
+    <addaction name="actionLocal_echo"/>
+    <addaction name="menuReceive_view_as"/>
+    <addaction name="actionAlwaws_on_top"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuPort"/>
+   <addaction name="menuView"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionSave_Log">
+   <property name="text">
+    <string>Save Log</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="toolTip">
+    <string>Open the port</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+   <property name="toolTip">
+    <string>Close the port</string>
+   </property>
+  </action>
+  <action name="actionShow_SettingBar">
+   <property name="text">
+    <string>Show SettingBar</string>
+   </property>
+   <property name="toolTip">
+    <string>Show Setting Bar</string>
+   </property>
+  </action>
+  <action name="actionAlwaws_on_top">
+   <property name="text">
+    <string>Alwaws on top</string>
+   </property>
+   <property name="toolTip">
+    <string>Alwaws on most top</string>
+   </property>
+  </action>
+  <action name="actionLocal_echo">
+   <property name="text">
+    <string>Local echo</string>
+   </property>
+   <property name="toolTip">
+    <string>echo what you typed</string>
+   </property>
+  </action>
+  <action name="actionAscii">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Ascii</string>
+   </property>
+   <property name="toolTip">
+    <string>show as ascii</string>
+   </property>
+  </action>
+  <action name="actionHex_lowercase">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>hex(lowercase)</string>
+   </property>
+   <property name="toolTip">
+    <string>show as hex(lowercase)</string>
+   </property>
+  </action>
+  <action name="actionHEX_UPPERCASE">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>HEX(UPPERCASE)</string>
+   </property>
+   <property name="toolTip">
+    <string>show as HEX(UPPERCASE)</string>
+   </property>
+  </action>
+  <action name="actionShow_Hex_Transmit_Panel">
+   <property name="text">
+    <string>Hex Transmit Panel</string>
+   </property>
+   <property name="toolTip">
+    <string>show/hide Hex Transmit Panel</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+   <property name="toolTip">
+    <string>About MyTerm</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
