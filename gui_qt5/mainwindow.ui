@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string notr="true">MyTerm</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -63,12 +63,6 @@
           <number>5</number>
          </property>
          <widget class="QFrame" name="frame">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
           </property>
@@ -83,13 +77,13 @@
             <number>5</number>
            </property>
            <property name="topMargin">
-            <number>0</number>
+            <number>5</number>
            </property>
            <property name="rightMargin">
             <number>5</number>
            </property>
            <property name="bottomMargin">
-            <number>0</number>
+            <number>5</number>
            </property>
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -120,13 +114,13 @@
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>24</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>16777215</width>
-                 <height>24</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="text">
@@ -155,13 +149,13 @@
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>24</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>16777215</width>
-                 <height>24</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="text">
@@ -184,13 +178,13 @@
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>24</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>16777215</width>
-                 <height>24</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="text">
@@ -230,13 +224,13 @@
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>24</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>16777215</width>
-                 <height>24</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="text">
@@ -281,13 +275,13 @@
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>24</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>16777215</width>
-                 <height>24</height>
+                 <height>20</height>
                 </size>
                </property>
                <property name="text">
@@ -318,7 +312,29 @@
               </widget>
              </item>
              <item>
+              <spacer name="verticalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>0</width>
+                 <height>5</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
               <widget class="QGroupBox" name="groupBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="title">
                 <string>HandShake</string>
                </property>
@@ -327,16 +343,16 @@
                  <number>0</number>
                 </property>
                 <property name="leftMargin">
-                 <number>5</number>
+                 <number>2</number>
                 </property>
                 <property name="topMargin">
-                 <number>5</number>
+                 <number>2</number>
                 </property>
                 <property name="rightMargin">
-                 <number>5</number>
+                 <number>2</number>
                 </property>
                 <property name="bottomMargin">
-                 <number>5</number>
+                 <number>2</number>
                 </property>
                 <item>
                  <widget class="QCheckBox" name="checkBox">
@@ -368,11 +384,43 @@
               </widget>
              </item>
              <item>
+              <spacer name="verticalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>0</width>
+                 <height>5</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
               <widget class="QPushButton" name="pushButton_2">
                <property name="text">
                 <string>Open</string>
                </property>
               </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>0</width>
+                 <height>5</height>
+                </size>
+               </property>
+              </spacer>
              </item>
              <item>
               <widget class="QPushButton" name="pushButton_3">
@@ -383,8 +431,11 @@
              </item>
              <item>
               <spacer name="verticalSpacer">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>0</width>
+                 <height>10</height>
+                </size>
                </property>
               </spacer>
              </item>
@@ -477,6 +528,9 @@
      <height>25</height>
     </rect>
    </property>
+   <property name="nativeMenuBar">
+    <bool>true</bool>
+   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>&amp;File</string>
@@ -527,9 +581,15 @@
    <property name="text">
     <string>Save Log</string>
    </property>
+   <property name="statusTip">
+    <string>Save Log</string>
+   </property>
   </action>
   <action name="actionExit">
    <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="statusTip">
     <string>Exit</string>
    </property>
   </action>
@@ -540,12 +600,18 @@
    <property name="toolTip">
     <string>Open the port</string>
    </property>
+   <property name="statusTip">
+    <string>Open the port</string>
+   </property>
   </action>
   <action name="actionClose">
    <property name="text">
     <string>Close</string>
    </property>
    <property name="toolTip">
+    <string>Close the port</string>
+   </property>
+   <property name="statusTip">
     <string>Close the port</string>
    </property>
   </action>
@@ -556,6 +622,9 @@
    <property name="toolTip">
     <string>Show Setting Bar</string>
    </property>
+   <property name="statusTip">
+    <string>Show Setting Bar</string>
+   </property>
   </action>
   <action name="actionAlwaws_on_top">
    <property name="text">
@@ -564,13 +633,19 @@
    <property name="toolTip">
     <string>Alwaws on most top</string>
    </property>
+   <property name="statusTip">
+    <string>Alwaws on most top</string>
+   </property>
   </action>
   <action name="actionLocal_echo">
    <property name="text">
     <string>Local echo</string>
    </property>
    <property name="toolTip">
-    <string>echo what you typed</string>
+    <string>Echo what you typed</string>
+   </property>
+   <property name="statusTip">
+    <string>Echo what you typed</string>
    </property>
   </action>
   <action name="actionAscii">
@@ -581,7 +656,10 @@
     <string>Ascii</string>
    </property>
    <property name="toolTip">
-    <string>show as ascii</string>
+    <string>Show as ascii</string>
+   </property>
+   <property name="statusTip">
+    <string>Show as ascii</string>
    </property>
   </action>
   <action name="actionHex_lowercase">
@@ -592,7 +670,10 @@
     <string>hex(lowercase)</string>
    </property>
    <property name="toolTip">
-    <string>show as hex(lowercase)</string>
+    <string>Show as hex(lowercase)</string>
+   </property>
+   <property name="statusTip">
+    <string>Show as hex(lowercase)</string>
    </property>
   </action>
   <action name="actionHEX_UPPERCASE">
@@ -603,7 +684,10 @@
     <string>HEX(UPPERCASE)</string>
    </property>
    <property name="toolTip">
-    <string>show as HEX(UPPERCASE)</string>
+    <string>Show as HEX(UPPERCASE)</string>
+   </property>
+   <property name="statusTip">
+    <string>Show as HEX(UPPERCASE)</string>
    </property>
   </action>
   <action name="actionShow_Hex_Transmit_Panel">
@@ -611,7 +695,10 @@
     <string>Hex Transmit Panel</string>
    </property>
    <property name="toolTip">
-    <string>show/hide Hex Transmit Panel</string>
+    <string>Show/hide Hex Transmit Panel</string>
+   </property>
+   <property name="statusTip">
+    <string>Show/hide Hex Transmit Panel</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -619,6 +706,9 @@
     <string>About</string>
    </property>
    <property name="toolTip">
+    <string>About MyTerm</string>
+   </property>
+   <property name="statusTip">
     <string>About MyTerm</string>
    </property>
   </action>
