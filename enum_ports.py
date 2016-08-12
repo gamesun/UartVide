@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright (c) 2013-2014,2016 gamesun
+# Copyright (c) 2016 gamesun
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,45 +31,38 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-import sys, os
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QApplication
-#from PyQt5.QtCore import *
+import sys
+import os
 
-from gui_qt5.ui_mainwindow import Ui_MainWindow
-
-import serial
-
-class MainWindow(QMainWindow, Ui_MainWindow):
-    """docstring for MainWindow."""
-    def __init__(self, parent=None):
-        super(MainWindow, self).__init__()
-        self.setupUi(self)
-        self.onEnumPorts()
-        self.moveScreenCenter()
+# chose an implementation, depending on os
+#~ if sys.platform == 'cli':
+#~ else:
+if os.name == 'nt':  # sys.platform == 'win32':
+    from serial.tools.list_ports_windows import comports
+elif os.name == 'posix':
+    from serial.tools.list_ports_posix import comports
+    #~ elif os.name == 'java':
+else:
+    raise ImportError("Sorry: no implementation for your platform ('{}') available".format(os.name))
 
 
-        self.actionOpen.triggered.connect(self.onOpen)
+def enum_ports():
+    hits = 0
+    # get iteraror w/ or w/o filter
+    iterator = sorted(comports())
 
-    def onOpen(self):
-        print("open")
+    for i in iterator:
+        yield i[0]
 
-    def moveScreenCenter(self):
-        w = self.frameGeometry().width()
-        h = self.frameGeometry().height()
-        desktop = QtWidgets.QDesktopWidget()
-        screenW = desktop.screen().width()
-        screenH = desktop.screen().height()
-        self.setGeometry((screenW-w)/2, (screenH-h)/2, w, h)
-
-    def onEnumPorts(self):
-        from enum_ports import enum_ports
-        for p in enum_ports():
-            self.cmbPort.addItem(p)
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    frame = MainWindow()
-    frame.show()
-    app.exec_()
+    # list them
+    # for n, (port, desc, hwid) in enumerate(iterator, 1):
+    #     sys.stdout.write("{:20}\n".format(port))
+    #     sys.stdout.write("    desc: {}\n".format(desc))
+    #     sys.stdout.write("    hwid: {}\n".format(hwid))
+    #     hits += 1
+    #
+    # if hits:
+    #     sys.stderr.write("{} ports found\n".format(hits))
+    # else:
+    #     sys.stderr.write("no ports found\n")
