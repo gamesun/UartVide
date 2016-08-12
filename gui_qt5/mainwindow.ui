@@ -103,9 +103,9 @@
               <number>1</number>
              </property>
              <item>
-              <widget class="QPushButton" name="pushButton">
+              <widget class="QPushButton" name="btnEnumPorts">
                <property name="text">
-                <string>Enum Ports</string>
+                <string notr="true">Enum Ports</string>
                </property>
               </widget>
              </item>
@@ -124,7 +124,7 @@
                 </size>
                </property>
                <property name="text">
-                <string>Port</string>
+                <string notr="true">Port</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
@@ -132,15 +132,18 @@
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="comboBox">
-               <property name="font">
-                <font>
-                 <pointsize>10</pointsize>
-                 <italic>false</italic>
-                </font>
+              <widget class="QComboBox" name="cmbPort">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>0</height>
+                </size>
                </property>
                <property name="editable">
                 <bool>true</bool>
+               </property>
+               <property name="currentText">
+                <string notr="true"/>
                </property>
               </widget>
              </item>
@@ -159,7 +162,7 @@
                 </size>
                </property>
                <property name="text">
-                <string>Baud Rate</string>
+                <string notr="true">Baud Rate</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
@@ -167,9 +170,12 @@
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="comboBox_2">
+              <widget class="QComboBox" name="cmbBaudRate">
                <property name="editable">
                 <bool>true</bool>
+               </property>
+               <property name="currentText">
+                <string notr="true"/>
                </property>
               </widget>
              </item>
@@ -188,7 +194,7 @@
                 </size>
                </property>
                <property name="text">
-                <string>Data Bits</string>
+                <string notr="true">Data Bits</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
@@ -196,25 +202,28 @@
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="comboBox_3">
+              <widget class="QComboBox" name="cmbDataBits">
+               <property name="currentText">
+                <string notr="true">8</string>
+               </property>
                <item>
                 <property name="text">
-                 <string>8</string>
+                 <string notr="true">8</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>7</string>
+                 <string notr="true">7</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>6</string>
+                 <string notr="true">6</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>5</string>
+                 <string notr="true">5</string>
                 </property>
                </item>
               </widget>
@@ -234,7 +243,7 @@
                 </size>
                </property>
                <property name="text">
-                <string>Parity</string>
+                <string notr="true">Parity</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
@@ -242,30 +251,33 @@
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="comboBox_4">
+              <widget class="QComboBox" name="cmbParity">
+               <property name="currentText">
+                <string notr="true">None</string>
+               </property>
                <item>
                 <property name="text">
-                 <string>None</string>
+                 <string notr="true">None</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>Even</string>
+                 <string notr="true">Even</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>Odd</string>
+                 <string notr="true">Odd</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>Mark</string>
+                 <string notr="true">Mark</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>Space</string>
+                 <string notr="true">Space</string>
                 </property>
                </item>
               </widget>
@@ -285,7 +297,7 @@
                 </size>
                </property>
                <property name="text">
-                <string>Stop Bits</string>
+                <string notr="true">Stop Bits</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
@@ -293,20 +305,23 @@
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="comboBox_5">
+              <widget class="QComboBox" name="cmbStopBits">
+               <property name="currentText">
+                <string notr="true">1</string>
+               </property>
                <item>
                 <property name="text">
-                 <string>1</string>
+                 <string notr="true">1</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>1.5</string>
+                 <string notr="true">1.5</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>2</string>
+                 <string notr="true">2</string>
                 </property>
                </item>
               </widget>
@@ -336,7 +351,7 @@
                 </sizepolicy>
                </property>
                <property name="title">
-                <string>HandShake</string>
+                <string notr="true">HandShake</string>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_4">
                 <property name="spacing">
@@ -355,7 +370,7 @@
                  <number>2</number>
                 </property>
                 <item>
-                 <widget class="QCheckBox" name="checkBox">
+                 <widget class="QCheckBox" name="chkRTSCTS">
                   <property name="maximumSize">
                    <size>
                     <width>16777215</width>
@@ -363,12 +378,12 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>RTS/CTS</string>
+                   <string notr="true">RTS/CTS</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QCheckBox" name="checkBox_2">
+                 <widget class="QCheckBox" name="chkXonXoff">
                   <property name="maximumSize">
                    <size>
                     <width>16777215</width>
@@ -376,7 +391,7 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>Xon/Xoff</string>
+                   <string notr="true">Xon/Xoff</string>
                   </property>
                  </widget>
                 </item>
@@ -400,9 +415,9 @@
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_2">
+              <widget class="QPushButton" name="btnOpen">
                <property name="text">
-                <string>Open</string>
+                <string notr="true">Open</string>
                </property>
               </widget>
              </item>
@@ -423,9 +438,9 @@
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_3">
+              <widget class="QPushButton" name="btnClear">
                <property name="text">
-                <string>Clear</string>
+                <string notr="true">Clear</string>
                </property>
               </widget>
              </item>
@@ -492,7 +507,7 @@
              <property name="childrenCollapsible">
               <bool>true</bool>
              </property>
-             <widget class="QTextEdit" name="textEdit">
+             <widget class="QTextEdit" name="txtEdtOutput">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -500,7 +515,7 @@
                </sizepolicy>
               </property>
              </widget>
-             <widget class="QTextEdit" name="textEdit_2">
+             <widget class="QTextEdit" name="txtEdtInput">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -533,7 +548,7 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>&amp;File</string>
+     <string notr="true">&amp;File</string>
     </property>
     <addaction name="actionSave_Log"/>
     <addaction name="separator"/>
@@ -541,18 +556,18 @@
    </widget>
    <widget class="QMenu" name="menuPort">
     <property name="title">
-     <string>&amp;Port</string>
+     <string notr="true">&amp;Port</string>
     </property>
     <addaction name="actionOpen"/>
     <addaction name="actionClose"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
-     <string>&amp;View</string>
+     <string notr="true">&amp;View</string>
     </property>
     <widget class="QMenu" name="menuReceive_view_as">
      <property name="title">
-      <string>Receive view as</string>
+      <string notr="true">Receive view as</string>
      </property>
      <addaction name="actionAscii"/>
      <addaction name="actionHex_lowercase"/>
@@ -567,7 +582,7 @@
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>&amp;Help</string>
+     <string notr="true">&amp;Help</string>
     </property>
     <addaction name="actionAbout"/>
    </widget>
@@ -579,6 +594,9 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionSave_Log">
    <property name="text">
+    <string notr="true">Save Log</string>
+   </property>
+   <property name="toolTip">
     <string>Save Log</string>
    </property>
    <property name="statusTip">
@@ -587,6 +605,9 @@
   </action>
   <action name="actionExit">
    <property name="text">
+    <string notr="true">Exit</string>
+   </property>
+   <property name="toolTip">
     <string>Exit</string>
    </property>
    <property name="statusTip">
@@ -595,7 +616,7 @@
   </action>
   <action name="actionOpen">
    <property name="text">
-    <string>Open</string>
+    <string notr="true">Open</string>
    </property>
    <property name="toolTip">
     <string>Open the port</string>
@@ -606,7 +627,7 @@
   </action>
   <action name="actionClose">
    <property name="text">
-    <string>Close</string>
+    <string notr="true">Close</string>
    </property>
    <property name="toolTip">
     <string>Close the port</string>
@@ -617,7 +638,7 @@
   </action>
   <action name="actionShow_SettingBar">
    <property name="text">
-    <string>Show SettingBar</string>
+    <string notr="true">Show SettingBar</string>
    </property>
    <property name="toolTip">
     <string>Show Setting Bar</string>
@@ -628,7 +649,7 @@
   </action>
   <action name="actionAlwaws_on_top">
    <property name="text">
-    <string>Alwaws on top</string>
+    <string notr="true">Alwaws on top</string>
    </property>
    <property name="toolTip">
     <string>Alwaws on most top</string>
@@ -639,7 +660,7 @@
   </action>
   <action name="actionLocal_echo">
    <property name="text">
-    <string>Local echo</string>
+    <string notr="true">Local echo</string>
    </property>
    <property name="toolTip">
     <string>Echo what you typed</string>
@@ -653,7 +674,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Ascii</string>
+    <string notr="true">Ascii</string>
    </property>
    <property name="toolTip">
     <string>Show as ascii</string>
@@ -667,7 +688,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>hex(lowercase)</string>
+    <string notr="true">hex(lowercase)</string>
    </property>
    <property name="toolTip">
     <string>Show as hex(lowercase)</string>
@@ -681,7 +702,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>HEX(UPPERCASE)</string>
+    <string notr="true">HEX(UPPERCASE)</string>
    </property>
    <property name="toolTip">
     <string>Show as HEX(UPPERCASE)</string>
@@ -692,7 +713,7 @@
   </action>
   <action name="actionShow_Hex_Transmit_Panel">
    <property name="text">
-    <string>Hex Transmit Panel</string>
+    <string notr="true">Hex Transmit Panel</string>
    </property>
    <property name="toolTip">
     <string>Show/hide Hex Transmit Panel</string>
@@ -703,7 +724,7 @@
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string>About</string>
+    <string notr="true">About</string>
    </property>
    <property name="toolTip">
     <string>About MyTerm</string>
