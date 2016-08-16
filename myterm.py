@@ -34,9 +34,10 @@
 import sys, os
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QApplication
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
 #from PyQt5.QtCore import *
 
+import appInfo
 from gui_qt5.ui_mainwindow import Ui_MainWindow
 
 import serial
@@ -45,6 +46,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     """docstring for MainWindow."""
     def __init__(self, parent=None):
         super(MainWindow, self).__init__()
+        self.serialport = serial.Serial()
+
         self.setupUi(self)
         self.onEnumPorts()
         self.moveScreenCenter()
@@ -52,8 +55,136 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.actionOpen.triggered.connect(self.onOpen)
 
+        self.btnOpen.clicked.connect(self.onOpen)
+        self.actionShow_Hex_Transmit_Panel.triggered.connect(self.onHideHexPnl)
+
+    def GetPort(self):
+        # if sys.platform == 'win32':
+        #     r = regex_matchPort.search(self.frame.cmbPort.GetValue())
+        #     if r:
+        #         return int(r.group('port')) - 1
+        #     return
+        # elif sys.platform.startswith('linux'):
+        #     return self.frame.cmbPort.GetValue()
+        return self.cmbPort.currentText()
+
+    def GetDataBits(self):
+        s = self.cmbDataBits.currentText()
+        if s == '5':
+            return serial.FIVEBITS
+        elif s == '6':
+            return serial.SIXBITS
+        elif s == '7':
+            return serial.SEVENBITS
+        elif s == '8':
+            return serial.EIGHTBITS
+
+    def GetParity(self):
+        s = self.cmbParity.currentText()
+        if s == 'None':
+            return serial.PARITY_NONE
+        elif s == 'Even':
+            return serial.PARITY_EVEN
+        elif s == 'Odd':
+            return serial.PARITY_ODD
+        elif s == 'Mark':
+            return serial.PARITY_MARK
+        elif s == 'Space':
+            return serial.PARITY_SPACE
+
+    def GetStopBits(self):
+        s = self.cmbStopBits.currentText()
+        if s == '1':
+            return serial.STOPBITS_ONE
+        elif s == '1.5':
+            return serial.STOPBITS_ONE_POINT_FIVE
+        elif s == '2':
+            return serial.STOPBITS_TWO
+
+    def openPort(self):
+        if self.serialport.isOpen():
+            return
+
+        _baudrate = self.cmbBaudRate.currentText()
+        if _baudrate == '':
+            QMessageBox.information(self, "Invalid parameters", "Baudrate is empty!")
+            return
+
+        self.serialport.port     = self.GetPort()
+        self.serialport.baudrate = _baudrate
+        self.serialport.bytesize = self.GetDataBits()
+        self.serialport.stopbits = self.GetStopBits()
+        self.serialport.parity   = self.GetParity()
+        self.serialport.rtscts   = self.chkRTSCTS.isChecked()
+        self.serialport.xonxoff  = self.chkXonXoff.isChecked()
+        # self.serialport.timeout  = THREAD_TIMEOUT
+        # self.serialport.writeTimeout = SERIAL_WRITE_TIMEOUT
+        try:
+            self.serialport.open()
+        except serial.SerialException as e:
+            QMessageBox.critical(self, "Could not open serial port", str(e),
+                QMessageBox.Close)
+        else:
+            # self.StartThread()
+            self.setWindowTitle("%s on %s [%s, %s%s%s%s%s]" % (
+                appInfo.title,
+                self.serialport.portstr,
+                self.serialport.baudrate,
+                self.serialport.bytesize,
+                self.serialport.parity,
+                self.serialport.stopbits,
+                self.serialport.rtscts and ' RTS/CTS' or '',
+                self.serialport.xonxoff and ' Xon/Xoff' or '',
+                )
+            )
+            pal = self.btnOpen.palette()
+            pal.setColor(QtGui.QPalette.Button, QtGui.QColor(0,0xff,0x7f))
+            self.btnOpen.setAutoFillBackground(True)
+            self.btnOpen.setPalette(pal)
+            self.btnOpen.setText('Close')
+            self.btnOpen.update()
+
+    def closePort(self):
+        if self.serialport.isOpen():
+            # self.StopThread()
+            self.serialport.close()
+            self.setWindowTitle(appInfo.title)
+            pal = self.btnOpen.style().standardPalette()
+            self.btnOpen.setAutoFillBackground(True)
+            self.btnOpen.setPalette(pal)
+            self.btnOpen.setText('Open')
+            self.btnOpen.update()
+
+    def reader(self):
+        """loop and copy serial->console"""
+        try:
+            while self.alive and self._reader_alive:
+                # read all that is there or wait for one byte
+                data = self.serial.read(self.serial.in_waiting or 1)
+                if data:
+                    if self.raw:
+                        self.console.write_bytes(data)
+                    else:
+                        text = self.rx_decoder.decode(data)
+                        for transformation in self.rx_transformations:
+                            text = transformation.rx(text)
+                        self.console.write(text)
+        except serial.SerialException:
+            self.alive = False
+            self.console.cancel()
+            raise       # XXX handle instead of re-raise?
+
+    def onHideHexPnl(self):
+        if self.txtEdtInput.isVisible():
+            self.txtEdtInput.hide()
+        else:
+            self.txtEdtInput.show()
+
     def onOpen(self):
-        print("open")
+        if self.serialport.isOpen():
+            self.closePort()
+        else:
+            self.openPort()
 
     def moveScreenCenter(self):
         w = self.frameGeometry().width()
