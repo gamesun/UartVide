@@ -174,9 +174,162 @@
                <property name="editable">
                 <bool>true</bool>
                </property>
-               <property name="currentText">
-                <string notr="true"/>
+               <property name="currentIndex">
+                <number>12</number>
                </property>
+               <property name="maxVisibleItems">
+                <number>30</number>
+               </property>
+               <item>
+                <property name="text">
+                 <string notr="true">50</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">75</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">110</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">134</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">150</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">200</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">300</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">600</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">1200</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">1800</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">2400</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">4800</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">9600</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">19200</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">38400</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">57600</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">115200</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">230400</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">460800</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">500000</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">576000</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">921600</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">1000000</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">1152000</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">1500000</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">2000000</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">2500000</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">3000000</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">3500000</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string notr="true">4000000</string>
+                </property>
+               </item>
               </widget>
              </item>
              <item>
@@ -446,6 +599,9 @@
              </item>
              <item>
               <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>0</width>
