@@ -32,21 +32,70 @@
 #
 
 import sys, os
+import threading
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
-#from PyQt5.QtCore import *
+from PyQt5.QtCore import QThread, pyqtSignal
 
 import appInfo
 from gui_qt5.ui_mainwindow import Ui_MainWindow
 
 import serial
 
+class readerThread(QThread):
+    """loop and copy serial->GUI"""
+    read = pyqtSignal(bytes)
+
+    def __init__(self, parent=None):
+        super(readerThread, self).__init__(parent)
+        self._alive = None
+
+    def setPort(self, port):
+        self.serialport = port
+
+    def start(self, priority = QThread.InheritPriority):
+        self._alive = True
+        super(readerThread, self).start(priority)
+
+    def __del__(self):
+        if self._alive:
+            self._alive = False
+            if hasattr(self.serialport, 'cancel_read'):
+                self.serialport.cancel_read()
+        self.wait()
+
+    def join(self):
+        self.__del__()
+
+    def run(self):
+        # print("readerThread id:{}".format(self.currentThreadId()))
+        try:
+            while self._alive:
+                # read all that is there or wait for one byte
+                data = self.serialport.read(self.serialport.in_waiting or 1)
+                if data:
+                    # self.txtEdtOutput.append(data.decode('utf-8'))
+                    self.read.emit(data)
+                    print(repr(data))
+                    # if self.raw:
+                    #     self.console.write_bytes(data)
+                    # else:
+                    #     text = self.rx_decoder.decode(data)
+                    #     for transformation in self.rx_transformations:
+                    #         text = transformation.rx(text)
+                    #     self.console.write(text)
+        except serial.SerialException:
+            # self.console.cancel()
+            raise       # XXX handle instead of re-raise?
+
 class MainWindow(QMainWindow, Ui_MainWindow):
     """docstring for MainWindow."""
     def __init__(self, parent=None):
         super(MainWindow, self).__init__()
         self.serialport = serial.Serial()
+        self.receiver_thread = readerThread()
+        self.receiver_thread.setPort(self.serialport)
 
         self.setupUi(self)
         self.onEnumPorts()
@@ -56,7 +105,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionOpen.triggered.connect(self.onOpen)
 
         self.btnOpen.clicked.connect(self.onOpen)
+        self.btnEnumPorts.clicked.connect(self.onEnumPorts)
         self.actionShow_Hex_Transmit_Panel.triggered.connect(self.onHideHexPnl)
+        self.receiver_thread.read.connect(self.receive)
+
+    def receive(self, data):
+        # the "append" methon will add a newline which is unnecessarily.
+        # self.txtEdtOutput.append(data.decode('utf-8'))
+
+        # print(repr(data))
+        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
+        self.txtEdtOutput.insertPlainText(data.decode('unicode_escape'))
+        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
 
     def GetPort(self):
         # if sys.platform == 'win32':
@@ -125,7 +185,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QMessageBox.critical(self, "Could not open serial port", str(e),
                 QMessageBox.Close)
         else:
-            # self.StartThread()
+            self._start_reader()
             self.setWindowTitle("%s on %s [%s, %s%s%s%s%s]" % (
                 appInfo.title,
                 self.serialport.portstr,
@@ -146,7 +206,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def closePort(self):
         if self.serialport.isOpen():
-            # self.StopThread()
+            self._stop_reader()
             self.serialport.close()
             self.setWindowTitle(appInfo.title)
             pal = self.btnOpen.style().standardPalette()
@@ -155,24 +215,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.btnOpen.setText('Open')
             self.btnOpen.update()
 
-    def reader(self):
-        """loop and copy serial->console"""
-        try:
-            while self.alive and self._reader_alive:
-                # read all that is there or wait for one byte
-                data = self.serial.read(self.serial.in_waiting or 1)
-                if data:
-                    if self.raw:
-                        self.console.write_bytes(data)
-                    else:
-                        text = self.rx_decoder.decode(data)
-                        for transformation in self.rx_transformations:
-                            text = transformation.rx(text)
-                        self.console.write(text)
-        except serial.SerialException:
-            self.alive = False
-            self.console.cancel()
-            raise       # XXX handle instead of re-raise?
+    def _start_reader(self):
+        """Start reader thread"""
+        # start serial->console thread
+        # self.receiver_thread = threading.Thread(target=self.reader, name='rx')
+        # self.receiver_thread.daemon = True
+        # self.receiver_thread.start()
+        self.receiver_thread.start()
+
+    def _stop_reader(self):
+        """Stop reader thread only, wait for clean exit of thread"""
+        # if hasattr(self.serialport, 'cancel_read'):
+        #     self.serialport.cancel_read()
+        self.receiver_thread.join()
 
     def onHideHexPnl(self):
         if self.txtEdtInput.isVisible():
@@ -198,6 +253,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         from enum_ports import enum_ports
         for p in enum_ports():
             self.cmbPort.addItem(p)
+        # self.cmbPort.update()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
