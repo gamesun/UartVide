@@ -45,7 +45,8 @@ import serial
 
 class readerThread(QThread):
     """loop and copy serial->GUI"""
-    read = pyqtSignal(bytes)
+    read = pyqtSignal(str)
+    exception = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super(readerThread, self).__init__(parent)
@@ -70,14 +71,25 @@ class readerThread(QThread):
 
     def run(self):
         # print("readerThread id:{}".format(self.currentThreadId()))
+        text = str()
         try:
             while self._alive:
                 # read all that is there or wait for one byte
                 data = self.serialport.read(self.serialport.in_waiting or 1)
                 if data:
                     # self.txtEdtOutput.append(data.decode('utf-8'))
-                    self.read.emit(data)
-                    print(repr(data))
+                    try:
+                        text = text + data.decode('unicode_escape')
+                    except UnicodeDecodeError:
+                        pass
+                    if -1 != text.find('\r\n'):
+                        print(repr(text))
+                        text = text.replace('\r\n', '\n')
+                        text = text.replace('\n\n', '\n')
+                        if text[0] == '\n':
+                            text = text[1:]
+                        self.read.emit(text)
+                        text = str()
                     # if self.raw:
                     #     self.console.write_bytes(data)
                     # else:
@@ -85,9 +97,9 @@ class readerThread(QThread):
                     #     for transformation in self.rx_transformations:
                     #         text = transformation.rx(text)
                     #     self.console.write(text)
-        except serial.SerialException:
-            # self.console.cancel()
-            raise       # XXX handle instead of re-raise?
+        except serial.SerialException as e:
+            self.exception.emit('{}'.format(e))
+            # raise       # XXX handle instead of re-raise?
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     """docstring for MainWindow."""
@@ -108,6 +120,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnEnumPorts.clicked.connect(self.onEnumPorts)
         self.actionShow_Hex_Transmit_Panel.triggered.connect(self.onHideHexPnl)
         self.receiver_thread.read.connect(self.receive)
+        self.receiver_thread.exception.connect(self.readerExcept)
+
+    def readerExcept(self, e):
+        QMessageBox.critical(self, "Read failed", str(e), QMessageBox.Close)
+        self.closePort()
 
     def receive(self, data):
         # the "append" methon will add a newline which is unnecessarily.
@@ -115,7 +132,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # print(repr(data))
         self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
-        self.txtEdtOutput.insertPlainText(data.decode('unicode_escape'))
+        self.txtEdtOutput.insertPlainText(data)
         self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
 
     def GetPort(self):
