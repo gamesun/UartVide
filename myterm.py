@@ -37,7 +37,7 @@ import threading
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, \
     QFileDialog, QTableWidgetItem, QPushButton
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper
 
 import appInfo
 from gui_qt5.ui_mainwindow import Ui_MainWindow
@@ -80,17 +80,19 @@ class readerThread(QThread):
                 if data:
                     # self.txtEdtOutput.append(data.decode('utf-8'))
                     try:
-                        text = text + data.decode('unicode_escape')
+                        text = data.decode('unicode_escape')
                     except UnicodeDecodeError:
                         pass
-                    if -1 != text.find('\r\n'):
-                        print(repr(text))
-                        text = text.replace('\r\n', '\n')
-                        text = text.replace('\n\n', '\n')
-                        if text[0] == '\n':
-                            text = text[1:]
+                    else:
                         self.read.emit(text)
-                        text = str()
+                    # if -1 != text.find('\r\n'):
+                    #     print(repr(text))
+                    #     text = text.replace('\r\n', '\n')
+                    #     text = text.replace('\n\n', '\n')
+                    #     if text[0] == '\n':
+                    #         text = text[1:]
+                    #     self.read.emit(text)
+                    #     text = str()
                     # if self.raw:
                     #     self.console.write_bytes(data)
                     # else:
@@ -111,6 +113,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.serialport = serial.Serial()
         self.receiver_thread = readerThread()
         self.receiver_thread.setPort(self.serialport)
+        self._signalMap = QSignalMapper(self)
+        self._signalMap.mapped[int].connect(self.tableClick)
+        self._table_cols = 0
 
         self.setupUi(self)
         self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
@@ -128,6 +133,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.receiver_thread.exception.connect(self.readerExcept)
 
         self.openCSV()
+
+    def tableClick(self, row):
+        self.sendTableRow(row)
 
     def openCSV(self):
         fileName, _ = QFileDialog.getOpenFileName(self, "Select a file",
@@ -148,23 +156,63 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     rows = rows + 1
                     if len(row) > cols:
                         cols = len(row)
+                self._table_cols = cols
         except IOError as e:
             print("({})".format(e))
             return
 
         self._csvFilePath = path
         self.table.setRowCount(rows)
-        self.table.setColumnCount(cols+1)
+        self.table.setColumnCount(cols)
 
         for row, rowdat in enumerate(data):
-            item = QPushButton("123")
-            self.table.setCellWidget(row, 0, item)
-            self.table.setRowHeight(row, 20)
-            for col, cell in enumerate(rowdat, 1):
-                self.table.setItem(row, col, QTableWidgetItem(str(cell)))
+            if rowdat[1] == '':
+                self.table.setItem(row, 0, QTableWidgetItem(str(rowdat[0])))
+            else:
+                item = QPushButton(str(rowdat[0]))
+                item.clicked.connect(self._signalMap.map)
+                self._signalMap.setMapping(item, row)
+                self.table.setCellWidget(row, 0, item)
+                self.table.setRowHeight(row, 20)
+                for col, cell in enumerate(rowdat[1:], 1):
+                    self.table.setItem(row, col, QTableWidgetItem(str(cell)))
 
         self.table.resizeColumnsToContents()
         #self.table.resizeRowsToContents()
+
+    def sendTableRow(self, row):
+        try:
+            data = ['0' + self.table.item(row, col).text()
+                for col in range(self._table_cols)
+                if self.table.item(row, col) is not None]
+        except:
+            raise
+            # print("Exception in sendTableRow(row = %d)" % (row + 1))
+        else:
+            # print(data)
+            h = [int(d[-2] + d[-1], 16) for d in data if d is not '']
+            # print(repr(h))
+            b = bytearray(h)
+            # str = ''.join([chr(m) for m in data])
+            # print(repr(b))
+
+            if self.serialport.isOpen():
+                try:
+                    self.serialport.write(b)
+                    print(repr(b))
+                except serial.SerialException as e:
+                    raise
+                    # evt = SerialExceptEvent(self.frame.GetId(), e)
+                    # self.frame.GetEventHandler().AddPendingEvent(evt)
+                else:
+                    # self.txCount += len( b )
+                    # self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
+
+                    import datetime
+                    text = ''.join(['%02X ' % i for i in h])
+                    # self.frame.txtctlMain.SetDefaultStyle(wx.TextAttr(colText=(0, 0, 255), alignment = wx.TEXT_ATTR_TEXT_COLOUR))
+                    self.receive("\n%s T->:%s" % (datetime.datetime.now().time().isoformat()[:-3], text))
+                    # self.frame.txtctlMain.SetDefaultStyle(wx.TextAttr(colText=(0, 0, 0), alignment = wx.TEXT_ATTR_TEXT_COLOUR))
 
     def readerExcept(self, e):
         QMessageBox.critical(self, "Read failed", str(e), QMessageBox.Close)
