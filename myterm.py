@@ -35,8 +35,9 @@ import sys, os
 import threading
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, \
+    QFileDialog, QTableWidgetItem, QPushButton
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
 
 import appInfo
 from gui_qt5.ui_mainwindow import Ui_MainWindow
@@ -105,11 +106,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     """docstring for MainWindow."""
     def __init__(self, parent=None):
         super(MainWindow, self).__init__()
+        self._csvFilePath = ""
+
         self.serialport = serial.Serial()
         self.receiver_thread = readerThread()
         self.receiver_thread.setPort(self.serialport)
 
         self.setupUi(self)
+        self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
+        self.setCorner(Qt.BottomLeftCorner, Qt.LeftDockWidgetArea)
         self.onEnumPorts()
         self.moveScreenCenter()
 
@@ -121,6 +126,45 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionShow_Hex_Transmit_Panel.triggered.connect(self.onHideHexPnl)
         self.receiver_thread.read.connect(self.receive)
         self.receiver_thread.exception.connect(self.readerExcept)
+
+        self.openCSV()
+
+    def openCSV(self):
+        fileName, _ = QFileDialog.getOpenFileName(self, "Select a file",
+            os.getcwd(), "CSV Files (*.csv)")
+        if fileName:
+            self.loadCSV(fileName)
+
+    def loadCSV(self, path):
+        import csv
+        data = []
+        rows = 0
+        cols = 0
+        try:
+            with open(path) as csvfile:
+                csvData = csv.reader(csvfile)
+                for row in csvData:
+                    data.append(row)
+                    rows = rows + 1
+                    if len(row) > cols:
+                        cols = len(row)
+        except IOError as e:
+            print("({})".format(e))
+            return
+
+        self._csvFilePath = path
+        self.table.setRowCount(rows)
+        self.table.setColumnCount(cols+1)
+
+        for row, rowdat in enumerate(data):
+            item = QPushButton("123")
+            self.table.setCellWidget(row, 0, item)
+            self.table.setRowHeight(row, 20)
+            for col, cell in enumerate(rowdat, 1):
+                self.table.setItem(row, col, QTableWidgetItem(str(cell)))
+
+        self.table.resizeColumnsToContents()
+        #self.table.resizeRowsToContents()
 
     def readerExcept(self, e):
         QMessageBox.critical(self, "Read failed", str(e), QMessageBox.Close)
