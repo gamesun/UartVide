@@ -36,3 +36,7 @@ Name: "{commondesktop}\{#AppName}"; Filename: "{app}\{#AppName}.exe"
 ; add icons to Start Menu/All Programs
 Name: "{group}\{#AppName}"; Filename: "{app}\{#AppName}.exe"; WorkingDir: "{app}"
 Name: "{group}\Uninstall {#AppName}"; Filename: "{uninstallexe}"
+
+[Run]
+Filename: "{app}\{#AppName}.exe"; Description: "Launch application"; \
+    Flags: postinstall nowait skipifsilent
