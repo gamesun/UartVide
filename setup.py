@@ -141,13 +141,13 @@ MyTerm_windows = Target(
     copyright = appInfo.copyright,
     name = appInfo.title,
     version = appInfo.version,
-    description = appInfo.file_name,
+    description = appInfo.title,
     author = appInfo.author,
     url = appInfo.url,
 
     # what to build
     script = "main.py",
-    dest_base = appInfo.file_name,
+    dest_base = appInfo.title,
     icon_resources = [(1, "icon\icon.ico")],
     other_resources= [(RT_MANIFEST, 1, manifest_template % dict(prog = appInfo.title))]
 )
