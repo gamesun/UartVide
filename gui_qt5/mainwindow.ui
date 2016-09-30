@@ -126,6 +126,7 @@
      <string notr="true">&amp;Help</string>
     </property>
     <addaction name="actionAbout"/>
+    <addaction name="actionAbout_Qt"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuPort"/>
@@ -694,6 +695,29 @@
            </widget>
           </item>
           <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>5</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnSaveLog">
+            <property name="text">
+             <string notr="true">Save Log</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="verticalSpacer_4">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -819,77 +843,98 @@
    <property name="text">
     <string notr="true">Save Log</string>
    </property>
+   <property name="iconText">
+    <string notr="true">Save Log</string>
+   </property>
    <property name="toolTip">
-    <string>Save Log</string>
+    <string notr="true">Save Log</string>
    </property>
    <property name="statusTip">
-    <string>Save Log</string>
+    <string notr="true">Save Log</string>
    </property>
   </action>
   <action name="actionExit">
    <property name="text">
     <string notr="true">Exit</string>
    </property>
+   <property name="iconText">
+    <string notr="true">Exit</string>
+   </property>
    <property name="toolTip">
-    <string>Exit</string>
+    <string notr="true">Exit</string>
    </property>
    <property name="statusTip">
-    <string>Exit</string>
+    <string notr="true">Exit</string>
    </property>
   </action>
   <action name="actionOpen">
    <property name="text">
     <string notr="true">Open</string>
    </property>
+   <property name="iconText">
+    <string notr="true">Open</string>
+   </property>
    <property name="toolTip">
-    <string>Open the port</string>
+    <string notr="true">Open the port</string>
    </property>
    <property name="statusTip">
-    <string>Open the port</string>
+    <string notr="true">Open the port</string>
    </property>
   </action>
   <action name="actionClose">
    <property name="text">
     <string notr="true">Close</string>
    </property>
+   <property name="iconText">
+    <string notr="true">Close</string>
+   </property>
    <property name="toolTip">
-    <string>Close the port</string>
+    <string notr="true">Close the port</string>
    </property>
    <property name="statusTip">
-    <string>Close the port</string>
+    <string notr="true">Close the port</string>
    </property>
   </action>
   <action name="actionShow_PortConfig">
    <property name="text">
-    <string>Show Port Config</string>
+    <string notr="true">Show Port Config</string>
+   </property>
+   <property name="iconText">
+    <string notr="true">Show Port Config</string>
    </property>
    <property name="toolTip">
-    <string>Show Port Config</string>
+    <string notr="true">Show Port Config</string>
    </property>
    <property name="statusTip">
-    <string>Show Setting Bar</string>
+    <string notr="true">Show Setting Bar</string>
    </property>
   </action>
   <action name="actionAlwaws_on_top">
    <property name="text">
     <string notr="true">Alwaws on top</string>
    </property>
+   <property name="iconText">
+    <string notr="true">Alwaws on top</string>
+   </property>
    <property name="toolTip">
-    <string>Alwaws on most top</string>
+    <string notr="true">Alwaws on most top</string>
    </property>
    <property name="statusTip">
-    <string>Alwaws on most top</string>
+    <string notr="true">Alwaws on most top</string>
    </property>
   </action>
   <action name="actionLocal_echo">
    <property name="text">
     <string notr="true">Local echo</string>
    </property>
+   <property name="iconText">
+    <string notr="true">Local echo</string>
+   </property>
    <property name="toolTip">
-    <string>Echo what you typed</string>
+    <string notr="true">Echo what you typed</string>
    </property>
    <property name="statusTip">
-    <string>Echo what you typed</string>
+    <string notr="true">Echo what you typed</string>
    </property>
   </action>
   <action name="actionAscii">
@@ -899,11 +944,14 @@
    <property name="text">
     <string notr="true">Ascii</string>
    </property>
+   <property name="iconText">
+    <string notr="true">Ascii</string>
+   </property>
    <property name="toolTip">
-    <string>Show as ascii</string>
+    <string notr="true">Show as ascii</string>
    </property>
    <property name="statusTip">
-    <string>Show as ascii</string>
+    <string notr="true">Show as ascii</string>
    </property>
   </action>
   <action name="actionHex_lowercase">
@@ -913,11 +961,14 @@
    <property name="text">
     <string notr="true">hex(lowercase)</string>
    </property>
+   <property name="iconText">
+    <string notr="true">hex(lowercase)</string>
+   </property>
    <property name="toolTip">
-    <string>Show as hex(lowercase)</string>
+    <string notr="true">Show as hex(lowercase)</string>
    </property>
    <property name="statusTip">
-    <string>Show as hex(lowercase)</string>
+    <string notr="true">Show as hex(lowercase)</string>
    </property>
   </action>
   <action name="actionHEX_UPPERCASE">
@@ -927,33 +978,56 @@
    <property name="text">
     <string notr="true">HEX(UPPERCASE)</string>
    </property>
+   <property name="iconText">
+    <string notr="true">HEX(UPPERCASE)</string>
+   </property>
    <property name="toolTip">
-    <string>Show as HEX(UPPERCASE)</string>
+    <string notr="true">Show as HEX(UPPERCASE)</string>
    </property>
    <property name="statusTip">
-    <string>Show as HEX(UPPERCASE)</string>
+    <string notr="true">Show as HEX(UPPERCASE)</string>
    </property>
   </action>
   <action name="actionShow_Hex_Transmit_Panel">
    <property name="text">
     <string notr="true">Hex Transmit Panel</string>
    </property>
+   <property name="iconText">
+    <string notr="true">Hex Transmit Panel</string>
+   </property>
    <property name="toolTip">
-    <string>Show/hide Hex Transmit Panel</string>
+    <string notr="true">Show/hide Hex Transmit Panel</string>
    </property>
    <property name="statusTip">
-    <string>Show/hide Hex Transmit Panel</string>
+    <string notr="true">Show/hide Hex Transmit Panel</string>
    </property>
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string notr="true">About</string>
+    <string notr="true">About MyTerm</string>
+   </property>
+   <property name="iconText">
+    <string notr="true">About MyTerm</string>
    </property>
    <property name="toolTip">
-    <string>About MyTerm</string>
+    <string notr="true">About MyTerm</string>
    </property>
    <property name="statusTip">
-    <string>About MyTerm</string>
+    <string notr="true">About MyTerm</string>
+   </property>
+  </action>
+  <action name="actionAbout_Qt">
+   <property name="text">
+    <string notr="true">About Qt</string>
+   </property>
+   <property name="iconText">
+    <string notr="true">About Qt</string>
+   </property>
+   <property name="toolTip">
+    <string notr="true">About Qt</string>
+   </property>
+   <property name="statusTip">
+    <string notr="true">About Qt</string>
    </property>
   </action>
  </widget>
