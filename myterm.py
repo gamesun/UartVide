@@ -37,6 +37,12 @@ from gui_qt5.ui_mainwindow import Ui_MainWindow
 
 import serial
 
+if os.name == 'nt':
+    FONT_FAMILY = "Consolas"
+elif os.name == 'posix':
+    FONT_FAMILY = "Courier 10 Pitch"
+
+
 class readerThread(QThread):
     """loop and copy serial->GUI"""
     read = pyqtSignal(str)
@@ -102,28 +108,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__()
         self._csvFilePath = ""
-
         self.serialport = serial.Serial()
         self.receiver_thread = readerThread()
         self.receiver_thread.setPort(self.serialport)
-        self._signalMap = QSignalMapper(self)
-        self._signalMap.mapped[int].connect(self.tableClick)
         self._table_cols = 0
 
         self.setupUi(self)
         self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
         self.setCorner(Qt.BottomLeftCorner, Qt.LeftDockWidgetArea)
+        font = QtGui.QFont()
+        font.setFamily(FONT_FAMILY)
+        font.setPointSize(10)
+        self.txtEdtOutput.setFont(font)
         self.onEnumPorts()
         self.moveScreenCenter()
 
 
         self.actionOpen.triggered.connect(self.onOpen)
+        self.actionAbout.triggered.connect(self.onAbout)
+        self.actionAbout_Qt.triggered.connect(self.onAboutQt)
+        self.actionExit.triggered.connect(self.onExit)
 
         self.btnOpen.clicked.connect(self.onOpen)
+
         self.btnEnumPorts.clicked.connect(self.onEnumPorts)
         self.actionShow_Hex_Transmit_Panel.triggered.connect(self.onHideHexPnl)
         self.receiver_thread.read.connect(self.receive)
         self.receiver_thread.exception.connect(self.readerExcept)
+        self._signalMap = QSignalMapper(self)
+        self._signalMap.mapped[int].connect(self.tableClick)
 
         self.openCSV()
 
@@ -356,6 +369,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for p in enum_ports():
             self.cmbPort.addItem(p)
         # self.cmbPort.update()
+    
+    def onAbout(self):
+        QMessageBox.about(self, "", "")
+    
+    def onAboutQt(self):
+        QMessageBox.aboutQt(self)
+        
+    def onExit(self):
+        if self.serialport.isOpen():
+            self.closePort()
+        self.close()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
