@@ -25,15 +25,17 @@
 
 
 import sys, os
+import datetime
 import threading
-
+import pickle
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, \
-    QFileDialog, QTableWidgetItem, QPushButton
+    QFileDialog, QTableWidgetItem, QPushButton, QActionGroup
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper
 
 import appInfo
 from gui_qt5.ui_mainwindow import Ui_MainWindow
+from enum_ports import enum_ports
 
 import serial
 
@@ -42,6 +44,9 @@ if os.name == 'nt':
 elif os.name == 'posix':
     FONT_FAMILY = "Courier 10 Pitch"
 
+VIEWMODE_ASCII           = 0
+VIEWMODE_HEX_LOWERCASE   = 1
+VIEWMODE_HEX_UPPERCASE   = 2
 
 class readerThread(QThread):
     """loop and copy serial->GUI"""
@@ -51,9 +56,13 @@ class readerThread(QThread):
     def __init__(self, parent=None):
         super(readerThread, self).__init__(parent)
         self._alive = None
+        self._viewMode = None
 
     def setPort(self, port):
         self.serialport = port
+
+    def setViewMode(self, mode):
+        self._viewMode = mode
 
     def start(self, priority = QThread.InheritPriority):
         self._alive = True
@@ -112,6 +121,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.receiver_thread = readerThread()
         self.receiver_thread.setPort(self.serialport)
         self._table_cols = 0
+        self._table_rows = 0
+        self._localEcho = None
 
         self.setupUi(self)
         self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
@@ -120,29 +131,79 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         font.setFamily(FONT_FAMILY)
         font.setPointSize(10)
         self.txtEdtOutput.setFont(font)
+        self.quickSendTable.setFont(font)
         self.onEnumPorts()
         self.moveScreenCenter()
 
 
-        self.actionOpen.triggered.connect(self.onOpen)
+        self._viewGroup = QActionGroup(self)
+        self._viewGroup.addAction(self.actionAscii)
+        self._viewGroup.addAction(self.actionHex_lowercase)
+        self._viewGroup.addAction(self.actionHEX_UPPERCASE)
+        self._viewGroup.setExclusive(True)
+        
+        # bind events
+        self.actionOpen_Cmd_File.triggered.connect(self.openCSV)
+        self.actionSave_Log.triggered.connect(self.onSaveLog)
+        self.actionExit.triggered.connect(self.onExit)
+        
+        self.actionOpen.triggered.connect(self.openPort)
+        self.actionClose.triggered.connect(self.closePort)
+        
+        self.actionPort_Config_Panel.triggered.connect(self.onTogglePrtCfgPnl)
+        self.actionQuick_Send_Panel.triggered.connect(self.onToggleQckSndPnl)
+        self.actionSend_Hex_Panel.triggered.connect(self.onToggleHexPnl)
+        self.actionLocal_Echo.triggered.connect(self.onLocalEcho)
+        self.actionAlways_On_Top.triggered.connect(self.onAlwaysOnTop)
+        
+        self.actionAscii.triggered.connect(self.onViewChanged)
+        self.actionHex_lowercase.triggered.connect(self.onViewChanged)
+        self.actionHEX_UPPERCASE.triggered.connect(self.onViewChanged)
+        
         self.actionAbout.triggered.connect(self.onAbout)
         self.actionAbout_Qt.triggered.connect(self.onAboutQt)
-        self.actionExit.triggered.connect(self.onExit)
-
+               
         self.btnOpen.clicked.connect(self.onOpen)
-
+        self.btnClear.clicked.connect(self.onClear)
+        self.btnSaveLog.clicked.connect(self.onSaveLog)
         self.btnEnumPorts.clicked.connect(self.onEnumPorts)
-        self.actionShow_Hex_Transmit_Panel.triggered.connect(self.onHideHexPnl)
+        
         self.receiver_thread.read.connect(self.receive)
         self.receiver_thread.exception.connect(self.readerExcept)
         self._signalMap = QSignalMapper(self)
         self._signalMap.mapped[int].connect(self.tableClick)
 
-        self.openCSV()
+        # initial action
+        self.actionHEX_UPPERCASE.setChecked(True)
+        self.receiver_thread.setViewMode(VIEWMODE_HEX_UPPERCASE)
+        self.initQuickSend()
+        self.restoreLayout()
+        self.syncMenu()
+
+    def closeEvent(self, event):
+        self.saveLayout()
+        super(MainWindow, self).closeEvent(event)
 
     def tableClick(self, row):
         self.sendTableRow(row)
 
+    def initQuickSend(self):
+#        self.quickSendTable.horizontalHeader().setDefaultSectionSize(40)
+#        self.quickSendTable.horizontalHeader().setMinimumSectionSize(25)
+        self._table_cols = 10
+        self._table_rows = 50
+        self.quickSendTable.setRowCount(self._table_rows)
+        self.quickSendTable.setColumnCount(self._table_cols)
+        
+        for row in range(self._table_rows):
+            item = QPushButton(str("Send"))
+            item.clicked.connect(self._signalMap.map)
+            self._signalMap.setMapping(item, row)
+            self.quickSendTable.setCellWidget(row, 0, item)
+            self.quickSendTable.setRowHeight(row, 20)
+
+        self.quickSendTable.resizeColumnsToContents()
+        
     def openCSV(self):
         fileName, _ = QFileDialog.getOpenFileName(self, "Select a file",
             os.getcwd(), "CSV Files (*.csv)")
@@ -168,70 +229,77 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return
 
         self._csvFilePath = path
-        self.table.setRowCount(rows)
-        self.table.setColumnCount(cols)
+        self.quickSendTable.setRowCount(rows)
+        self.quickSendTable.setColumnCount(cols)
 
         for row, rowdat in enumerate(data):
             if rowdat[1] == '':
-                self.table.setItem(row, 0, QTableWidgetItem(str(rowdat[0])))
+                self.quickSendTable.setItem(row, 0, QTableWidgetItem(str(rowdat[0])))
             else:
                 item = QPushButton(str(rowdat[0]))
                 item.clicked.connect(self._signalMap.map)
                 self._signalMap.setMapping(item, row)
-                self.table.setCellWidget(row, 0, item)
-                self.table.setRowHeight(row, 20)
+                self.quickSendTable.setCellWidget(row, 0, item)
+                self.quickSendTable.setRowHeight(row, 20)
                 for col, cell in enumerate(rowdat[1:], 1):
-                    self.table.setItem(row, col, QTableWidgetItem(str(cell)))
+                    self.quickSendTable.setItem(row, col, QTableWidgetItem(str(cell)))
 
-        self.table.resizeColumnsToContents()
-        #self.table.resizeRowsToContents()
+        self.quickSendTable.resizeColumnsToContents()
+        #self.quickSendTable.resizeRowsToContents()
 
     def sendTableRow(self, row):
         try:
-            data = ['0' + self.table.item(row, col).text()
+            data = ['0' + self.quickSendTable.item(row, col).text()
                 for col in range(self._table_cols)
-                if self.table.item(row, col) is not None]
+                if self.quickSendTable.item(row, col) is not None 
+                    and self.quickSendTable.item(row, col).text() is not '']
         except:
-            raise
-            # print("Exception in sendTableRow(row = %d)" % (row + 1))
+            print("Exception in get table data(row = %d)" % (row + 1))
         else:
-            # print(data)
-            h = [int(d[-2] + d[-1], 16) for d in data if d is not '']
-            # print(repr(h))
-            b = bytearray(h)
-            # str = ''.join([chr(m) for m in data])
-            # print(repr(b))
-
-            if self.serialport.isOpen():
-                try:
-                    self.serialport.write(b)
-                    print(repr(b))
-                except serial.SerialException as e:
-                    raise
-                    # evt = SerialExceptEvent(self.frame.GetId(), e)
-                    # self.frame.GetEventHandler().AddPendingEvent(evt)
-                else:
-                    # self.txCount += len( b )
-                    # self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
-
-                    import datetime
-                    text = ''.join(['%02X ' % i for i in h])
-                    # self.frame.txtctlMain.SetDefaultStyle(wx.TextAttr(colText=(0, 0, 255), alignment = wx.TEXT_ATTR_TEXT_COLOUR))
-                    self.receive("\n%s T->:%s" % (datetime.datetime.now().time().isoformat()[:-3], text))
-                    # self.frame.txtctlMain.SetDefaultStyle(wx.TextAttr(colText=(0, 0, 0), alignment = wx.TEXT_ATTR_TEXT_COLOUR))
+            try:
+                h = [int(d[-2] + d[-1], 16) for d in data if d is not '']
+            except ValueError as e:
+                print("ValueError: {}".format(e))
+            else:
+                self.transmitHex(h)
 
     def readerExcept(self, e):
         QMessageBox.critical(self, "Read failed", str(e), QMessageBox.Close)
         self.closePort()
 
+    def timestamp(self):
+        return datetime.datetime.now().time().isoformat()[:-3]
+    
     def receive(self, data):
-        # the "append" methon will add a newline which is unnecessarily.
+        self.appendOutputText("\n%s R<-:%s" % (self.timestamp(), data))
+
+    def appendOutputText(self, data, color=Qt.black):
+        # the qEditText's "append" methon will add a unnecessary newline.
         # self.txtEdtOutput.append(data.decode('utf-8'))
 
-        # print(repr(data))
+        tc=self.txtEdtOutput.textColor()
         self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
+        self.txtEdtOutput.setTextColor(QtGui.QColor(color))
         self.txtEdtOutput.insertPlainText(data)
         self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
+        self.txtEdtOutput.setTextColor(tc)
+        
+    def transmitHex(self, hexarray):
+        byteArray = bytearray(hexarray)
+        if self.serialport.isOpen():
+            try:
+                self.serialport.write(byteArray)
+            except serial.SerialException as e:
+                print("Exception in transmitHex(%s)" % repr(hexarray))
+                QMessageBox.critical(self, "Exception in transmitHex", str(e),
+                    QMessageBox.Close)
+            else:
+                # self.txCount += len( b )
+                # self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
+
+                text = ''.join(['%02X ' % i for i in hexarray])
+                self.appendOutputText("\n%s T->:%s" % (self.timestamp(), text), 
+                    Qt.blue)
 
     def GetPort(self):
         # if sys.platform == 'win32':
@@ -344,17 +412,54 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #     self.serialport.cancel_read()
         self.receiver_thread.join()
 
-    def onHideHexPnl(self):
-        if self.txtEdtInput.isVisible():
-            self.txtEdtInput.hide()
+    def onTogglePrtCfgPnl(self):
+        if self.actionPort_Config_Panel.isChecked():
+            self.dockWidget_PortConfig.show()
         else:
-            self.txtEdtInput.show()
+            self.dockWidget_PortConfig.hide()
+
+    def onToggleQckSndPnl(self):
+        if self.actionQuick_Send_Panel.isChecked():
+            self.dockWidget_QuickSend.show()
+        else:
+            self.dockWidget_QuickSend.hide()
+
+    def onToggleHexPnl(self):
+        if self.actionSend_Hex_Panel.isChecked():
+            self.dockWidget_SendHex.show()
+        else:
+            self.dockWidget_SendHex.hide()
+
+    def onLocalEcho(self):
+        self._localEcho = self.actionLocal_Echo.isChecked()
+    
+    def onAlwaysOnTop(self):
+        if self.actionAlways_On_Top.isChecked():
+            style = self.windowFlags()
+            self.setWindowFlags(style|Qt.WindowStaysOnTopHint)
+            self.show()
+        else:
+            style = self.windowFlags()
+            self.setWindowFlags(style & ~Qt.WindowStaysOnTopHint)
+            self.show()
 
     def onOpen(self):
         if self.serialport.isOpen():
             self.closePort()
         else:
             self.openPort()
+    
+    def onClear(self):
+        self.txtEdtOutput.clear()
+
+    def onSaveLog(self):
+        fileName, _ = QFileDialog.getSaveFileName(self, "Save as", os.getcwd(), 
+            "Log files (*.log);;Text files (*.txt);;All files (*.*)")
+        if fileName:
+            import codecs
+            f = codecs.open(fileName, 'w', 'utf-8')
+            f.write(self.txtEdtOutput.toPlainText())
+            f.close()
 
     def moveScreenCenter(self):
         w = self.frameGeometry().width()
@@ -365,21 +470,52 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setGeometry((screenW-w)/2, (screenH-h)/2, w, h)
 
     def onEnumPorts(self):
-        from enum_ports import enum_ports
         for p in enum_ports():
             self.cmbPort.addItem(p)
         # self.cmbPort.update()
-    
+
     def onAbout(self):
         QMessageBox.about(self, "", "")
-    
+
+
     def onAboutQt(self):
         QMessageBox.aboutQt(self)
-        
+
     def onExit(self):
         if self.serialport.isOpen():
             self.closePort()
         self.close()
+
+    def restoreLayout(self):
+        if os.path.isfile("layout.dat"):
+            try:
+                f=open("layout.dat", 'rb')
+                state=pickle.load(f)
+                self.restoreState(state)
+            except Exception as e:
+                print("Exception on restoreLayout, {}".format(e))
+    
+    def saveLayout(self):
+        with open("layout.dat", 'wb') as f:
+            pickle.dump(self.saveState(), f)
+    
+    def syncMenu(self):
+        self.actionPort_Config_Panel.setChecked(not self.dockWidget_PortConfig.isHidden())
+        self.actionQuick_Send_Panel.setChecked(not self.dockWidget_QuickSend.isHidden())
+        self.actionSend_Hex_Panel.setChecked(not self.dockWidget_SendHex.isHidden())
+
+    def onViewChanged(self):
+        checked = self._viewGroup.checkedAction()
+        if checked is None:
+            self.actionHEX_UPPERCASE.setChecked(True)
+            self.receiver_thread.setViewMode(VIEWMODE_HEX_UPPERCASE)
+        else:
+            if 'Ascii' in checked.text():
+                self.receiver_thread.setViewMode(VIEWMODE_ASCII)
+            elif 'lowercase' in checked.text():
+                self.receiver_thread.setViewMode(VIEWMODE_HEX_LOWERCASE)
+            elif 'UPPERCASE' in checked.text():
+                self.receiver_thread.setViewMode(VIEWMODE_HEX_UPPERCASE)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

@@ -91,6 +91,8 @@
     <property name="title">
      <string notr="true">&amp;File</string>
     </property>
+    <addaction name="actionOpen_Cmd_File"/>
+    <addaction name="separator"/>
     <addaction name="actionSave_Log"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
@@ -106,20 +108,21 @@
     <property name="title">
      <string notr="true">&amp;View</string>
     </property>
-    <widget class="QMenu" name="menuReceive_view_as">
+    <widget class="QMenu" name="menuReceive_View">
      <property name="title">
-      <string notr="true">Receive view as</string>
+      <string notr="true">Receive View</string>
      </property>
      <addaction name="actionAscii"/>
      <addaction name="actionHex_lowercase"/>
      <addaction name="actionHEX_UPPERCASE"/>
     </widget>
-    <addaction name="actionShow_PortConfig"/>
-    <addaction name="actionShow_Hex_Transmit_Panel"/>
+    <addaction name="actionPort_Config_Panel"/>
+    <addaction name="actionQuick_Send_Panel"/>
+    <addaction name="actionSend_Hex_Panel"/>
     <addaction name="separator"/>
-    <addaction name="actionLocal_echo"/>
-    <addaction name="menuReceive_view_as"/>
-    <addaction name="actionAlwaws_on_top"/>
+    <addaction name="actionLocal_Echo"/>
+    <addaction name="menuReceive_View"/>
+    <addaction name="actionAlways_On_Top"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -134,9 +137,9 @@
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QDockWidget" name="dockWidget">
+  <widget class="QDockWidget" name="dockWidget_PortConfig">
    <property name="windowTitle">
-    <string notr="true">Port</string>
+    <string notr="true">Port Config</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
@@ -666,6 +669,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="btnOpen">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
             <property name="text">
              <string notr="true">Open</string>
             </property>
@@ -738,9 +744,9 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QDockWidget" name="dockWidget_2">
+  <widget class="QDockWidget" name="dockWidget_SendHex">
    <property name="windowTitle">
-    <string notr="true">Transmit HEX</string>
+    <string notr="true">Send Hex</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>8</number>
@@ -775,9 +781,9 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QDockWidget" name="dockWidget_3">
+  <widget class="QDockWidget" name="dockWidget_QuickSend">
    <property name="windowTitle">
-    <string notr="true">Grid</string>
+    <string notr="true">Quick Send</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
@@ -800,7 +806,13 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QTableWidget" name="table">
+      <widget class="QTableWidget" name="quickSendTable">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="font">
         <font>
          <family>Courier 10 Pitch</family>
@@ -895,43 +907,52 @@
     <string notr="true">Close the port</string>
    </property>
   </action>
-  <action name="actionShow_PortConfig">
+  <action name="actionPort_Config_Panel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string notr="true">Show Port Config</string>
+    <string notr="true">Port Config Panel</string>
    </property>
    <property name="iconText">
     <string notr="true">Show Port Config</string>
    </property>
    <property name="toolTip">
-    <string notr="true">Show Port Config</string>
+    <string notr="true">Show or hide Port Config Panel</string>
    </property>
    <property name="statusTip">
-    <string notr="true">Show Setting Bar</string>
+    <string notr="true">Show or hide Port Config Panel</string>
    </property>
   </action>
-  <action name="actionAlwaws_on_top">
+  <action name="actionAlways_On_Top">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string notr="true">Alwaws on top</string>
+    <string notr="true">Always On Top</string>
    </property>
    <property name="iconText">
-    <string notr="true">Alwaws on top</string>
+    <string notr="true">Always on top</string>
    </property>
    <property name="toolTip">
-    <string notr="true">Alwaws on most top</string>
+    <string notr="true">Always on most top</string>
    </property>
    <property name="statusTip">
-    <string notr="true">Alwaws on most top</string>
+    <string notr="true">Always on most top</string>
    </property>
   </action>
-  <action name="actionLocal_echo">
+  <action name="actionLocal_Echo">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string notr="true">Local echo</string>
+    <string notr="true">Local Echo</string>
    </property>
    <property name="iconText">
     <string notr="true">Local echo</string>
    </property>
    <property name="toolTip">
-    <string notr="true">Echo what you typed</string>
+    <string notr="true">Local Echo</string>
    </property>
    <property name="statusTip">
     <string notr="true">Echo what you typed</string>
@@ -988,18 +1009,21 @@
     <string notr="true">Show as HEX(UPPERCASE)</string>
    </property>
   </action>
-  <action name="actionShow_Hex_Transmit_Panel">
+  <action name="actionSend_Hex_Panel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string notr="true">Hex Transmit Panel</string>
+    <string notr="true">Send Hex Panel</string>
    </property>
    <property name="iconText">
-    <string notr="true">Hex Transmit Panel</string>
+    <string notr="true">Send Hex Panel</string>
    </property>
    <property name="toolTip">
-    <string notr="true">Show/hide Hex Transmit Panel</string>
+    <string notr="true">Show or hide Send Hex Panel</string>
    </property>
    <property name="statusTip">
-    <string notr="true">Show/hide Hex Transmit Panel</string>
+    <string notr="true">Show or hide Hex Transmit Panel</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -1028,6 +1052,37 @@
    </property>
    <property name="statusTip">
     <string notr="true">About Qt</string>
+   </property>
+  </action>
+  <action name="actionOpen_Cmd_File">
+   <property name="text">
+    <string notr="true">Open Cmd File</string>
+   </property>
+   <property name="iconText">
+    <string notr="true">Open Cmd File</string>
+   </property>
+   <property name="toolTip">
+    <string notr="true">Open Cmd File</string>
+   </property>
+   <property name="statusTip">
+    <string notr="true">Open Cmd File</string>
+   </property>
+  </action>
+  <action name="actionQuick_Send_Panel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string notr="true">Quick Send Panel</string>
+   </property>
+   <property name="iconText">
+    <string notr="true">Quick Send Panel</string>
+   </property>
+   <property name="toolTip">
+    <string notr="true">Show or hide Quick Send Panel</string>
+   </property>
+   <property name="statusTip">
+    <string notr="true">Show or hide Quick Send Panel</string>
    </property>
   </action>
  </widget>
