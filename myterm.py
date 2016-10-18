@@ -35,6 +35,7 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper
 
 import appInfo
 from gui_qt5.ui_mainwindow import Ui_MainWindow
+from res import resources
 from enum_ports import enum_ports
 
 import serial
@@ -135,6 +136,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.onEnumPorts()
         self.moveScreenCenter()
 
+        icon = QtGui.QIcon(":/icon.ico")
+        self.setWindowIcon(icon)
+        self.actionAbout.setIcon(icon)
+        
+        icon = QtGui.QIcon(":/qt_logo_16.ico")
+        self.actionAbout_Qt.setIcon(icon)
 
         self._viewGroup = QActionGroup(self)
         self._viewGroup.addAction(self.actionAscii)
