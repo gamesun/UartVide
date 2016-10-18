@@ -10,6 +10,7 @@ AppVersion={#AppVersion}
 DefaultDirName={pf}\{#AppName}
 DefaultGroupName={#AppName}
 UninstallDisplayIcon={app}\{#AppName}.exe
+UninstallDisplayName={#AppName} {#AppVersion}
 VersionInfoVersion={#AppVersion}
 AppPublisher="gamesun"
 AppCopyright="Copyright (C) 2016 gamesun"
