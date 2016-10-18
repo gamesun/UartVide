@@ -497,14 +497,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if os.path.isfile("layout.dat"):
             try:
                 f=open("layout.dat", 'rb')
-                state=pickle.load(f)
+                geometry, state=pickle.load(f)
+                self.restoreGeometry(geometry)
                 self.restoreState(state)
             except Exception as e:
                 print("Exception on restoreLayout, {}".format(e))
     
     def saveLayout(self):
         with open("layout.dat", 'wb') as f:
-            pickle.dump(self.saveState(), f)
+            pickle.dump((self.saveGeometry(), self.saveState()), f)
     
     def syncMenu(self):
         self.actionPort_Config_Panel.setChecked(not self.dockWidget_PortConfig.isHidden())
