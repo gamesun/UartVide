@@ -370,6 +370,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.serialport.isOpen():
             return
 
+        if '' == self.GetPort():
+            QMessageBox.information(self, "Invalid parameters", "Port is empty!")
+            return
+
         _baudrate = self.cmbBaudRate.currentText()
         if _baudrate == '':
             QMessageBox.information(self, "Invalid parameters", "Baudrate is empty!")
