@@ -160,6 +160,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionPort_Config_Panel.triggered.connect(self.onTogglePrtCfgPnl)
         self.actionQuick_Send_Panel.triggered.connect(self.onToggleQckSndPnl)
         self.actionSend_Hex_Panel.triggered.connect(self.onToggleHexPnl)
+        self.dockWidget_PortConfig.visibilityChanged.connect(self.onVisiblePrtCfgPnl)
+        self.dockWidget_QuickSend.visibilityChanged.connect(self.onVisibleQckSndPnl)
+        self.dockWidget_SendHex.visibilityChanged.connect(self.onVisibleHexPnl)
         self.actionLocal_Echo.triggered.connect(self.onLocalEcho)
         self.actionAlways_On_Top.triggered.connect(self.onAlwaysOnTop)
         
@@ -174,6 +177,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnClear.clicked.connect(self.onClear)
         self.btnSaveLog.clicked.connect(self.onSaveLog)
         self.btnEnumPorts.clicked.connect(self.onEnumPorts)
+        self.btnSendHex.clicked.connect(self.sendHex)
         
         self.receiver_thread.read.connect(self.receive)
         self.receiver_thread.exception.connect(self.readerExcept)
@@ -270,6 +274,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             else:
                 self.transmitHex(h)
 
+    def sendHex(self):
+        hexStr = self.txtEdtInput.toPlainText()
+        hexStr = ''.join(hexStr.split(" "))
+        
+        hexarray = []
+        for i in range(0, len(hexStr), 2):
+            hexarray.append(int(hexStr[i:i+2], 16))
+        
+        self.transmitHex(hexarray)
+
     def readerExcept(self, e):
         QMessageBox.critical(self, "Read failed", str(e), QMessageBox.Close)
         self.closePort()
@@ -292,21 +306,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.txtEdtOutput.setTextColor(tc)
         
     def transmitHex(self, hexarray):
-        byteArray = bytearray(hexarray)
-        if self.serialport.isOpen():
-            try:
-                self.serialport.write(byteArray)
-            except serial.SerialException as e:
-                print("Exception in transmitHex(%s)" % repr(hexarray))
-                QMessageBox.critical(self, "Exception in transmitHex", str(e),
-                    QMessageBox.Close)
-            else:
-                # self.txCount += len( b )
-                # self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
+        if len(hexarray) > 0:
+            byteArray = bytearray(hexarray)
+            if self.serialport.isOpen():
+                try:
+                    self.serialport.write(byteArray)
+                except serial.SerialException as e:
+                    print("Exception in transmitHex(%s)" % repr(hexarray))
+                    QMessageBox.critical(self, "Exception in transmitHex", str(e),
+                        QMessageBox.Close)
+                else:
+                    # self.txCount += len( b )
+                    # self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
 
-                text = ''.join(['%02X ' % i for i in hexarray])
-                self.appendOutputText("\n%s T->:%s" % (self.timestamp(), text), 
-                    Qt.blue)
+                    text = ''.join(['%02X ' % i for i in hexarray])
+                    self.appendOutputText("\n%s T->:%s" % (self.timestamp(), text), 
+                        Qt.blue)
 
     def GetPort(self):
         # if sys.platform == 'win32':
@@ -436,7 +451,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.dockWidget_SendHex.show()
         else:
             self.dockWidget_SendHex.hide()
-
+    
+    def onVisiblePrtCfgPnl(self, visible):
+        self.actionPort_Config_Panel.setChecked(visible)
+        
+    def onVisibleQckSndPnl(self, visible):
+        self.actionQuick_Send_Panel.setChecked(visible)
+    
+    def onVisibleHexPnl(self, visible):
+        self.actionSend_Hex_Panel.setChecked(visible)
+    
     def onLocalEcho(self):
         self._localEcho = self.actionLocal_Echo.isChecked()
     
