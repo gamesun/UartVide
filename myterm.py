@@ -30,7 +30,7 @@ import threading
 import pickle
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, \
-    QFileDialog, QTableWidgetItem, QPushButton, QActionGroup
+    QFileDialog, QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper
 
 import appInfo
@@ -172,7 +172,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.actionAbout.triggered.connect(self.onAbout)
         self.actionAbout_Qt.triggered.connect(self.onAboutQt)
-               
+        
         self.btnOpen.clicked.connect(self.onOpen)
         self.btnClear.clicked.connect(self.onClear)
         self.btnSaveLog.clicked.connect(self.onSaveLog)
@@ -201,7 +201,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def initQuickSend(self):
 #        self.quickSendTable.horizontalHeader().setDefaultSectionSize(40)
 #        self.quickSendTable.horizontalHeader().setMinimumSectionSize(25)
-        self._table_cols = 10
+        self._table_cols = 20
         self._table_rows = 50
         self.quickSendTable.setRowCount(self._table_rows)
         self.quickSendTable.setColumnCount(self._table_cols)
@@ -234,15 +234,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     rows = rows + 1
                     if len(row) > cols:
                         cols = len(row)
-                self._table_cols = cols
         except IOError as e:
             print("({})".format(e))
             return
 
         self._csvFilePath = path
-        self.quickSendTable.setRowCount(rows)
-        self.quickSendTable.setColumnCount(cols)
-
+        if self._table_cols < cols:
+            self._table_cols = cols + 10
+            self.quickSendTable.setColumnCount(self._table_cols)
+        if self._table_rows < rows:
+            self._table_rows = rows + 20
+            self.quickSendTable.setRowCount(self._table_rows)
+        
         for row, rowdat in enumerate(data):
             if rowdat[1] == '':
                 self.quickSendTable.setItem(row, 0, QTableWidgetItem(str(rowdat[0])))
@@ -261,18 +264,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def sendTableRow(self, row):
         try:
             data = ['0' + self.quickSendTable.item(row, col).text()
-                for col in range(self._table_cols)
+                for col in range(1, self._table_cols)
                 if self.quickSendTable.item(row, col) is not None 
                     and self.quickSendTable.item(row, col).text() is not '']
         except:
             print("Exception in get table data(row = %d)" % (row + 1))
         else:
-            try:
-                h = [int(d[-2] + d[-1], 16) for d in data if d is not '']
-            except ValueError as e:
-                print("ValueError: {}".format(e))
-            else:
-                self.transmitHex(h)
+            tmp = [d[-2] + d[-1] for d in data if len(d) >= 2]
+            for t in tmp:
+                if not is_hex(t):
+                    QMessageBox.critical(self, "Error", 
+                        "'%s' is not hexadecimal." % (t), QMessageBox.Close)
+                    return
+
+            h = [int(t, 16) for t in tmp]
+            self.transmitHex(h)
 
     def sendHex(self):
         hexStr = self.txtEdtInput.toPlainText()
@@ -499,7 +505,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def moveScreenCenter(self):
         w = self.frameGeometry().width()
         h = self.frameGeometry().height()
-        desktop = QtWidgets.QDesktopWidget()
+        desktop = QDesktopWidget()
         screenW = desktop.screen().width()
         screenH = desktop.screen().height()
         self.setGeometry((screenW-w)/2, (screenH-h)/2, w, h)
@@ -553,6 +559,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif 'UPPERCASE' in checked.text():
                 self.receiver_thread.setViewMode(VIEWMODE_HEX_UPPERCASE)
 
+def is_hex(s):
+    try:
+        int(s, 16)
+        return True
+    except ValueError:
+        return False
+        
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     frame = MainWindow()
