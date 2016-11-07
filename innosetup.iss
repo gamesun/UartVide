@@ -2,7 +2,7 @@
 ; 
 
 #define AppName "MyTerm"
-#define AppVersion "1.4.1"
+#define AppVersion "2.0.0"
 
 [Setup]
 AppName={#AppName}

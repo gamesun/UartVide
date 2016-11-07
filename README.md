@@ -17,7 +17,7 @@ For detail see LICENSE.txt.
 <table>
    <tr>
       <td>Size</td>
-      <td>5.4 MB</td>
+      <td>15.3 MB</td>
    </tr>
    <tr>
       <td>OS</td>
