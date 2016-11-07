@@ -542,7 +542,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.cmbPort.update()
 
     def onAbout(self):
-        QMessageBox.about(self, "", "")
+        QMessageBox.about(self, "About MyTerm", appInfo.aboutme)
 
 
     def onAboutQt(self):
