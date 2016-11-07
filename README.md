@@ -1,16 +1,16 @@
 # MyTerm
-MyTerm is a RS232 serial port communication utility that can display the received data  
-either in hexadecimal or ASCII format, allowing you to configure the connection parameters.
+MyTerm is a RS232 serial port communication utility and runs on all platforms supported by PyQt including Windows, Linux.
 
-Its other features including detecting the valid serial ports,
-echoing the sending data in local or not.
-
-<table>
-   <tr>
-      <td>License</td>
-      <td>BSD</td>
-   </tr>
-</table>
+Its features including 
+  quick send custom commands
+  configure the connection parameters
+  detect the valid serial ports
+  echo the sending data in local or not
+  display data either in hexadecimal or ASCII format
+  custom resizable and floatable widgets
+  
+MyTerm is licensed on all supported platforms under the GNU GPL v3.
+For detail see LICENSE.txt. 
 
 ## Download
 ### Windows Version
@@ -21,11 +21,11 @@ echoing the sending data in local or not.
    </tr>
    <tr>
       <td>OS</td>
-      <td>Windows XP / Vista / 7 / 8 / 8 64 bit</td>
+      <td>Windows XP / Vista / 7 / 8 / 10</td>
    </tr>
 </table>
-[Download MyTerm 1.4 from Softpedia](http://www.softpedia.com/get/Network-Tools/Misc-Networking-Tools/MyTerm.shtml)  
-[Download MyTerm 1.4 from SourceForge](https://sourceforge.net/projects/myterm/)
+[Download MyTerm from Softpedia](http://www.softpedia.com/get/Network-Tools/Misc-Networking-Tools/MyTerm.shtml)  
+[Download MyTerm from SourceForge](https://sourceforge.net/projects/myterm/)
 
 [![](doc/softpedia_free_award_f.gif "")](http://www.softpedia.com/progClean/MyTerm-Clean-242031.html)
 
@@ -37,4 +37,4 @@ The package for Linux is being prepared.
 ## Screenshot
 ![](doc/screenshot.jpg "screenshot")
 
-![](doc/hidebar.jpg "the setting bar is hiding")
+![](doc/floatable_widgets.jpg "floatable widgets")
