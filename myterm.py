@@ -26,8 +26,8 @@
 
 import sys, os
 import datetime
-import threading
 import pickle
+import csv
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, \
     QFileDialog, QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget
@@ -41,9 +41,11 @@ from enum_ports import enum_ports
 import serial
 
 if os.name == 'nt':
-    FONT_FAMILY = "Consolas"
+    EDITOR_FONT = "Consolas"
+    UI_FONT = "Meiryo UI"
 elif os.name == 'posix':
-    FONT_FAMILY = "Courier 10 Pitch"
+    EDITOR_FONT = "Courier 10 Pitch"
+    UI_FONT = None
 
 VIEWMODE_ASCII           = 0
 VIEWMODE_HEX_LOWERCASE   = 1
@@ -57,10 +59,11 @@ class readerThread(QThread):
     def __init__(self, parent=None):
         super(readerThread, self).__init__(parent)
         self._alive = None
+        self._serialport = None
         self._viewMode = None
 
     def setPort(self, port):
-        self.serialport = port
+        self._serialport = port
 
     def setViewMode(self, mode):
         self._viewMode = mode
@@ -72,8 +75,8 @@ class readerThread(QThread):
     def __del__(self):
         if self._alive:
             self._alive = False
-            if hasattr(self.serialport, 'cancel_read'):
-                self.serialport.cancel_read()
+            if hasattr(self._serialport, 'cancel_read'):
+                self._serialport.cancel_read()
         self.wait()
 
     def join(self):
@@ -85,9 +88,8 @@ class readerThread(QThread):
         try:
             while self._alive:
                 # read all that is there or wait for one byte
-                data = self.serialport.read(self.serialport.in_waiting or 1)
+                data = self._serialport.read(self._serialport.in_waiting or 1)
                 if data:
-                    # self.txtEdtOutput.append(data.decode('utf-8'))
                     try:
                         text = data.decode('unicode_escape')
                     except UnicodeDecodeError:
@@ -119,20 +121,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__()
         self._csvFilePath = ""
         self.serialport = serial.Serial()
-        self.receiver_thread = readerThread()
+        self.receiver_thread = readerThread(self)
         self.receiver_thread.setPort(self.serialport)
-        self._table_cols = 0
-        self._table_rows = 0
         self._localEcho = None
 
         self.setupUi(self)
         self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
         self.setCorner(Qt.BottomLeftCorner, Qt.LeftDockWidgetArea)
         font = QtGui.QFont()
-        font.setFamily(FONT_FAMILY)
+        font.setFamily(EDITOR_FONT)
         font.setPointSize(10)
         self.txtEdtOutput.setFont(font)
+        self.txtEdtInput.setFont(font)
         self.quickSendTable.setFont(font)
+        if UI_FONT is not None:
+            font = QtGui.QFont()
+            font.setFamily(UI_FONT)
+            font.setPointSize(9)
+            self.dockWidget_PortConfig.setFont(font)
+            self.dockWidget_SendHex.setFont(font)
+            self.dockWidget_QuickSend.setFont(font)
         self.onEnumPorts()
         self.moveScreenCenter()
 
@@ -193,7 +201,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def closeEvent(self, event):
         self.saveLayout()
-        super(MainWindow, self).closeEvent(event)
+        self.saveCSV()
+        event.accept()
 
     def tableClick(self, row):
         self.sendTableRow(row)
@@ -201,70 +210,99 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def initQuickSend(self):
 #        self.quickSendTable.horizontalHeader().setDefaultSectionSize(40)
 #        self.quickSendTable.horizontalHeader().setMinimumSectionSize(25)
-        self._table_cols = 20
-        self._table_rows = 50
-        self.quickSendTable.setRowCount(self._table_rows)
-        self.quickSendTable.setColumnCount(self._table_cols)
+        self.quickSendTable.setRowCount(50)
+        self.quickSendTable.setColumnCount(20)
         
-        for row in range(self._table_rows):
+        for row in range(50):
             item = QPushButton(str("Send"))
             item.clicked.connect(self._signalMap.map)
             self._signalMap.setMapping(item, row)
             self.quickSendTable.setCellWidget(row, 0, item)
             self.quickSendTable.setRowHeight(row, 20)
 
+        if os.path.isfile('QckSndBckup.csv'):
+            self.loadCSV('QckSndBckup.csv')
+                
         self.quickSendTable.resizeColumnsToContents()
         
     def openCSV(self):
         fileName, _ = QFileDialog.getOpenFileName(self, "Select a file",
             os.getcwd(), "CSV Files (*.csv)")
         if fileName:
-            self.loadCSV(fileName)
+            self.loadCSV(fileName, notifyExcept = True)
 
-    def loadCSV(self, path):
-        import csv
+    def saveCSV(self):
+        # scan table
+        rows = self.quickSendTable.rowCount()
+        cols = self.quickSendTable.columnCount()
+        
+        tmp_data = [[self.quickSendTable.item(row, col) is not None 
+                    and self.quickSendTable.item(row, col).text() or ''
+                    for col in range(1, cols)] for row in range(rows)]
+        
         data = []
-        rows = 0
-        cols = 0
+        # delete trailing blanks
+        for row in tmp_data:
+            for idx, d in enumerate(row[::-1]):
+                if '' != d:
+                    break
+            new_row = row[:len(row) - idx]
+            data.append(new_row)
+
+#        import pprint
+#        pprint.pprint(data, width=120, compact=True)
+        
+        # write to file
+        with open('QckSndBckup.csv', 'w') as csvfile:
+            csvwriter = csv.writer(csvfile, delimiter=',', lineterminator='\n')
+            csvwriter.writerows(data)
+
+    def loadCSV(self, path, notifyExcept = False):
+        data = []
+        set_rows = 0
+        set_cols = 0
         try:
             with open(path) as csvfile:
                 csvData = csv.reader(csvfile)
                 for row in csvData:
                     data.append(row)
-                    rows = rows + 1
-                    if len(row) > cols:
-                        cols = len(row)
+                    set_rows = set_rows + 1
+                    if len(row) > set_cols:
+                        set_cols = len(row)
         except IOError as e:
             print("({})".format(e))
+            if notifyExcept:
+                QMessageBox.critical(self, "Open failed", str(e), QMessageBox.Close)
             return
+        
+        rows = self.quickSendTable.rowCount()
+        cols = self.quickSendTable.columnCount()
+        # clear table
+        for col in range(cols):
+            for row in range(rows):
+                self.quickSendTable.setItem(row, col, QTableWidgetItem(""))
 
         self._csvFilePath = path
-        if self._table_cols < cols:
-            self._table_cols = cols + 10
-            self.quickSendTable.setColumnCount(self._table_cols)
-        if self._table_rows < rows:
-            self._table_rows = rows + 20
-            self.quickSendTable.setRowCount(self._table_rows)
+        if (cols - 1) < set_cols:   # first colume is used by the "send" buttons.
+            cols = set_cols + 10
+            self.quickSendTable.setColumnCount(cols)
+        if rows < set_rows:
+            rows = set_rows + 20
+            self.quickSendTable.setRowCount(rows)
         
         for row, rowdat in enumerate(data):
-            if rowdat[1] == '':
-                self.quickSendTable.setItem(row, 0, QTableWidgetItem(str(rowdat[0])))
-            else:
-                item = QPushButton(str(rowdat[0]))
-                item.clicked.connect(self._signalMap.map)
-                self._signalMap.setMapping(item, row)
-                self.quickSendTable.setCellWidget(row, 0, item)
-                self.quickSendTable.setRowHeight(row, 20)
-                for col, cell in enumerate(rowdat[1:], 1):
+            if len(rowdat) > 0:
+                for col, cell in enumerate(rowdat, 1):
                     self.quickSendTable.setItem(row, col, QTableWidgetItem(str(cell)))
 
         self.quickSendTable.resizeColumnsToContents()
         #self.quickSendTable.resizeRowsToContents()
 
     def sendTableRow(self, row):
+        cols = self.quickSendTable.columnCount()
         try:
             data = ['0' + self.quickSendTable.item(row, col).text()
-                for col in range(1, self._table_cols)
+                for col in range(1, cols)
                 if self.quickSendTable.item(row, col) is not None 
                     and self.quickSendTable.item(row, col).text() is not '']
         except:
@@ -291,8 +329,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.transmitHex(hexarray)
 
     def readerExcept(self, e):
-        QMessageBox.critical(self, "Read failed", str(e), QMessageBox.Close)
         self.closePort()
+        QMessageBox.critical(self, "Read failed", str(e), QMessageBox.Close)
 
     def timestamp(self):
         return datetime.datetime.now().time().isoformat()[:-3]
@@ -330,13 +368,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         Qt.blue)
 
     def GetPort(self):
-        # if sys.platform == 'win32':
-        #     r = regex_matchPort.search(self.frame.cmbPort.GetValue())
-        #     if r:
-        #         return int(r.group('port')) - 1
-        #     return
-        # elif sys.platform.startswith('linux'):
-        #     return self.frame.cmbPort.GetValue()
         return self.cmbPort.currentText()
 
     def GetDataBits(self):
@@ -376,16 +407,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.serialport.isOpen():
             return
 
-        if '' == self.GetPort():
-            QMessageBox.information(self, "Invalid parameters", "Port is empty!")
+        _port = self.GetPort()
+        if '' == _port:
+            QMessageBox.information(self, "Invalid parameters", "Port is empty.")
             return
 
         _baudrate = self.cmbBaudRate.currentText()
-        if _baudrate == '':
-            QMessageBox.information(self, "Invalid parameters", "Baudrate is empty!")
+        if '' == _baudrate:
+            QMessageBox.information(self, "Invalid parameters", "Baudrate is empty.")
             return
 
-        self.serialport.port     = self.GetPort()
+        self.serialport.port     = _port
         self.serialport.baudrate = _baudrate
         self.serialport.bytesize = self.GetDataBits()
         self.serialport.stopbits = self.GetStopBits()
@@ -432,16 +464,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def _start_reader(self):
         """Start reader thread"""
-        # start serial->console thread
-        # self.receiver_thread = threading.Thread(target=self.reader, name='rx')
-        # self.receiver_thread.daemon = True
-        # self.receiver_thread.start()
         self.receiver_thread.start()
 
     def _stop_reader(self):
         """Stop reader thread only, wait for clean exit of thread"""
-        # if hasattr(self.serialport, 'cancel_read'):
-        #     self.serialport.cancel_read()
         self.receiver_thread.join()
 
     def onTogglePrtCfgPnl(self):
