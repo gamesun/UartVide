@@ -42,13 +42,13 @@ executables = [
         base=base,
         targetName=appInfo.title + '.exe',
         icon='icon/icon.ico',
-#        copyright=appInfo.copyright,
+        copyright=appInfo.copyright,
     )
 ]
 
 setup(name=appInfo.title,
       version=appInfo.version,
-#      description='',
+      description='',
       options=options,
       executables=executables
       )

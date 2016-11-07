@@ -7,13 +7,13 @@
 [Setup]
 AppName={#AppName}
 AppVersion={#AppVersion}
-DefaultDirName={pf}\{#AppName}
+DefaultDirName=D:\{#AppName}
 DefaultGroupName={#AppName}
 UninstallDisplayIcon={app}\{#AppName}.exe
 UninstallDisplayName={#AppName} {#AppVersion}
 VersionInfoVersion={#AppVersion}
 AppPublisher="gamesun"
-AppCopyright="Copyright (C) 2016 gamesun"
+AppCopyright="Copyright (C) 2013-2016 gamesun"
 OutputBaseFilename={#AppName}-{#AppVersion}-win32
 OutputDir=Release
 DisableDirPage=no
@@ -21,9 +21,9 @@ DisableProgramGroupPage=no
 LicenseFile=LICENSE.txt
 
 [Files]
-Source: "build\exe.win32-3.5\*"; DestDir: "{app}"
-Source: "build\exe.win32-3.5\imageformats\*"; DestDir: "{app}\imageformats"
-Source: "build\exe.win32-3.5\platforms\*"; DestDir: "{app}\platforms"
+Source: "build\exe.win32-3.4\*"; DestDir: "{app}"
+Source: "build\exe.win32-3.4\imageformats\*"; DestDir: "{app}\imageformats"
+Source: "build\exe.win32-3.4\platforms\*"; DestDir: "{app}\platforms"
 Source: "LICENSE.txt"; DestDir: "{app}"
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 

@@ -28,17 +28,21 @@ import sys, os
 import datetime
 import pickle
 import csv
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, \
+from PyQt4 import QtCore, QtGui
+from PyQt4.QtGui import QMainWindow, QApplication, QMessageBox, \
     QFileDialog, QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper
+from PyQt4.QtCore import Qt, QThread, pyqtSignal, QSignalMapper
 
 import appInfo
-from gui_qt5.ui_mainwindow import Ui_MainWindow
-from res import resources
+from gui_qt4.ui_mainwindow import Ui_MainWindow
+from res import resources_pyqt4
 from enum_ports import enum_ports
-
 import serial
+
+extension = os.path.splitext(sys.argv[0])[1]
+if extension != '.py':
+    import except_logger
+    sys.excepthook = except_logger.exceptHook
 
 if os.name == 'nt':
     EDITOR_FONT = "Consolas"
@@ -226,7 +230,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.quickSendTable.resizeColumnsToContents()
         
     def openCSV(self):
-        fileName, _ = QFileDialog.getOpenFileName(self, "Select a file",
+        fileName = QFileDialog.getOpenFileName(self, "Select a file",
             os.getcwd(), "CSV Files (*.csv)")
         if fileName:
             self.loadCSV(fileName, notifyExcept = True)
