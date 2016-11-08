@@ -1,15 +1,15 @@
 # MyTerm
 MyTerm is a RS232 serial port communication utility and runs on all platforms supported by PyQt including Windows, Linux.
 
-Its features including 
-  quick send custom commands
-  configure the connection parameters
-  detect the valid serial ports
-  echo the sending data in local or not
-  display data either in hexadecimal or ASCII format
-  custom resizable and floatable widgets
+Its features including  
+  quick send custom commands  
+  configure the connection parameters  
+  detect the valid serial ports  
+  echo the sending data in local or not  
+  display data either in hexadecimal or ASCII format  
+  custom resizable and floatable widgets  
   
-MyTerm is licensed on all supported platforms under the GNU GPL v3.
+MyTerm is licensed on all supported platforms under the GNU GPL v3.  
 For detail see LICENSE.txt. 
 
 ## Download
