@@ -400,13 +400,12 @@ class MyApp(wx.App):
                             style = wx.SAVE | wx.CHANGE_DIR)
 
         if dlg.ShowModal() == wx.ID_OK:
+            import codecs
             path = dlg.GetPath()
-            print "You selected %s\n" % path,
 
-            f = open(path, 'w')
-
+            f = codecs.open(path, 'w', 'utf-8')
+            #f.write(u'\ufeff')    # BOM
             f.write(self.frame.txtctlMain.GetValue())
-
             f.close()
 
         dlg.Destroy()
