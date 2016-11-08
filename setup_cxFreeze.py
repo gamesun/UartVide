@@ -41,7 +41,7 @@ executables = [
         script='myterm.py', 
         base=base,
         targetName=appInfo.title + '.exe',
-        icon='icon/icon.ico',
+        icon='res/icon.ico',
         copyright=appInfo.copyright,
     )
 ]
