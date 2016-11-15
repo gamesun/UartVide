@@ -524,7 +524,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.txtEdtOutput.clear()
 
     def onSaveLog(self):
-        fileName, _ = QFileDialog.getSaveFileName(self, "Save as", os.getcwd(), 
+        fileName = QFileDialog.getSaveFileName(self, "Save as", os.getcwd(), 
             "Log files (*.log);;Text files (*.txt);;All files (*.*)")
         if fileName:
             import codecs
