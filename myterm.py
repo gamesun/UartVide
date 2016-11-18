@@ -28,6 +28,8 @@ import sys, os
 import datetime
 import pickle
 import csv
+from lxml import etree as ET
+import defusedxml.cElementTree as safeET
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QMainWindow, QApplication, QMessageBox, \
     QFileDialog, QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget
@@ -151,7 +153,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         icon = QtGui.QIcon(":/icon.ico")
         self.setWindowIcon(icon)
         self.actionAbout.setIcon(icon)
-        
+
         icon = QtGui.QIcon(":/qt_logo_16.ico")
         self.actionAbout_Qt.setIcon(icon)
 
@@ -160,15 +162,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._viewGroup.addAction(self.actionHex_lowercase)
         self._viewGroup.addAction(self.actionHEX_UPPERCASE)
         self._viewGroup.setExclusive(True)
-        
+
         # bind events
         self.actionOpen_Cmd_File.triggered.connect(self.openCSV)
         self.actionSave_Log.triggered.connect(self.onSaveLog)
         self.actionExit.triggered.connect(self.onExit)
-        
+
         self.actionOpen.triggered.connect(self.openPort)
         self.actionClose.triggered.connect(self.closePort)
-        
+
         self.actionPort_Config_Panel.triggered.connect(self.onTogglePrtCfgPnl)
         self.actionQuick_Send_Panel.triggered.connect(self.onToggleQckSndPnl)
         self.actionSend_Hex_Panel.triggered.connect(self.onToggleHexPnl)
@@ -177,20 +179,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.dockWidget_SendHex.visibilityChanged.connect(self.onVisibleHexPnl)
         self.actionLocal_Echo.triggered.connect(self.onLocalEcho)
         self.actionAlways_On_Top.triggered.connect(self.onAlwaysOnTop)
-        
+
         self.actionAscii.triggered.connect(self.onViewChanged)
         self.actionHex_lowercase.triggered.connect(self.onViewChanged)
         self.actionHEX_UPPERCASE.triggered.connect(self.onViewChanged)
-        
+
         self.actionAbout.triggered.connect(self.onAbout)
         self.actionAbout_Qt.triggered.connect(self.onAboutQt)
-        
+
         self.btnOpen.clicked.connect(self.onOpen)
         self.btnClear.clicked.connect(self.onClear)
         self.btnSaveLog.clicked.connect(self.onSaveLog)
         self.btnEnumPorts.clicked.connect(self.onEnumPorts)
         self.btnSendHex.clicked.connect(self.sendHex)
-        
+
         self.receiver_thread.read.connect(self.receive)
         self.receiver_thread.exception.connect(self.readerExcept)
         self._signalMap = QSignalMapper(self)
@@ -203,9 +205,89 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.restoreLayout()
         self.syncMenu()
 
+        self.LoadSettings()
+
+    def SaveSettings(self):
+        root = ET.Element("MyTerm")
+        GUISettings = ET.SubElement(root, "GUISettings")
+
+        PortCfg = ET.SubElement(GUISettings, "PortConfig")
+        ET.SubElement(PortCfg, "port").text = self.cmbPort.currentText()
+        ET.SubElement(PortCfg, "baudrate").text = self.cmbBaudRate.currentText()
+        ET.SubElement(PortCfg, "databits").text = self.cmbDataBits.currentText()
+        ET.SubElement(PortCfg, "parity").text = self.cmbParity.currentText()
+        ET.SubElement(PortCfg, "stopbits").text = self.cmbStopBits.currentText()
+        ET.SubElement(PortCfg, "rtscts").text = self.chkRTSCTS.isChecked() and "on" or "off"
+        ET.SubElement(PortCfg, "xonxoff").text = self.chkXonXoff.isChecked() and "on" or "off"
+
+        View = ET.SubElement(GUISettings, "View")
+        ET.SubElement(View, "LocalEcho").text = self.actionLocal_Echo.isChecked() and "on" or "off"
+        ET.SubElement(View, "ReceiveView").text = self._viewGroup.checkedAction().text()
+
+        with open('settings.xml', 'w') as f:
+            f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+            f.write(ET.tostring(root, encoding='utf-8', pretty_print=True).decode("utf-8"))
+
+    def LoadSettings(self):
+        if os.path.isfile("settings.xml"):
+            with open('settings.xml', 'r') as f:
+                tree = safeET.parse(f)
+
+            port = tree.findtext('GUISettings/PortConfig/port', default='')
+            if port != '':
+                self.cmbPort.setCurrentText(port)
+
+            baudrate = tree.findtext('GUISettings/PortConfig/baudrate', default='38400')
+            if baudrate != '':
+                self.cmbBaudRate.setCurrentText(baudrate)
+
+            databits = tree.findtext('GUISettings/PortConfig/databits', default='8')
+            id = self.cmbDataBits.findText(databits)
+            if id >= 0:
+                self.cmbDataBits.setCurrentIndex(id)
+
+            parity = tree.findtext('GUISettings/PortConfig/parity', default='None')
+            id = self.cmbParity.findText(parity)
+            if id >= 0:
+                self.cmbParity.setCurrentIndex(id)
+
+            stopbits = tree.findtext('GUISettings/PortConfig/stopbits', default='1')
+            id = self.cmbStopBits.findText(stopbits)
+            if id >= 0:
+                self.cmbStopBits.setCurrentIndex(id)
+
+            rtscts = tree.findtext('GUISettings/PortConfig/rtscts', default='off')
+            if 'on' == rtscts:
+                self.chkRTSCTS.setChecked(True)
+            else:
+                self.chkRTSCTS.setChecked(False)
+
+            xonxoff = tree.findtext('GUISettings/PortConfig/xonxoff', default='off')
+            if 'on' == xonxoff:
+                self.chkXonXoff.setChecked(True)
+            else:
+                self.chkXonXoff.setChecked(False)
+
+            LocalEcho = tree.findtext('GUISettings/View/LocalEcho', default='off')
+            if 'on' == LocalEcho:
+                self.actionLocal_Echo.setChecked(True)
+                self._localEcho = True
+            else:
+                self.actionLocal_Echo.setChecked(False)
+                self._localEcho = False
+
+            ReceiveView = tree.findtext('GUISettings/View/ReceiveView', default='HEX(UPPERCASE)')
+            if 'Ascii' in ReceiveView:
+                self.actionAscii.setChecked(True)
+            elif 'lowercase' in ReceiveView:
+                self.actionHex_lowercase.setChecked(True)
+            elif 'UPPERCASE' in ReceiveView:
+                self.actionHEX_UPPERCASE.setChecked(True)
+
     def closeEvent(self, event):
         self.saveLayout()
         self.saveCSV()
+        self.SaveSettings()
         event.accept()
 
     def tableClick(self, row):
@@ -216,7 +298,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 #        self.quickSendTable.horizontalHeader().setMinimumSectionSize(25)
         self.quickSendTable.setRowCount(50)
         self.quickSendTable.setColumnCount(20)
-        
+
         for row in range(50):
             item = QPushButton(str("Send"))
             item.clicked.connect(self._signalMap.map)
@@ -226,9 +308,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if os.path.isfile('QckSndBckup.csv'):
             self.loadCSV('QckSndBckup.csv')
-                
+
         self.quickSendTable.resizeColumnsToContents()
-        
+
     def openCSV(self):
         fileName = QFileDialog.getOpenFileName(self, "Select a file",
             os.getcwd(), "CSV Files (*.csv)")
@@ -239,11 +321,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # scan table
         rows = self.quickSendTable.rowCount()
         cols = self.quickSendTable.columnCount()
-        
-        tmp_data = [[self.quickSendTable.item(row, col) is not None 
+
+        tmp_data = [[self.quickSendTable.item(row, col) is not None
                     and self.quickSendTable.item(row, col).text() or ''
                     for col in range(1, cols)] for row in range(rows)]
-        
+
         data = []
         # delete trailing blanks
         for row in tmp_data:
@@ -255,7 +337,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 #        import pprint
 #        pprint.pprint(data, width=120, compact=True)
-        
+
         # write to file
         with open('QckSndBckup.csv', 'w') as csvfile:
             csvwriter = csv.writer(csvfile, delimiter=',', lineterminator='\n')
@@ -278,7 +360,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if notifyExcept:
                 QMessageBox.critical(self, "Open failed", str(e), QMessageBox.Close)
             return
-        
+
         rows = self.quickSendTable.rowCount()
         cols = self.quickSendTable.columnCount()
         # clear table
@@ -293,7 +375,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if rows < set_rows:
             rows = set_rows + 20
             self.quickSendTable.setRowCount(rows)
-        
+
         for row, rowdat in enumerate(data):
             if len(rowdat) > 0:
                 for col, cell in enumerate(rowdat, 1):
@@ -307,7 +389,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         try:
             data = ['0' + self.quickSendTable.item(row, col).text()
                 for col in range(1, cols)
-                if self.quickSendTable.item(row, col) is not None 
+                if self.quickSendTable.item(row, col) is not None
                     and self.quickSendTable.item(row, col).text() is not '']
         except:
             print("Exception in get table data(row = %d)" % (row + 1))
@@ -315,7 +397,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             tmp = [d[-2] + d[-1] for d in data if len(d) >= 2]
             for t in tmp:
                 if not is_hex(t):
-                    QMessageBox.critical(self, "Error", 
+                    QMessageBox.critical(self, "Error",
                         "'%s' is not hexadecimal." % (t), QMessageBox.Close)
                     return
 
@@ -325,11 +407,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def sendHex(self):
         hexStr = self.txtEdtInput.toPlainText()
         hexStr = ''.join(hexStr.split(" "))
-        
+
         hexarray = []
         for i in range(0, len(hexStr), 2):
             hexarray.append(int(hexStr[i:i+2], 16))
-        
+
         self.transmitHex(hexarray)
 
     def readerExcept(self, e):
@@ -338,7 +420,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def timestamp(self):
         return datetime.datetime.now().time().isoformat()[:-3]
-    
+
     def receive(self, data):
         self.appendOutputText("\n%s R<-:%s" % (self.timestamp(), data))
 
@@ -352,7 +434,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.txtEdtOutput.insertPlainText(data)
         self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
         self.txtEdtOutput.setTextColor(tc)
-        
+
     def transmitHex(self, hexarray):
         if len(hexarray) > 0:
             byteArray = bytearray(hexarray)
@@ -368,7 +450,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     # self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
 
                     text = ''.join(['%02X ' % i for i in hexarray])
-                    self.appendOutputText("\n%s T->:%s" % (self.timestamp(), text), 
+                    self.appendOutputText("\n%s T->:%s" % (self.timestamp(), text),
                         Qt.blue)
 
     def GetPort(self):
@@ -491,19 +573,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.dockWidget_SendHex.show()
         else:
             self.dockWidget_SendHex.hide()
-    
+
     def onVisiblePrtCfgPnl(self, visible):
         self.actionPort_Config_Panel.setChecked(visible)
-        
+
     def onVisibleQckSndPnl(self, visible):
         self.actionQuick_Send_Panel.setChecked(visible)
-    
+
     def onVisibleHexPnl(self, visible):
         self.actionSend_Hex_Panel.setChecked(visible)
-    
+
     def onLocalEcho(self):
         self._localEcho = self.actionLocal_Echo.isChecked()
-    
+
     def onAlwaysOnTop(self):
         if self.actionAlways_On_Top.isChecked():
             style = self.windowFlags()
@@ -519,12 +601,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.closePort()
         else:
             self.openPort()
-    
+
     def onClear(self):
         self.txtEdtOutput.clear()
 
     def onSaveLog(self):
-        fileName = QFileDialog.getSaveFileName(self, "Save as", os.getcwd(), 
+        fileName = QFileDialog.getSaveFileName(self, "Save as", os.getcwd(),
             "Log files (*.log);;Text files (*.txt);;All files (*.*)")
         if fileName:
             import codecs
@@ -566,11 +648,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.restoreState(state)
             except Exception as e:
                 print("Exception on restoreLayout, {}".format(e))
-    
+
     def saveLayout(self):
         with open("layout.dat", 'wb') as f:
             pickle.dump((self.saveGeometry(), self.saveState()), f)
-    
+
     def syncMenu(self):
         self.actionPort_Config_Panel.setChecked(not self.dockWidget_PortConfig.isHidden())
         self.actionQuick_Send_Panel.setChecked(not self.dockWidget_QuickSend.isHidden())
@@ -595,7 +677,7 @@ def is_hex(s):
         return True
     except ValueError:
         return False
-        
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     frame = MainWindow()
