@@ -36,7 +36,8 @@ from PyQt4.QtGui import QMainWindow, QApplication, QMessageBox, \
 from PyQt4.QtCore import Qt, QThread, pyqtSignal, QSignalMapper
 
 import appInfo
-from gui_qt4.ui_mainwindow import Ui_MainWindow
+#from gui_qt4.ui_mainwindow import Ui_MainWindow
+from gui_qt4_flat.ui_mainwindow import Ui_MainWindow
 from res import resources_pyqt4
 from enum_ports import enum_ports
 import serial
@@ -147,8 +148,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.dockWidget_PortConfig.setFont(font)
             self.dockWidget_SendHex.setFont(font)
             self.dockWidget_QuickSend.setFont(font)
+        self.setupFlatUi()
         self.onEnumPorts()
-        self.moveScreenCenter()
 
         icon = QtGui.QIcon(":/icon.ico")
         self.setWindowIcon(icon)
@@ -203,9 +204,368 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.receiver_thread.setViewMode(VIEWMODE_HEX_UPPERCASE)
         self.initQuickSend()
         self.restoreLayout()
+        self.moveScreenCenter()
         self.syncMenu()
 
         self.LoadSettings()
+
+    def setupFlatUi(self):
+        self._dragPos = self.pos()
+        self._isDragging = False
+        self.setMouseTracking(True)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowTitleHint)
+        self.setStyleSheet("""
+            QWidget {
+                background-color:#99d9ea;
+                /*background-image: url(:/downarrow.png);*/
+                outline: 1px solid #2a7fff;
+            }
+            QLabel {
+                color:#202020;
+                font-size:13px;
+                font-family:Century;
+            }
+            
+            QComboBox {
+                color:#202020;
+                font-size:13px;
+                font-family:Century Schoolbook;
+            }
+            QComboBox {
+                border: none;
+                padding: 1px 18px 1px 3px;
+            }
+            QComboBox:editable {
+                background: white;
+            }
+            QComboBox:!editable, QComboBox::drop-down:editable {
+                background: #62c7e0;
+            }
+            QComboBox:!editable:hover, QComboBox::drop-down:editable:hover {
+                background: #c7eaf3;
+            }
+            QComboBox:!editable:pressed, QComboBox::drop-down:editable:pressed {
+                background: #35b6d7;
+            }
+            QComboBox:on {
+                padding-top: 3px;
+                padding-left: 4px;
+            }
+            QComboBox::drop-down {
+                subcontrol-origin: padding;
+                subcontrol-position: top right;
+                width: 16px;
+                border: none;
+            }
+            QComboBox::down-arrow {
+                image: url(:/downarrow.png);
+            }
+            QComboBox::down-arrow:on {
+                image: url(:/uparrow.png);
+            }
+            
+            QGroupBox {
+                color:#202020;
+                font-size:12px;
+                font-family:Century Schoolbook;
+                border: 1px solid gray;
+                margin-top: 15px;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                subcontrol-position: top left;
+                left:5px;
+                top:3px;
+            }
+            
+            QCheckBox {
+                color:#202020;
+                spacing: 5px;
+                font-size:12px;
+                font-family:Century Schoolbook;
+            }
+
+            QScrollBar:horizontal {
+                background-color:#99d9ea;
+                border: none;
+                height: 15px;
+                margin: 0px 20px 0 20px;
+            }
+            QScrollBar::handle:horizontal {
+                background: #61b9e1;
+                min-width: 20px;
+            }
+            QScrollBar::add-line:horizontal {
+                image: url(:/rightarrow.png);
+                border: none;
+                background: #7ecfe4;
+                width: 20px;
+                subcontrol-position: right;
+                subcontrol-origin: margin;
+            }
+            QScrollBar::sub-line:horizontal {
+                image: url(:/leftarrow.png);
+                border: none;
+                background: #7ecfe4;
+                width: 20px;
+                subcontrol-position: left;
+                subcontrol-origin: margin;
+            }
+            
+            QScrollBar:vertical {
+                background-color:#99d9ea;
+                border: none;
+                width: 15px;
+                margin: 20px 0px 20px 0px;
+            }
+            QScrollBar::handle::vertical {
+                background: #61b9e1;
+                min-height: 20px;
+            }
+            QScrollBar::add-line::vertical {
+                image: url(:/downarrow.png);
+                border: none;
+                background: #7ecfe4;
+                height: 20px;
+                subcontrol-position: bottom;
+                subcontrol-origin: margin;
+            }
+            QScrollBar::sub-line::vertical {
+                image: url(:/uparrow.png);
+                border: none;
+                background: #7ecfe4;
+                height: 20px;
+                subcontrol-position: top;
+                subcontrol-origin: margin;
+            }
+            
+            QTableView {
+                background-color: white;
+                /*selection-background-color: #FF92BB;*/
+                border: 1px solid #eeeeee;
+                color: #2f2f2f;
+            }
+            QTableView::focus {
+                /*border: 1px solid #2a7fff;*/
+            }
+            QTableView QTableCornerButton::section {
+                border: none;
+                border-right: 1px solid #eeeeee;
+                border-bottom: 1px solid #eeeeee;
+                background-color: #8ae6d2;
+            }
+            QTableView QWidget {
+                background-color: white;
+            }
+            QTableView::item:focus {
+                border: 1px red;
+                background-color: transparent;
+                color: #2f2f2f;
+            }
+            QHeaderView::section {
+                border: none;
+                border-right: 1px solid #eeeeee;
+                border-bottom: 1px solid #eeeeee;
+                padding-left: 2px;
+                padding-right: 2px;
+                color: #444444;
+                background-color: #8ae6d2;
+            }
+            QTextEdit {
+                background-color:white;
+                color:#2f2f2f;
+                border: 1px solid white;
+            }
+            QTextEdit::focus {
+                border: 1px solid #2a7fff;
+            }
+            
+            QPushButton {
+                background-color:#30a7b8;
+                border:none;
+                color:#ffffff;
+                font-size:14px;
+                font-family:Century Schoolbook;
+            }
+            QPushButton:hover {
+                background-color:#51c0d1;
+            }
+            QPushButton:pressed {
+                background-color:#3a9ecc;
+            }
+            
+            QMenuBar {
+                color: #2f2f2f;
+            }
+            QMenuBar::item {
+                background-color: transparent;
+                margin: 8px 0px 0px 0px;
+                padding: 1px 8px 1px 8px;
+                height: 15px;
+            }
+            QMenuBar::item:selected {
+                background: #51c0d1;
+            }
+            QMenuBar::item:pressed {
+                
+            }
+            QMenu {
+                color: #2f2f2f;
+            }
+            QMenu {
+                margin: 2px;
+            }
+            QMenu::item {
+                padding: 2px 25px 2px 21px;
+                border: 1px solid transparent;
+            }
+            QMenu::item:selected {
+                background: #51c0d1;
+            }
+            QMenu::icon {
+                background: transparent;
+                border: 2px inset transparent;
+            }
+
+            QDockWidget {
+                font-size:13px;
+                font-family:Century;
+                color: #202020;
+                titlebar-close-icon: none;
+                titlebar-normal-icon: none;
+            }
+            QDockWidget::title {
+                margin: 0;
+                padding: 2px;
+                subcontrol-origin: content;
+                subcontrol-position: right top;
+                text-align: left;
+                background: #67baed;
+                
+            }
+            QDockWidget::float-button {
+                max-width: 12px;
+                max-height: 12px;
+                background-color:transparent;
+                border:none;
+                image: url(:/restore_inactive.png);
+            }
+            QDockWidget::float-button:hover {
+                background-color:#227582;
+                image: url(:/restore_active.png);
+            }
+            QDockWidget::float-button:pressed {
+                padding: 0;
+                background-color:#14464e;
+                image: url(:/restore_active.png);
+            }
+            QDockWidget::close-button {
+                max-width: 12px;
+                max-height: 12px;
+                background-color:transparent;
+                border:none;
+                image: url(:/close_inactive.png);
+            }
+            QDockWidget::close-button:hover {
+                background-color:#ea5e00;
+                image: url(:/close_active.png);
+            }
+            QDockWidget::close-button:pressed {
+                background-color:#994005;
+                image: url(:/close_active.png);
+                padding: 0;
+            }
+            
+        """)
+        self.dockWidgetContents.setStyleSheet("""
+            QPushButton {
+                min-height:23px;
+            }
+        """)
+        self.dockWidget_QuickSend.setStyleSheet("""
+            QPushButton {
+                background-color:#27b798;
+                font-family:Consolas;
+                font-size:12px;
+                min-width:46px;
+            }
+            QPushButton:hover {
+                background-color:#3bd5b4;
+            }
+            QPushButton:pressed {
+                background-color:#1d8770;
+            }
+        """)
+        self.dockWidgetContents_2.setStyleSheet("""
+            QPushButton {
+                min-height:23px;
+                min-width:50px;
+            }
+        """)
+
+        w = self.frameGeometry().width()
+        self._minBtn = QPushButton(self)
+        self._minBtn.setGeometry(w-74,0,28,24)
+        self._minBtn.clicked.connect(self.onMinimize)
+        self._minBtn.setStyleSheet("""
+            QPushButton {
+                background-color:transparent;
+                border:none;
+                outline: none;
+                image: url(:/minimize_inactive.png);
+            }
+            QPushButton:hover {
+                background-color:#227582;
+                image: url(:/minimize_active.png);
+            }
+            QPushButton:pressed {
+                background-color:#14464e;
+                image: url(:/minimize_active.png);
+            }
+        """)
+        
+        self._closeBtn = QPushButton(self)
+        self._closeBtn.setGeometry(w-45,0,36,24)
+        self._closeBtn.clicked.connect(self.onExit)
+        self._closeBtn.setStyleSheet("""
+            QPushButton {
+                background-color:transparent;
+                border:none;
+                outline: none;
+                image: url(:/close_inactive.png);
+            }
+            QPushButton:hover {
+                background-color:#ea5e00;
+                image: url(:/close_active.png);
+            }
+            QPushButton:pressed {
+                background-color:#994005;
+                image: url(:/close_active.png);
+            }
+        """)
+
+    def resizeEvent(self, event):
+        w = event.size().width()
+        self._minBtn.move(w-74,0)
+        self._closeBtn.move(w-45,0)
+
+    def onMinimize(self):
+        self.showMinimized()
+    
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self._isDragging = True
+            self._dragPos = event.globalPos() - self.pos()
+        event.accept()
+        
+    def mouseMoveEvent(self, event):
+        if event.buttons() and Qt.LeftButton and self._isDragging:
+            self.move(event.globalPos() - self._dragPos)
+        event.accept()
+
+    def mouseReleaseEvent(self, event):
+        self._isDragging = False
+        event.accept()
 
     def SaveSettings(self):
         root = ET.Element("MyTerm")

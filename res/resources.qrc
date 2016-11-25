@@ -2,5 +2,17 @@
     <qresource prefix="/">
         <file>icon.ico</file>
         <file>qt_logo_16.ico</file>
+        <file>downarrow.png</file>
+        <file>uparrow.png</file>
+        <file>leftarrow.png</file>
+        <file>rightarrow.png</file>
+        <file>close_active.png</file>
+        <file>close_inactive.png</file>
+        <file>minimize_active.png</file>
+        <file>minimize_inactive.png</file>
+        <file>maximize_active.png</file>
+        <file>maximize_inactive.png</file>
+        <file>restore_active.png</file>
+        <file>restore_inactive.png</file>
     </qresource>
 </RCC>
