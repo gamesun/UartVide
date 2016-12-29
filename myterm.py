@@ -31,7 +31,7 @@ import csv
 from lxml import etree as ET
 import defusedxml.cElementTree as safeET
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QMainWindow, QApplication, QMessageBox, \
+from PyQt4.QtGui import QMainWindow, QApplication, QMessageBox, QWidget, \
     QFileDialog, QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget
 from PyQt4.QtCore import Qt, QThread, pyqtSignal, QSignalMapper
 
@@ -217,8 +217,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setStyleSheet("""
             QWidget {
                 background-color:#99d9ea;
-                /*background-image: url(:/downarrow.png);*/
-                outline: 1px solid #2a7fff;
+                /*background-image: url(:/background.png);*/
+                outline: 1px solid #0057ff;
             }
             QLabel {
                 color:#202020;
@@ -505,7 +505,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         w = self.frameGeometry().width()
         self._minBtn = QPushButton(self)
-        self._minBtn.setGeometry(w-74,0,28,24)
+        self._minBtn.setGeometry(w-103,0,28,24)
         self._minBtn.clicked.connect(self.onMinimize)
         self._minBtn.setStyleSheet("""
             QPushButton {
@@ -521,6 +521,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QPushButton:pressed {
                 background-color:#14464e;
                 image: url(:/minimize_active.png);
+            }
+        """)
+        
+        self._maxBtn = QPushButton(self)
+        self._maxBtn.setGeometry(w-74,0,28,24)
+        self._maxBtn.clicked.connect(self.onMaximize)
+        self._maxBtn.setStyleSheet("""
+            QPushButton {
+                background-color:transparent;
+                border:none;
+                outline: none;
+                image: url(:/maximize_inactive.png);
+            }
+            QPushButton:hover {
+                background-color:#227582;
+                image: url(:/maximize_active.png);
+            }
+            QPushButton:pressed {
+                background-color:#14464e;
+                image: url(:/maximize_active.png);
             }
         """)
         
@@ -546,11 +566,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def resizeEvent(self, event):
         w = event.size().width()
-        self._minBtn.move(w-74,0)
+        self._minBtn.move(w-103,0)
+        self._maxBtn.move(w-74,0)
         self._closeBtn.move(w-45,0)
 
     def onMinimize(self):
         self.showMinimized()
+    
+    def onMaximize(self):
+        self.showMaximized()
     
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -654,8 +678,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.sendTableRow(row)
 
     def initQuickSend(self):
-#        self.quickSendTable.horizontalHeader().setDefaultSectionSize(40)
-#        self.quickSendTable.horizontalHeader().setMinimumSectionSize(25)
+        #self.quickSendTable.horizontalHeader().setDefaultSectionSize(40)
+        #self.quickSendTable.horizontalHeader().setMinimumSectionSize(25)
         self.quickSendTable.setRowCount(50)
         self.quickSendTable.setColumnCount(20)
 
@@ -695,8 +719,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             new_row = row[:len(row) - idx]
             data.append(new_row)
 
-#        import pprint
-#        pprint.pprint(data, width=120, compact=True)
+        #import pprint
+        #pprint.pprint(data, width=120, compact=True)
 
         # write to file
         with open('QckSndBckup.csv', 'w') as csvfile:
@@ -988,11 +1012,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.cmbPort.update()
 
     def onAbout(self):
-        QMessageBox.about(self, "About MyTerm", appInfo.aboutme)
-
+        q = QWidget()
+        icon = QtGui.QIcon(":/icon.ico")
+        q.setWindowIcon(icon)
+        QMessageBox.about(q, "About MyTerm", appInfo.aboutme)
 
     def onAboutQt(self):
-        QMessageBox.aboutQt(self)
+        QMessageBox.aboutQt(None)
 
     def onExit(self):
         if self.serialport.isOpen():

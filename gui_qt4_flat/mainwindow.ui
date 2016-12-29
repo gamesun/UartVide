@@ -81,7 +81,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>18</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="nativeMenuBar">
@@ -178,7 +178,7 @@
          <number>1</number>
         </property>
         <property name="leftMargin">
-         <number>3</number>
+         <number>6</number>
         </property>
         <property name="topMargin">
          <number>3</number>
@@ -666,7 +666,7 @@
             <property name="sizeHint" stdset="0">
              <size>
               <width>0</width>
-              <height>5</height>
+              <height>8</height>
              </size>
             </property>
            </spacer>
@@ -692,7 +692,7 @@
             <property name="sizeHint" stdset="0">
              <size>
               <width>0</width>
-              <height>5</height>
+              <height>8</height>
              </size>
             </property>
            </spacer>
@@ -715,7 +715,7 @@
             <property name="sizeHint" stdset="0">
              <size>
               <width>0</width>
-              <height>5</height>
+              <height>8</height>
              </size>
             </property>
            </spacer>
