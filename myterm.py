@@ -206,14 +206,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.restoreLayout()
         self.moveScreenCenter()
         self.syncMenu()
-
+        
+        if self.isMaximized():
+            self.setMaximizeButton("restore")
+        else:
+            self.setMaximizeButton("maximize")
+            
         self.LoadSettings()
 
     def setupFlatUi(self):
         self._dragPos = self.pos()
         self._isDragging = False
         self.setMouseTracking(True)
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowTitleHint)
+        self.setWindowFlags(Qt.FramelessWindowHint)
         self.setStyleSheet("""
             QWidget {
                 background-color:#99d9ea;
@@ -527,22 +532,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._maxBtn = QPushButton(self)
         self._maxBtn.setGeometry(w-74,0,28,24)
         self._maxBtn.clicked.connect(self.onMaximize)
-        self._maxBtn.setStyleSheet("""
-            QPushButton {
-                background-color:transparent;
-                border:none;
-                outline: none;
-                image: url(:/maximize_inactive.png);
-            }
-            QPushButton:hover {
-                background-color:#227582;
-                image: url(:/maximize_active.png);
-            }
-            QPushButton:pressed {
-                background-color:#14464e;
-                image: url(:/maximize_active.png);
-            }
-        """)
+        self.setMaximizeButton("maximize")
         
         self._closeBtn = QPushButton(self)
         self._closeBtn.setGeometry(w-45,0,36,24)
@@ -573,8 +563,52 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def onMinimize(self):
         self.showMinimized()
     
+    def isMaximized(self):
+        return ((self.windowState() == Qt.WindowMaximized))
+    
     def onMaximize(self):
-        self.showMaximized()
+        if self.isMaximized():
+            self.showNormal()
+            self.setMaximizeButton("maximize")
+        else:
+            self.showMaximized()
+            self.setMaximizeButton("restore")
+    
+    def setMaximizeButton(self, style):
+        if "maximize" == style:
+            self._maxBtn.setStyleSheet("""
+                QPushButton {
+                    background-color:transparent;
+                    border:none;
+                    outline: none;
+                    image: url(:/maximize_inactive.png);
+                }
+                QPushButton:hover {
+                    background-color:#227582;
+                    image: url(:/maximize_active.png);
+                }
+                QPushButton:pressed {
+                    background-color:#14464e;
+                    image: url(:/maximize_active.png);
+                }
+            """)
+        elif "restore" == style:
+            self._maxBtn.setStyleSheet("""
+                QPushButton {
+                    background-color:transparent;
+                    border:none;
+                    outline: none;
+                    image: url(:/restore_inactive.png);
+                }
+                QPushButton:hover {
+                    background-color:#227582;
+                    image: url(:/restore_active.png);
+                }
+                QPushButton:pressed {
+                    background-color:#14464e;
+                    image: url(:/restore_active.png);
+                }
+            """)
     
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -583,7 +617,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         event.accept()
         
     def mouseMoveEvent(self, event):
-        if event.buttons() and Qt.LeftButton and self._isDragging:
+        if event.buttons() and Qt.LeftButton and self._isDragging and not self.isMaximized():
             self.move(event.globalPos() - self._dragPos)
         event.accept()
 

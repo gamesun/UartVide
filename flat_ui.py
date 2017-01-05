@@ -41,7 +41,7 @@ class FMenuBar(QMenuBar):
         super(FMenuBar, self).mousePressEvent(event)
         
     def mouseMoveEvent(self, event):
-        if event.buttons() and Qt.LeftButton and self._isDragging:
+        if event.buttons() and Qt.LeftButton and self._isDragging and not self.isMaximized():
             self.parent().move(event.globalPos() - self._dragPos)
         super(FMenuBar, self).mouseMoveEvent(event)
 
@@ -49,3 +49,5 @@ class FMenuBar(QMenuBar):
         self._isDragging = False
         super(FMenuBar, self).mouseReleaseEvent(event)
 
+    def isMaximized(self):
+        return ((self.parent().windowState() == Qt.WindowMaximized))
