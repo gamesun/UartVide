@@ -13,7 +13,7 @@ UninstallDisplayIcon={app}\{#AppName}.exe
 UninstallDisplayName={#AppName} {#AppVersion}
 VersionInfoVersion={#AppVersion}
 AppPublisher="gamesun"
-AppCopyright="Copyright (C) 2013-2016 gamesun"
+AppCopyright="Copyright (C) 2013-2017 gamesun"
 OutputBaseFilename={#AppName}-{#AppVersion}-win32
 OutputDir=Release
 DisableDirPage=no
@@ -28,9 +28,6 @@ Source: "LICENSE.txt"; DestDir: "{app}"
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 
 [Icons]
-; add icon to Start Menu
-;Name: "{commonprograms}\BdpTerm"; Filename: "{app}\BdpTerm.exe"
-
 ; add icon to desktop
 Name: "{commondesktop}\{#AppName}"; Filename: "{app}\{#AppName}.exe"
 

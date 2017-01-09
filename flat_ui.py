@@ -3,23 +3,23 @@
 #
 #############################################################################
 ##
-## Copyright (c) 2016, Sun Yutong
+## Copyright (c) 2013-2017, gamesun
 ## All right reserved.
 ##
-## This file is part of BdpTerm.
+## This file is part of MyTerm.
 ##
-## BdpTerm is free software: you can redistribute it and/or modify
+## MyTerm is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation, either version 3 of the License, or
 ## (at your option) any later version.
 ##
-## BdpTerm is distributed in the hope that it will be useful, but
+## MyTerm is distributed in the hope that it will be useful, but
 ## WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
 ##
 ## You should have received a copy of the GNU General Public License
-## along with BdpTerm.  If not, see <http://www.gnu.org/licenses/>.
+## along with MyTerm.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
 

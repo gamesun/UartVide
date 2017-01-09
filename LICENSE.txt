@@ -1,5 +1,5 @@
 
- MyTerm is Copyright (C) 2013-2016 gamesun
+ MyTerm is Copyright (C) 2013-2017 gamesun
 
  You may use, distribute and copy MyTerm under the terms of GNU
  General Public License version 3, which is displayed below.
