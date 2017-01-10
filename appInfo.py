@@ -25,7 +25,7 @@
 
 
 title = 'MyTerm'
-version = '2.0.0'
+version = '2.0.1'
 url = 'http://sourceforge.net/projects/myterm/'
 author = 'gamesun'
 copyright = 'Copyright (C) 2013-2017, gamesun'

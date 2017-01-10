@@ -2,12 +2,12 @@
 ; 
 
 #define AppName "MyTerm"
-#define AppVersion "2.0.0"
+#define AppVersion "2.0.1"
 
 [Setup]
 AppName={#AppName}
 AppVersion={#AppVersion}
-DefaultDirName=D:\{#AppName}
+DefaultDirName={pf}\{#AppName}
 DefaultGroupName={#AppName}
 UninstallDisplayIcon={app}\{#AppName}.exe
 UninstallDisplayName={#AppName} {#AppVersion}
@@ -25,6 +25,7 @@ Source: "build\exe.win32-3.4\*"; DestDir: "{app}"
 Source: "build\exe.win32-3.4\imageformats\*"; DestDir: "{app}\imageformats"
 Source: "build\exe.win32-3.4\platforms\*"; DestDir: "{app}\platforms"
 Source: "LICENSE.txt"; DestDir: "{app}"
+Source: "whatsnew.htm"; DestDir: "{app}"
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 
 [Icons]
@@ -38,3 +39,5 @@ Name: "{group}\Uninstall {#AppName}"; Filename: "{uninstallexe}"
 [Run]
 Filename: "{app}\{#AppName}.exe"; Description: "Launch application"; \
     Flags: postinstall nowait skipifsilent
+Filename: "{app}\whatsnew.htm"; Description: "See what's new"; \
+    Flags: postinstall nowait skipifsilent shellexec
