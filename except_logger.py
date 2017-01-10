@@ -24,16 +24,22 @@
 #############################################################################
 
 
-import io, logging, traceback
+import os, io, logging, traceback
+
+log_path_file = os.path.join(os.path.expanduser('~'), 'MyTerm', 'error.log')
+log_path_dir = os.path.join(os.path.expanduser('~'), 'MyTerm')
+
+if not os.path.isdir(log_path_dir):
+    os.makedirs(os.path.join(os.path.expanduser('~'), 'MyTerm'))
 
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s:%(levelname)s:%(name)s:%(message)s',
-    filename="error.log",
+    filename=log_path_file,
     filemode='a'
 )
 
-logger = logging.getLogger('ERR')
+logger = logging.getLogger('MyTerm')
 
 def exceptHook(excType, excValue, tracebackobj):
     """

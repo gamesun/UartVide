@@ -18,6 +18,10 @@ Windows Version
 [Download MyTerm from Softpedia](http://www.softpedia.com/get/Network-Tools/Misc-Networking-Tools/MyTerm.shtml)  
 [Download MyTerm from SourceForge](https://sourceforge.net/projects/myterm/)
 
+Directory of error log
+For windows, C:\Users\<user name>\MyTerm\error.log
+For unix, ~/MyTerm/error.log
+
 Linux Version
 The source code is executable in Linux.  
 The package for Linux is being prepared.  
