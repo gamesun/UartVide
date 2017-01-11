@@ -41,6 +41,6 @@ C:\Users\<user name>\MyTerm\error.log
 
 
 ## Screenshot
-![](doc/screenshot.jpg "screenshot")
+![](doc/main_flat.jpg "screenshot")
 
-![](doc/floatable_widgets.jpg "floatable widgets")
+![](doc/floatable_widgets_flat.jpg "floatable widgets")
