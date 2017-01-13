@@ -35,7 +35,7 @@ The package for Linux is being prepared.
 
 ##Directory of error log
 ###Windows
-C:\Users\<user name>\MyTerm\error.log
+C:\Users\\&lt;user name&gt;\MyTerm\error.log
 ###Linux
 ~/MyTerm/error.log
 
