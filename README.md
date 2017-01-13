@@ -40,7 +40,7 @@ C:\Users\\&lt;user name&gt;\MyTerm\error.log
 ~/MyTerm/error.log
 
 
-## Screenshot
+## Entirely new UI
 ![](doc/main_flat.jpg "screenshot")
 
 ![](doc/floatable_widgets_flat.jpg "floatable widgets")
