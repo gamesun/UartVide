@@ -14,5 +14,6 @@
         <file>maximize_inactive.png</file>
         <file>restore_active.png</file>
         <file>restore_inactive.png</file>
+        <file>default_layout.dat</file>
     </qresource>
 </RCC>
