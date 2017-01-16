@@ -25,17 +25,13 @@
 
 
 import os, io, logging, traceback
+from configpath import get_config_path
 
-log_path_file = os.path.join(os.path.expanduser('~'), 'MyTerm', 'error.log')
-log_path_dir = os.path.join(os.path.expanduser('~'), 'MyTerm')
-
-if not os.path.isdir(log_path_dir):
-    os.makedirs(os.path.join(os.path.expanduser('~'), 'MyTerm'))
 
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s:%(levelname)s:%(name)s:%(message)s',
-    filename=log_path_file,
+    filename=get_config_path('error.log'),
     filemode='a'
 )
 

@@ -33,9 +33,10 @@ import defusedxml.cElementTree as safeET
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QMainWindow, QApplication, QMessageBox, QWidget, \
     QFileDialog, QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget
-from PyQt4.QtCore import Qt, QThread, pyqtSignal, QSignalMapper
+from PyQt4.QtCore import Qt, QThread, pyqtSignal, QSignalMapper, QFile, QIODevice
 
 import appInfo
+from configpath import get_config_path
 #from gui_qt4.ui_mainwindow import Ui_MainWindow
 from gui_qt4_flat.ui_mainwindow import Ui_MainWindow
 from res import resources_pyqt4
@@ -642,13 +643,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ET.SubElement(View, "LocalEcho").text = self.actionLocal_Echo.isChecked() and "on" or "off"
         ET.SubElement(View, "ReceiveView").text = self._viewGroup.checkedAction().text()
 
-        with open('settings.xml', 'w') as f:
+        with open(get_config_path('settings.xml'), 'w') as f:
             f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             f.write(ET.tostring(root, encoding='utf-8', pretty_print=True).decode("utf-8"))
 
     def LoadSettings(self):
-        if os.path.isfile("settings.xml"):
-            with open('settings.xml', 'r') as f:
+        if os.path.isfile(get_config_path("settings.xml")):
+            with open(get_config_path("settings.xml"), 'r') as f:
                 tree = safeET.parse(f)
 
             port = tree.findtext('GUISettings/PortConfig/port', default='')
@@ -724,8 +725,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.quickSendTable.setCellWidget(row, 0, item)
             self.quickSendTable.setRowHeight(row, 20)
 
-        if os.path.isfile('QckSndBckup.csv'):
-            self.loadCSV('QckSndBckup.csv')
+        if os.path.isfile(get_config_path('QckSndBckup.csv')):
+            self.loadCSV(get_config_path('QckSndBckup.csv'))
 
         self.quickSendTable.resizeColumnsToContents()
 
@@ -757,7 +758,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #pprint.pprint(data, width=120, compact=True)
 
         # write to file
-        with open('QckSndBckup.csv', 'w') as csvfile:
+        with open(get_config_path('QckSndBckup.csv'), 'w') as csvfile:
             csvwriter = csv.writer(csvfile, delimiter=',', lineterminator='\n')
             csvwriter.writerows(data)
 
@@ -1060,17 +1061,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.close()
 
     def restoreLayout(self):
-        if os.path.isfile("layout.dat"):
+        if os.path.isfile(get_config_path("layout.dat")):
             try:
-                f=open("layout.dat", 'rb')
+                f=open(get_config_path("layout.dat"), 'rb')
                 geometry, state=pickle.load(f)
+                self.restoreGeometry(geometry)
+                self.restoreState(state)
+            except Exception as e:
+                print("Exception on restoreLayout, {}".format(e))
+        else:
+            try:
+                f=QFile(':/default_layout.dat')
+                f.open(QIODevice.ReadOnly)
+                geometry, state=pickle.loads(f.readAll())
                 self.restoreGeometry(geometry)
                 self.restoreState(state)
             except Exception as e:
                 print("Exception on restoreLayout, {}".format(e))
 
     def saveLayout(self):
-        with open("layout.dat", 'wb') as f:
+        with open(get_config_path("layout.dat"), 'wb') as f:
             pickle.dump((self.saveGeometry(), self.saveState()), f)
 
     def syncMenu(self):
