@@ -33,10 +33,10 @@ For detail see LICENSE.txt.
 The source code is executable in Linux.  
 The package for Linux is being prepared.  
 
-##Directory of error log
-###Windows
+## Directory of error log
+### Windows
 C:\Users\\&lt;user name&gt;\MyTerm\error.log
-###Linux
+### Linux
 ~/MyTerm/error.log
 
 
