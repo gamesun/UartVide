@@ -99,7 +99,12 @@ class readerThread(QThread):
                 data = self._serialport.read(self._serialport.in_waiting or 1)
                 if data:
                     try:
-                        text = data.decode('unicode_escape')
+                        if self._viewMode == VIEWMODE_ASCII:
+                            text = data.decode('unicode_escape')
+                        elif self._viewMode == VIEWMODE_HEX_LOWERCASE:
+                            text = ''.join('%02x ' % t for t in data)
+                        elif self._viewMode == VIEWMODE_HEX_UPPERCASE:
+                            text = ''.join('%02X ' % t for t in data)
                     except UnicodeDecodeError:
                         pass
                     else:
@@ -654,11 +659,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             port = tree.findtext('GUISettings/PortConfig/port', default='')
             if port != '':
-                self.cmbPort.setCurrentText(port)
+                self.cmbPort.setProperty("currentText", port)
 
             baudrate = tree.findtext('GUISettings/PortConfig/baudrate', default='38400')
             if baudrate != '':
-                self.cmbBaudRate.setCurrentText(baudrate)
+                self.cmbBaudRate.setProperty("currentText", baudrate)
 
             databits = tree.findtext('GUISettings/PortConfig/databits', default='8')
             id = self.cmbDataBits.findText(databits)

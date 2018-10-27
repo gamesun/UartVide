@@ -18,16 +18,7 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>0</number>
     </property>
     <item>
@@ -42,16 +33,7 @@
        <property name="spacing">
         <number>0</number>
        </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
+       <property name="margin">
         <number>0</number>
        </property>
        <item>
@@ -81,7 +63,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <property name="nativeMenuBar">
@@ -159,16 +141,7 @@
      <property name="spacing">
       <number>0</number>
      </property>
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
+     <property name="margin">
       <number>0</number>
      </property>
      <item>
@@ -194,16 +167,7 @@
           <property name="spacing">
            <number>0</number>
           </property>
-          <property name="leftMargin">
-           <number>1</number>
-          </property>
-          <property name="topMargin">
-           <number>1</number>
-          </property>
-          <property name="rightMargin">
-           <number>1</number>
-          </property>
-          <property name="bottomMargin">
+          <property name="margin">
            <number>1</number>
           </property>
           <item>
@@ -246,7 +210,7 @@
             <property name="editable">
              <bool>true</bool>
             </property>
-            <property name="currentText">
+            <property name="currentText" stdset="0">
              <string notr="true"/>
             </property>
            </widget>
@@ -460,7 +424,7 @@
           </item>
           <item>
            <widget class="QComboBox" name="cmbDataBits">
-            <property name="currentText">
+            <property name="currentText" stdset="0">
              <string notr="true">8</string>
             </property>
             <item>
@@ -509,7 +473,7 @@
           </item>
           <item>
            <widget class="QComboBox" name="cmbParity">
-            <property name="currentText">
+            <property name="currentText" stdset="0">
              <string notr="true">None</string>
             </property>
             <item>
@@ -563,7 +527,7 @@
           </item>
           <item>
            <widget class="QComboBox" name="cmbStopBits">
-            <property name="currentText">
+            <property name="currentText" stdset="0">
              <string notr="true">1</string>
             </property>
             <item>
@@ -614,16 +578,7 @@
              <property name="spacing">
               <number>0</number>
              </property>
-             <property name="leftMargin">
-              <number>2</number>
-             </property>
-             <property name="topMargin">
-              <number>2</number>
-             </property>
-             <property name="rightMargin">
-              <number>2</number>
-             </property>
-             <property name="bottomMargin">
+             <property name="margin">
               <number>2</number>
              </property>
              <item>
@@ -760,16 +715,7 @@
      <property name="spacing">
       <number>0</number>
      </property>
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
+     <property name="margin">
       <number>0</number>
      </property>
      <item>
@@ -807,16 +753,7 @@
      <property name="spacing">
       <number>0</number>
      </property>
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
+     <property name="margin">
       <number>0</number>
      </property>
      <item>
