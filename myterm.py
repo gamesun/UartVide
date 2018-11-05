@@ -97,6 +97,8 @@ class readerThread(QThread):
             while self._alive:
                 # read all that is there or wait for one byte
                 data = self._serialport.read(self._serialport.in_waiting or 1)
+                if self._serialport.in_waiting:
+                    data = data + self._serialport.read(self._serialport.in_waiting)
                 if data:
                     try:
                         if self._viewMode == VIEWMODE_ASCII:
