@@ -33,7 +33,10 @@ if sys.platform == 'win32':
     base = 'Win32GUI'
 
 options = {
-    'build_exe': {'includes': ['atexit', 'lxml._elementpath']},
+    'build_exe': {'includes': ['atexit', 'lxml._elementpath'],
+                  "include_msvcr": True,
+                  "zip_include_packages": "*",
+                  "zip_exclude_packages": ""},
 }
 
 executables = [

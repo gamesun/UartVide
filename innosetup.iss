@@ -2,7 +2,7 @@
 ; 
 
 #define AppName "MyTerm"
-#define AppVersion "2.0.2"
+#define AppVersion "2.1.0"
 
 [Setup]
 AppName={#AppName}
@@ -23,7 +23,7 @@ LicenseFile=LICENSE.txt
 [Files]
 Source: "build\exe.win32-3.4\*"; DestDir: "{app}"
 Source: "build\exe.win32-3.4\imageformats\*"; DestDir: "{app}\imageformats"
-Source: "build\exe.win32-3.4\platforms\*"; DestDir: "{app}\platforms"
+;Source: "build\exe.win32-3.4\platforms\*"; DestDir: "{app}\platforms"
 Source: "LICENSE.txt"; DestDir: "{app}"
 Source: "whatsnew.htm"; DestDir: "{app}"
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
