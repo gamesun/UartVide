@@ -3,7 +3,7 @@
 #
 #############################################################################
 ##
-## Copyright (c) 2013-2017, gamesun
+## Copyright (c) 2013-2018, gamesun
 ## All right reserved.
 ##
 ## This file is part of MyTerm.
@@ -28,7 +28,7 @@ title = 'MyTerm'
 version = '2.0.2'
 url = 'http://sourceforge.net/projects/myterm/'
 author = 'gamesun'
-copyright = 'Copyright (C) 2013-2017, gamesun'
+copyright = 'Copyright (C) 2013-2018, gamesun'
 aboutme = """
 %(title)s %(ver)s
 %(copyright)s
