@@ -14,6 +14,12 @@
         <file>maximize_inactive.png</file>
         <file>restore_active.png</file>
         <file>restore_inactive.png</file>
+        <file>checkbox_unchecked.png</file>
+        <file>checkbox_unchecked_hover.png</file>
+        <file>checkbox_unchecked_pressed.png</file>
+        <file>checkbox_checked.png</file>
+        <file>checkbox_checked_hover.png</file>
+        <file>checkbox_checked_pressed.png</file>
         <file>default_layout.dat</file>
     </qresource>
 </RCC>

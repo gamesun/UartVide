@@ -297,7 +297,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 font-size:12px;
                 font-family:Century Schoolbook;
             }
+            QCheckBox::indicator:unchecked {
+                image: url(:/checkbox_unchecked.png);
+            }
 
+            QCheckBox::indicator:unchecked:hover {
+                image: url(:/checkbox_unchecked_hover.png);
+            }
+
+            QCheckBox::indicator:unchecked:pressed {
+                image: url(:/checkbox_unchecked_pressed.png);
+            }
+
+            QCheckBox::indicator:checked {
+                image: url(:/checkbox_checked.png);
+            }
+
+            QCheckBox::indicator:checked:hover {
+                image: url(:/checkbox_checked_hover.png);
+            }
+
+            QCheckBox::indicator:checked:pressed {
+                image: url(:/checkbox_checked_pressed.png);
+            }
+            
             QScrollBar:horizontal {
                 background-color:#99d9ea;
                 border: none;
@@ -1117,6 +1140,7 @@ def is_hex(s):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    #app.setStyle('motif')
     frame = MainWindow()
     frame.show()
     app.exec_()
