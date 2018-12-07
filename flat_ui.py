@@ -24,8 +24,8 @@
 #############################################################################
 
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QMenuBar, QPushButton, QPainter, QColor, QPen, QBrush
-from PyQt4.QtCore import Qt, QRect
+from PyQt4.QtGui import QMenuBar
+from PyQt4.QtCore import Qt
 
 class FMenuBar(QMenuBar):
     """flat MenuBar"""
