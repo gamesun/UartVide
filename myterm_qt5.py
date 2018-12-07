@@ -33,9 +33,9 @@ import defusedxml.cElementTree as safeET
 from PyQt5 import QtCore, QtGui, QtWidgets
 #from PyQt5.QtGui import QMainWindow, QApplication, QMessageBox, QWidget, \
 #    QFileDialog, QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget
-from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QFileDialog, QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QFileDialog, QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget, QWidget
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper, QFile, QIODevice
-
+import PyQt5.sip
 import appInfo
 from configpath import get_config_path
 #from gui_qt4.ui_mainwindow import Ui_MainWindow
@@ -100,7 +100,12 @@ class readerThread(QThread):
                 data = self._serialport.read(self._serialport.in_waiting or 1)
                 if data:
                     try:
-                        text = data.decode('unicode_escape')
+                        if self._viewMode == VIEWMODE_ASCII:
+                            text = data.decode('unicode_escape')
+                        elif self._viewMode == VIEWMODE_HEX_LOWERCASE:
+                            text = ''.join('%02x ' % t for t in data)
+                        elif self._viewMode == VIEWMODE_HEX_UPPERCASE:
+                            text = ''.join('%02X ' % t for t in data)
                     except UnicodeDecodeError:
                         pass
                     else:
@@ -619,7 +624,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         event.accept()
         
     def mouseMoveEvent(self, event):
-        if event.buttons() and Qt.LeftButton and self._isDragging and not self.isMaximized():
+        if event.buttons() == Qt.LeftButton and self._isDragging and not self.isMaximized():
             self.move(event.globalPos() - self._dragPos)
         event.accept()
 

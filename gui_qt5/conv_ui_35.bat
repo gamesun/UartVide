@@ -1,4 +1,4 @@
 @echo off
-D:\Python\Python35-32\Scripts\pyuic5.exe mainwindow.ui -o ui_mainwindow.py
+D:\Python\Python35-32\Lib\site-packages\PyQt5\pyuic5.bat mainwindow.ui -o ui_mainwindow.py
 
 pause

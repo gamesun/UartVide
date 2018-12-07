@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.7
+# Created by: PyQt5 UI code generator 5.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -44,8 +44,8 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.txtEdtOutput)
         self.horizontalLayout_2.addWidget(self.centerFrame)
         MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 25))
+        self.menubar = FMenuBar(MainWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 23))
         self.menubar.setNativeMenuBar(True)
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
@@ -463,3 +463,4 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         pass
 
+from flat_ui_qt5 import FMenuBar
