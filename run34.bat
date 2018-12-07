@@ -1,4 +1,4 @@
 @echo off
-set PATH=D:\Python\Python34\;%PATH%
+set PATH=D:\Python\Python34-32\;%PATH%
 
 cmd /k
