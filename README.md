@@ -21,7 +21,7 @@ For detail see LICENSE.txt.
    </tr>
    <tr>
       <td>OS</td>
-      <td>Windows XP / Vista / 7 / 8 / 10</td>
+      <td>Windows Vista / 7 / 8 / 10</td>
    </tr>
 </table>
 [Download MyTerm from Softpedia](http://www.softpedia.com/get/Network-Tools/Misc-Networking-Tools/MyTerm.shtml)  
