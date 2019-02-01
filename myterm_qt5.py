@@ -144,7 +144,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setCorner(Qt.BottomLeftCorner, Qt.LeftDockWidgetArea)
         font = QtGui.QFont()
         font.setFamily(EDITOR_FONT)
-        font.setPointSize(10)
+        font.setPointSize(9)
         self.txtEdtOutput.setFont(font)
         self.txtEdtInput.setFont(font)
         self.quickSendTable.setFont(font)
@@ -155,6 +155,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.dockWidget_PortConfig.setFont(font)
             self.dockWidget_SendHex.setFont(font)
             self.dockWidget_QuickSend.setFont(font)
+        self.setupMenu()
         self.setupFlatUi()
         self.onEnumPorts()
 
@@ -221,6 +222,36 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             
         self.LoadSettings()
 
+    def setupMenu(self):
+        self.menuMenu = QtWidgets.QMenu(self)
+        self.menuMenu.setTitle("&File")
+        self.menuMenu.setObjectName("menuMenu")
+        self.menuView = QtWidgets.QMenu(self.menuMenu)
+        self.menuView.setTitle("&View")
+        self.menuView.setObjectName("menuView")
+        self.menuReceive_View = QtWidgets.QMenu(self.menuMenu)
+        self.menuReceive_View.setTitle("Receive View")
+        self.menuReceive_View.setObjectName("menuReceive_View")
+
+        self.menuView.addAction(self.actionPort_Config_Panel)
+        self.menuView.addAction(self.actionQuick_Send_Panel)
+        self.menuView.addAction(self.actionSend_Hex_Panel)
+        self.menuReceive_View.addAction(self.actionAscii)
+        self.menuReceive_View.addAction(self.actionHex_lowercase)
+        self.menuReceive_View.addAction(self.actionHEX_UPPERCASE)
+        self.menuMenu.addAction(self.actionOpen_Cmd_File)
+        self.menuMenu.addAction(self.actionSave_Log)
+        self.menuMenu.addSeparator()
+        self.menuMenu.addAction(self.menuView.menuAction())
+        self.menuMenu.addAction(self.actionLocal_Echo)
+        self.menuMenu.addAction(self.menuReceive_View.menuAction())
+        self.menuMenu.addAction(self.actionAlways_On_Top)
+        self.menuMenu.addSeparator()
+        self.menuMenu.addAction(self.actionAbout)
+        self.menuMenu.addAction(self.actionAbout_Qt)
+        self.menuMenu.addSeparator()
+        self.menuMenu.addAction(self.actionExit)
+
     def setupFlatUi(self):
         self._dragPos = self.pos()
         self._isDragging = False
@@ -230,18 +261,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QWidget {
                 background-color:#99d9ea;
                 /*background-image: url(:/background.png);*/
-                outline: 1px solid #0057ff;
+                outline: none;
             }
             QLabel {
                 color:#202020;
-                font-size:13px;
-                font-family:Century;
+                font-size:12px;
+                /*font-family:Century;*/
             }
             
             QComboBox {
                 color:#202020;
-                font-size:13px;
-                font-family:Century Schoolbook;
+                font-size:12px;
+                /*font-family:Century;*/
             }
             QComboBox {
                 border: none;
@@ -279,7 +310,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QGroupBox {
                 color:#202020;
                 font-size:12px;
-                font-family:Century Schoolbook;
+                /*font-family:Century;*/
                 border: 1px solid gray;
                 margin-top: 15px;
             }
@@ -294,9 +325,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 color:#202020;
                 spacing: 5px;
                 font-size:12px;
-                font-family:Century Schoolbook;
+                /*font-family:Century;*/
+            }
+            QCheckBox::indicator:unchecked {
+                image: url(:/checkbox_unchecked.png);
             }
 
+            QCheckBox::indicator:unchecked:hover {
+                image: url(:/checkbox_unchecked_hover.png);
+            }
+
+            QCheckBox::indicator:unchecked:pressed {
+                image: url(:/checkbox_unchecked_pressed.png);
+            }
+
+            QCheckBox::indicator:checked {
+                image: url(:/checkbox_checked.png);
+            }
+
+            QCheckBox::indicator:checked:hover {
+                image: url(:/checkbox_checked_hover.png);
+            }
+
+            QCheckBox::indicator:checked:pressed {
+                image: url(:/checkbox_checked_pressed.png);
+            }
+            
             QScrollBar:horizontal {
                 background-color:#99d9ea;
                 border: none;
@@ -386,28 +440,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QTextEdit {
                 background-color:white;
                 color:#2f2f2f;
-                border: 1px solid white;
+                border-top: none;
+                border-bottom: none;
+                border-left: 2px solid #99d9ea;
+                border-right: 2px solid #99d9ea;
             }
             QTextEdit::focus {
-                border: 1px solid #2a7fff;
             }
             
-            QPushButton {
+            QToolButton, QPushButton {
                 background-color:#30a7b8;
                 border:none;
                 color:#ffffff;
-                font-size:14px;
-                font-family:Century Schoolbook;
+                font-size:12px;
+                /*font-family:Century;*/
             }
-            QPushButton:hover {
+            QToolButton:hover, QPushButton:hover {
                 background-color:#51c0d1;
             }
-            QPushButton:pressed {
+            QToolButton:pressed, QPushButton:pressed {
                 background-color:#3a9ecc;
             }
             
             QMenuBar {
                 color: #2f2f2f;
+                height: 24px;
             }
             QMenuBar::item {
                 background-color: transparent;
@@ -440,8 +497,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }
 
             QDockWidget {
-                font-size:13px;
-                font-family:Century;
+                font-size:12px;
+                /*font-family:Century;*/
                 color: #202020;
                 titlebar-close-icon: none;
                 titlebar-normal-icon: none;
@@ -560,7 +617,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 image: url(:/close_active.png);
             }
         """)
-
+        
+        self.btnMenu = QtWidgets.QToolButton(self)
+        self.btnMenu.setEnable(True)
+        self.btnMenu.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
+        self.btnMenu.setIcon(QtGUI.QIcon(':/icon.ico'))
+        self.btnMenu.setText('Myterm  ')
+        self.btnMenu.setGeometry(3,3,80,18)
+        self.btnMenu.setMenu(self.menuMenu)
+        self.btnMenu.setPopupMode(QtWidgets.QToolButton.InstantPoput)
+        
+        self.btnRefresh = QtWidgets.QToolButton(self)
+        self.btnRefresh.setEnable(True)
+        self.btnRefresh.setIcon(QtGUI.QIcon(':/refresh.png'))
+        self.btnRefresh.setGeometry(120,3,16,18)
+        
+        self.verticalLayout_1.removeWidget(self.cmbPort)
+        self.cmbPort.setParent(self)
+        self.cmbPort.setGeometry(136,3,60,18)
+        
+        self.verticalLayout_1.removeWidget(self.btnOpen)
+        self.btnOpen.setParent(self)
+        self.btnOpen.setGeometry(210,3,60,18)
+        
     def resizeEvent(self, event):
         w = event.size().width()
         self._minBtn.move(w-103,0)
