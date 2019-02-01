@@ -648,7 +648,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         event.accept()
         
     def mouseMoveEvent(self, event):
-        if event.buttons() and Qt.LeftButton and self._isDragging and not self.isMaximized():
+        if event.buttons() == Qt.LeftButton and self._isDragging and not self.isMaximized():
             self.move(event.globalPos() - self._dragPos)
         event.accept()
 
