@@ -619,17 +619,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """)
         
         self.btnMenu = QtWidgets.QToolButton(self)
-        self.btnMenu.setEnable(True)
+        self.btnMenu.setEnabled(True)
         self.btnMenu.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-        self.btnMenu.setIcon(QtGUI.QIcon(':/icon.ico'))
+        self.btnMenu.setIcon(QtGui.QIcon(':/icon.ico'))
         self.btnMenu.setText('Myterm  ')
         self.btnMenu.setGeometry(3,3,80,18)
         self.btnMenu.setMenu(self.menuMenu)
-        self.btnMenu.setPopupMode(QtWidgets.QToolButton.InstantPoput)
+        self.btnMenu.setPopupMode(QtWidgets.QToolButton.InstantPopup)
         
         self.btnRefresh = QtWidgets.QToolButton(self)
-        self.btnRefresh.setEnable(True)
-        self.btnRefresh.setIcon(QtGUI.QIcon(':/refresh.png'))
+        self.btnRefresh.setEnabled(True)
+        self.btnRefresh.setIcon(QtGui.QIcon(':/refresh.png'))
         self.btnRefresh.setGeometry(120,3,16,18)
         
         self.verticalLayout_1.removeWidget(self.cmbPort)
