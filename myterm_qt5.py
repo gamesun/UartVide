@@ -31,9 +31,9 @@ import csv
 from lxml import etree as ET
 import defusedxml.cElementTree as safeET
 from PyQt5 import QtCore, QtGui, QtWidgets
-#from PyQt5.QtGui import QMainWindow, QApplication, QMessageBox, QWidget, \
-#    QFileDialog, QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget
-from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QFileDialog, QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget, QWidget
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget, \
+    QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget, QToolButton, \
+    QFileDialog
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper, QFile, QIODevice
 import PyQt5.sip
 import appInfo
@@ -50,7 +50,7 @@ if extension != '.py':
     sys.excepthook = except_logger.exceptHook
 
 if os.name == 'nt':
-    EDITOR_FONT = "Consolas"
+    EDITOR_FONT = "SimSun"
     UI_FONT = "Meiryo UI"
 elif os.name == 'posix':
     EDITOR_FONT = "Courier 10 Pitch"
@@ -97,7 +97,7 @@ class readerThread(QThread):
         try:
             while self._alive:
                 # read all that is there or wait for one byte
-                data = self._serialport.read(self._serialport.in_waiting or 1)
+                data = self._serialport.read(self._serialport.inWaiting() or 1)
                 if data:
                     try:
                         if self._viewMode == VIEWMODE_ASCII:
@@ -147,7 +147,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         font.setPointSize(9)
         self.txtEdtOutput.setFont(font)
         self.txtEdtInput.setFont(font)
-        self.quickSendTable.setFont(font)
+        #self.quickSendTable.setFont(font)
         if UI_FONT is not None:
             font = QtGui.QFont()
             font.setFamily(UI_FONT)
@@ -252,6 +252,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.menuMenu.addSeparator()
         self.menuMenu.addAction(self.actionExit)
 
+        self.sendOptMenu = QtWidgets.QMenu(self)
+        self.actionSend_Hex = QtWidgets.QAction(self)
+        self.actionSend_Hex.setText("Send &Hex")
+        self.actionSend_Hex.setIconText("Send Hex")
+        self.actionSend_Hex.setToolTip("Send Hex")
+        self.actionSend_Hex.setStatusTip("Send Hex")
+        self.actionSend_Hex.setObjectName("actionSend_Hex")
+        self.actionSend_Asc = QtWidgets.QAction(self)
+        self.actionSend_Asc.setText("Send &Asc")
+        self.actionSend_Asc.setIconText("Send Asc")
+        self.actionSend_Asc.setToolTip("Send Asc")
+        self.actionSend_Asc.setStatusTip("Send Asc")
+        self.actionSend_Asc.setObjectName("actionSend_Asc")
+        self.actionSend_File = QtWidgets.QAction(self)
+        self.actionSend_File.setText("Send &File")
+        self.actionSend_File.setIconText("Send File")
+        self.actionSend_File.setToolTip("Send File")
+        self.actionSend_File.setStatusTip("Send File")
+        self.actionSend_File.setObjectName("actionSend_File")
+        self.sendOptMenu.addAction(self.actionSend_Hex)
+        self.sendOptMenu.addAction(self.actionSend_Asc)
+        self.sendOptMenu.addAction(self.actionSend_File)
+
     def setupFlatUi(self):
         self._dragPos = self.pos()
         self._isDragging = False
@@ -276,7 +299,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }
             QComboBox {
                 border: none;
-                padding: 1px 18px 1px 3px;
+                padding: 1px 1px 1px 3px;
             }
             QComboBox:editable {
                 background: white;
@@ -480,6 +503,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }
             QMenu {
                 color: #2f2f2f;
+                background: #ffffff;
             }
             QMenu {
                 margin: 2px;
@@ -552,16 +576,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }
         """)
         self.dockWidget_QuickSend.setStyleSheet("""
-            QPushButton {
+            QToolButton, QPushButton {
                 background-color:#27b798;
                 font-family:Consolas;
                 font-size:12px;
                 min-width:46px;
             }
-            QPushButton:hover {
+            QToolButton:hover, QPushButton:hover {
                 background-color:#3bd5b4;
             }
-            QPushButton:pressed {
+            QToolButton:pressed, QPushButton:pressed {
                 background-color:#1d8770;
             }
         """)
@@ -801,14 +825,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #self.quickSendTable.horizontalHeader().setDefaultSectionSize(40)
         #self.quickSendTable.horizontalHeader().setMinimumSectionSize(25)
         self.quickSendTable.setRowCount(50)
-        self.quickSendTable.setColumnCount(20)
+        self.quickSendTable.setColumnCount(2)
+        self.quickSendTable.verticalHeader().setSectionsClickable(True)
 
         for row in range(50):
-            item = QPushButton(str("Send"))
+            item = QToolButton(str("Send"))
+            item.setText("H")
+            item.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+            item.setMenu(self.sendOptMenu)
             item.clicked.connect(self._signalMap.map)
             self._signalMap.setMapping(item, row)
             self.quickSendTable.setCellWidget(row, 0, item)
-            self.quickSendTable.setRowHeight(row, 20)
+            
+            item = QtWidgets.QTableWidgetItem()
+            item.setText("cmd1")
+            self.quickSendTable.setVerticalHeaderItem(row, item)
+            #self.quickSendTable.setRowHeight(row, 20)
+
+        self.quickSendTable.verticalHeader().sectionClicked.connect(self.tableClick)
 
         if os.path.isfile(get_config_path('QckSndBckup.csv')):
             self.loadCSV(get_config_path('QckSndBckup.csv'))
