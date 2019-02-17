@@ -763,14 +763,8 @@
      </property>
      <item>
       <widget class="QTableWidget" name="quickSendTable">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="editTriggers">
-        <set>QAbstractItemView::AllTriggers</set>
+        <set>QAbstractItemView::AllEditTriggers</set>
        </property>
        <property name="selectionMode">
         <enum>QAbstractItemView::NoSelection</enum>
@@ -787,6 +781,9 @@
        <property name="columnCount">
         <number>2</number>
        </property>
+       <attribute name="horizontalHeaderMinimumSectionSize">
+        <number>16</number>
+       </attribute>
        <attribute name="horizontalHeaderStretchLastSection">
         <bool>true</bool>
        </attribute>
