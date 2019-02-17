@@ -578,9 +578,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.dockWidget_QuickSend.setStyleSheet("""
             QToolButton, QPushButton {
                 background-color:#27b798;
-                font-family:Consolas;
-                font-size:12px;
-                min-width:46px;
+                /*font-family:Consolas;*/
+                /*font-size:12px;*/
+                /*min-width:46px;*/
             }
             QToolButton:hover, QPushButton:hover {
                 background-color:#3bd5b4;
@@ -653,12 +653,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.btnRefresh = QtWidgets.QToolButton(self)
         self.btnRefresh.setEnabled(True)
-        self.btnRefresh.setIcon(QtGui.QIcon(':/refresh.png'))
-        self.btnRefresh.setGeometry(120,3,16,18)
+        self.btnRefresh.setIcon(QtGui.QIcon(':/refresh.ico'))
+        self.btnRefresh.setGeometry(110,3,18,18)
         
         self.verticalLayout_1.removeWidget(self.cmbPort)
         self.cmbPort.setParent(self)
-        self.cmbPort.setGeometry(136,3,60,18)
+        self.cmbPort.setGeometry(128,3,60,18)
         
         self.verticalLayout_1.removeWidget(self.btnOpen)
         self.btnOpen.setParent(self)
@@ -829,8 +829,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.quickSendTable.verticalHeader().setSectionsClickable(True)
 
         for row in range(50):
-            item = QToolButton(str("Send"))
+            item = QToolButton(self)
             item.setText("H")
+            item.setMaximumSize(QtCore.QSize(16, 16))
             item.setPopupMode(QtWidgets.QToolButton.InstantPopup)
             item.setMenu(self.sendOptMenu)
             item.clicked.connect(self._signalMap.map)
@@ -840,7 +841,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             item = QtWidgets.QTableWidgetItem()
             item.setText("cmd1")
             self.quickSendTable.setVerticalHeaderItem(row, item)
-            #self.quickSendTable.setRowHeight(row, 20)
+            self.quickSendTable.setRowHeight(row, 16)
 
         self.quickSendTable.verticalHeader().sectionClicked.connect(self.tableClick)
 
