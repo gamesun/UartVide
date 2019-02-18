@@ -86,6 +86,8 @@ class readerThread(QThread):
             self._alive = False
             if hasattr(self._serialport, 'cancel_read'):
                 self._serialport.cancel_read()
+            else:
+                self._serialport.close()
         self.wait()
 
     def join(self):
