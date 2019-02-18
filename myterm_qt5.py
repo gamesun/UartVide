@@ -1164,9 +1164,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setGeometry((screenW-w)/2, (screenH-h)/2, w, h)
 
     def onEnumPorts(self):
+        self.cmbPort.clear()
         for p in enum_ports():
             self.cmbPort.addItem(p)
-        # self.cmbPort.update()
 
     def onAbout(self):
         q = QWidget()
