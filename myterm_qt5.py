@@ -159,7 +159,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupFlatUi()
         self.onEnumPorts()
 
-        icon = QtGui.QIcon(":/icon.ico")
+        icon = QtGui.QIcon(":/MyTerm.ico")
         self.setWindowIcon(icon)
         self.actionAbout.setIcon(icon)
 
@@ -645,7 +645,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnMenu = QtWidgets.QToolButton(self)
         self.btnMenu.setEnabled(True)
         self.btnMenu.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-        self.btnMenu.setIcon(QtGui.QIcon(':/icon.ico'))
+        self.btnMenu.setIcon(QtGui.QIcon(':/MyTerm.ico'))
         self.btnMenu.setText('Myterm  ')
         self.btnMenu.setGeometry(3,3,80,18)
         self.btnMenu.setMenu(self.menuMenu)
@@ -1168,7 +1168,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def onAbout(self):
         q = QWidget()
-        icon = QtGui.QIcon(":/icon.ico")
+        icon = QtGui.QIcon(":/MyTerm.ico")
         q.setWindowIcon(icon)
         QMessageBox.about(q, "About MyTerm", appInfo.aboutme)
 
