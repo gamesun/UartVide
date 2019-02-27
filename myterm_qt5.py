@@ -178,7 +178,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._viewGroup.setExclusive(True)
 
         # bind events
-        self.actionOpen_Cmd_File.triggered.connect(self.openCSV)
+        self.actionOpen_Cmd_File.triggered.connect(self.openQuickSend)
         self.actionSave_Log.triggered.connect(self.onSaveLog)
         self.actionExit.triggered.connect(self.onExit)
 
@@ -205,12 +205,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnClear.clicked.connect(self.onClear)
         self.btnSaveLog.clicked.connect(self.onSaveLog)
         self.btnEnumPorts.clicked.connect(self.onEnumPorts)
-        self.btnSendHex.clicked.connect(self.sendHex)
+        self.btnSendHex.clicked.connect(self.onSendHex)
 
-        self.receiver_thread.read.connect(self.receive)
-        self.receiver_thread.exception.connect(self.readerExcept)
+        self.receiver_thread.read.connect(self.onReceive)
+        self.receiver_thread.exception.connect(self.onReaderExcept)
         self._signalMap = QSignalMapper(self)
-        self._signalMap.mapped[int].connect(self.tableClick)
+        self._signalMap.mapped[int].connect(self.onQuickSend)
 
         # initial action
         self.actionHEX_UPPERCASE.setChecked(True)
@@ -225,7 +225,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.setMaximizeButton("maximize")
             
-        self.LoadSettings()
+        self.loadSettings()
 
     def setupMenu(self):
         self.menuMenu = QtWidgets.QMenu(self)
@@ -287,18 +287,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setStyleSheet("""
             QWidget {
-                background-color:#99d9ea;
+                background-color: %(BackgroundColor)s;
                 /*background-image: url(:/background.png);*/
                 outline: none;
             }
             QLabel {
-                color:#202020;
+                color:%(TextColor)s;
                 font-size:12px;
                 /*font-family:Century;*/
             }
             
             QComboBox {
-                color:#202020;
+                color:%(TextColor)s;
                 font-size:12px;
                 /*font-family:Century;*/
             }
@@ -336,7 +336,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }
             
             QGroupBox {
-                color:#202020;
+                color:%(TextColor)s;
                 font-size:12px;
                 /*font-family:Century;*/
                 border: 1px solid gray;
@@ -350,7 +350,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }
             
             QCheckBox {
-                color:#202020;
+                color:%(TextColor)s;
                 spacing: 5px;
                 font-size:12px;
                 /*font-family:Century;*/
@@ -380,19 +380,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }
             
             QScrollBar:horizontal {
-                background-color:#99d9ea;
+                background-color:%(BackgroundColor)s;
                 border: none;
                 height: 15px;
                 margin: 0px 20px 0 20px;
             }
             QScrollBar::handle:horizontal {
-                background: #61b9e1;
+                background: %(ScrollBar_Handle)s;
                 min-width: 20px;
             }
             QScrollBar::add-line:horizontal {
                 image: url(:/rightarrow.png);
                 border: none;
-                background: #7ecfe4;
+                background: %(ScrollBar_Line)s;
                 width: 20px;
                 subcontrol-position: right;
                 subcontrol-origin: margin;
@@ -400,26 +400,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QScrollBar::sub-line:horizontal {
                 image: url(:/leftarrow.png);
                 border: none;
-                background: #7ecfe4;
+                background: %(ScrollBar_Line)s;
                 width: 20px;
                 subcontrol-position: left;
                 subcontrol-origin: margin;
             }
             
             QScrollBar:vertical {
-                background-color:#99d9ea;
+                background-color:%(BackgroundColor)s;
                 border: none;
                 width: 15px;
                 margin: 20px 0px 20px 0px;
             }
             QScrollBar::handle::vertical {
-                background: #61b9e1;
+                background: %(ScrollBar_Handle)s;
                 min-height: 20px;
             }
             QScrollBar::add-line::vertical {
                 image: url(:/downarrow.png);
                 border: none;
-                background: #7ecfe4;
+                background: %(ScrollBar_Line)s;
                 height: 20px;
                 subcontrol-position: bottom;
                 subcontrol-origin: margin;
@@ -427,7 +427,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QScrollBar::sub-line::vertical {
                 image: url(:/uparrow.png);
                 border: none;
-                background: #7ecfe4;
+                background: %(ScrollBar_Line)s;
                 height: 20px;
                 subcontrol-position: top;
                 subcontrol-origin: margin;
@@ -436,17 +436,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QTableView {
                 background-color: white;
                 /*selection-background-color: #FF92BB;*/
-                border: 1px solid #eeeeee;
-                color: #2f2f2f;
+                border: 1px solid %(TableView_Border)s;
+                color: %(TextColor)s;
             }
             QTableView::focus {
                 /*border: 1px solid #2a7fff;*/
             }
             QTableView QTableCornerButton::section {
                 border: none;
-                border-right: 1px solid #eeeeee;
-                border-bottom: 1px solid #eeeeee;
-                background-color: #8ae6d2;
+                border-right: 1px solid %(TableView_Border)s;
+                border-bottom: 1px solid %(TableView_Border)s;
+                background-color: %(TableView_Corner)s;
             }
             QTableView QWidget {
                 background-color: white;
@@ -454,24 +454,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QTableView::item:focus {
                 border: 1px red;
                 background-color: transparent;
-                color: #2f2f2f;
+                color: %(TextColor)s;
             }
             QHeaderView::section {
                 border: none;
-                border-right: 1px solid #eeeeee;
-                border-bottom: 1px solid #eeeeee;
+                border-right: 1px solid %(TableView_Border)s;
+                border-bottom: 1px solid %(TableView_Border)s;
                 padding-left: 2px;
                 padding-right: 2px;
                 color: #444444;
-                background-color: #8ae6d2;
+                background-color: %(TableView_Header)s;
             }
             QTextEdit {
                 background-color:white;
-                color:#2f2f2f;
+                color:%(TextColor)s;
                 border-top: none;
                 border-bottom: none;
-                border-left: 2px solid #99d9ea;
-                border-right: 2px solid #99d9ea;
+                border-left: 2px solid %(BackgroundColor)s;
+                border-right: 2px solid %(BackgroundColor)s;
             }
             QTextEdit::focus {
             }
@@ -491,7 +491,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }
             
             QMenuBar {
-                color: #2f2f2f;
+                color: %(TextColor)s;
                 height: 24px;
             }
             QMenuBar::item {
@@ -507,7 +507,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 
             }
             QMenu {
-                color: #2f2f2f;
+                color: %(TextColor)s;
                 background: #ffffff;
             }
             QMenu {
@@ -528,7 +528,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QDockWidget {
                 font-size:12px;
                 /*font-family:Century;*/
-                color: #202020;
+                color: %(TextColor)s;
                 titlebar-close-icon: none;
                 titlebar-normal-icon: none;
             }
@@ -574,7 +574,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 padding: 0;
             }
             
-        """)
+        """ % dict(
+            BackgroundColor =  '#99d9ea',
+            TextColor =        '#202020',
+            ScrollBar_Handle = '#61b9e1',
+            ScrollBar_Line =   '#7ecfe4',
+            TableView_Corner = '#8ae6d2',
+            TableView_Header = '#8ae6d2',
+            TableView_Border = '#eeeeee'
+        ))
         self.dockWidgetContents.setStyleSheet("""
             QPushButton {
                 min-height:23px;
@@ -740,7 +748,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._isDragging = False
         event.accept()
 
-    def SaveSettings(self):
+    def saveSettings(self):
         root = ET.Element("MyTerm")
         GUISettings = ET.SubElement(root, "GUISettings")
 
@@ -761,7 +769,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             f.write(ET.tostring(root, encoding='utf-8', pretty_print=True).decode("utf-8"))
 
-    def LoadSettings(self):
+    def loadSettings(self):
         if os.path.isfile(get_config_path("settings.xml")):
             with open(get_config_path("settings.xml"), 'r') as f:
                 tree = safeET.parse(f)
@@ -819,12 +827,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def closeEvent(self, event):
         self.saveLayout()
-        self.saveCSV()
-        self.SaveSettings()
+        self.saveQuickSend()
+        self.saveSettings()
         event.accept()
-
-    def tableClick(self, row):
-        self.sendTableRow(row)
 
     def initQuickSend(self):
         #self.quickSendTable.horizontalHeader().setDefaultSectionSize(40)
@@ -848,20 +853,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.quickSendTable.setVerticalHeaderItem(row, item)
             self.quickSendTable.setRowHeight(row, 16)
 
-        self.quickSendTable.verticalHeader().sectionClicked.connect(self.tableClick)
+        self.quickSendTable.verticalHeader().sectionClicked.connect(self.onSendHex)
 
         if os.path.isfile(get_config_path('QckSndBckup.csv')):
-            self.loadCSV(get_config_path('QckSndBckup.csv'))
+            self.loadQuickSend(get_config_path('QckSndBckup.csv'))
 
         self.quickSendTable.resizeColumnsToContents()
 
-    def openCSV(self):
+    def openQuickSend(self):
         fileName = QFileDialog.getOpenFileName(self, "Select a file",
             os.getcwd(), "CSV Files (*.csv)")[0]
         if fileName:
-            self.loadCSV(fileName, notifyExcept = True)
+            self.loadQuickSend(fileName, notifyExcept = True)
 
-    def saveCSV(self):
+    def saveQuickSend(self):
         # scan table
         rows = self.quickSendTable.rowCount()
         cols = self.quickSendTable.columnCount()
@@ -887,7 +892,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             csvwriter = csv.writer(csvfile, delimiter=',', lineterminator='\n')
             csvwriter.writerows(data)
 
-    def loadCSV(self, path, notifyExcept = False):
+    def loadQuickSend(self, path, notifyExcept = False):
         data = []
         set_rows = 0
         set_cols = 0
@@ -929,7 +934,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.quickSendTable.resizeColumnsToContents()
         #self.quickSendTable.resizeRowsToContents()
 
-    def sendTableRow(self, row):
+    def onQuickSend(self, row):
         cols = self.quickSendTable.columnCount()
         try:
             data = ['0' + self.quickSendTable.item(row, col).text()
@@ -949,7 +954,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             h = [int(t, 16) for t in tmp]
             self.transmitHex(h)
 
-    def sendHex(self):
+    def onSendHex(self):
         hexStr = self.txtEdtInput.toPlainText()
         hexStr = ''.join(hexStr.split(" "))
 
@@ -958,27 +963,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             hexarray.append(int(hexStr[i:i+2], 16))
 
         self.transmitHex(hexarray)
-
-    def readerExcept(self, e):
-        self.closePort()
-        QMessageBox.critical(self.defaultStyleWidget, "Read failed", str(e), QMessageBox.Close)
-
-    def timestamp(self):
-        return datetime.datetime.now().time().isoformat()[:-3]
-
-    def receive(self, data):
-        self.appendOutputText("\n%s R<-:%s" % (self.timestamp(), data))
-
-    def appendOutputText(self, data, color=Qt.black):
-        # the qEditText's "append" methon will add a unnecessary newline.
-        # self.txtEdtOutput.append(data.decode('utf-8'))
-
-        tc=self.txtEdtOutput.textColor()
-        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
-        self.txtEdtOutput.setTextColor(QtGui.QColor(color))
-        self.txtEdtOutput.insertPlainText(data)
-        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
-        self.txtEdtOutput.setTextColor(tc)
 
     def transmitHex(self, hexarray):
         if len(hexarray) > 0:
@@ -998,47 +982,53 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.appendOutputText("\n%s T->:%s" % (self.timestamp(), text),
                         Qt.blue)
 
-    def GetPort(self):
+    def onReaderExcept(self, e):
+        self.closePort()
+        QMessageBox.critical(self.defaultStyleWidget, "Read failed", str(e), QMessageBox.Close)
+
+    def timestamp(self):
+        return datetime.datetime.now().time().isoformat()[:-3]
+
+    def onReceive(self, data):
+        self.appendOutputText("\n%s R<-:%s" % (self.timestamp(), data))
+
+    def appendOutputText(self, data, color=Qt.black):
+        # the qEditText's "append" methon will add a unnecessary newline.
+        # self.txtEdtOutput.append(data.decode('utf-8'))
+
+        tc=self.txtEdtOutput.textColor()
+        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
+        self.txtEdtOutput.setTextColor(QtGui.QColor(color))
+        self.txtEdtOutput.insertPlainText(data)
+        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
+        self.txtEdtOutput.setTextColor(tc)
+
+    def getPort(self):
         return self.cmbPort.currentText()
 
-    def GetDataBits(self):
-        s = self.cmbDataBits.currentText()
-        if s == '5':
-            return serial.FIVEBITS
-        elif s == '6':
-            return serial.SIXBITS
-        elif s == '7':
-            return serial.SEVENBITS
-        elif s == '8':
-            return serial.EIGHTBITS
+    def getDataBits(self):
+        return {'5':serial.FIVEBITS,
+                '6':serial.SIXBITS,
+                '7':serial.SEVENBITS, 
+                '8':serial.EIGHTBITS}[self.cmbDataBits.currentText()]
 
-    def GetParity(self):
-        s = self.cmbParity.currentText()
-        if s == 'None':
-            return serial.PARITY_NONE
-        elif s == 'Even':
-            return serial.PARITY_EVEN
-        elif s == 'Odd':
-            return serial.PARITY_ODD
-        elif s == 'Mark':
-            return serial.PARITY_MARK
-        elif s == 'Space':
-            return serial.PARITY_SPACE
+    def getParity(self):
+        return {'None' :serial.PARITY_NONE,
+                'Even' :serial.PARITY_EVEN,
+                'Odd'  :serial.PARITY_ODD,
+                'Mark' :serial.PARITY_MARK,
+                'Space':serial.PARITY_SPACE}[self.cmbParity.currentText()]
 
-    def GetStopBits(self):
-        s = self.cmbStopBits.currentText()
-        if s == '1':
-            return serial.STOPBITS_ONE
-        elif s == '1.5':
-            return serial.STOPBITS_ONE_POINT_FIVE
-        elif s == '2':
-            return serial.STOPBITS_TWO
+    def getStopBits(self):
+        return {'1'  :serial.STOPBITS_ONE,
+                '1.5':serial.STOPBITS_ONE_POINT_FIVE,
+                '2'  :serial.STOPBITS_TWO}[self.cmbStopBits.currentText()]
 
     def openPort(self):
         if self.serialport.isOpen():
             return
 
-        _port = self.GetPort()
+        _port = self.getPort()
         if '' == _port:
             QMessageBox.information(self.defaultStyleWidget, "Invalid parameters", "Port is empty.")
             return
@@ -1050,9 +1040,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.serialport.port     = _port
         self.serialport.baudrate = _baudrate
-        self.serialport.bytesize = self.GetDataBits()
-        self.serialport.stopbits = self.GetStopBits()
-        self.serialport.parity   = self.GetParity()
+        self.serialport.bytesize = self.getDataBits()
+        self.serialport.stopbits = self.getStopBits()
+        self.serialport.parity   = self.getParity()
         self.serialport.rtscts   = self.chkRTSCTS.isChecked()
         self.serialport.xonxoff  = self.chkXonXoff.isChecked()
         # self.serialport.timeout  = THREAD_TIMEOUT
