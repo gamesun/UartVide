@@ -165,6 +165,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setWindowIcon(icon)
         self.actionAbout.setIcon(icon)
 
+        self.defaultStyleWidget = QWidget()
+        self.defaultStyleWidget.setWindowIcon(icon)
+
         icon = QtGui.QIcon(":/qt_logo_16.ico")
         self.actionAbout_Qt.setIcon(icon)
 
@@ -899,7 +902,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except IOError as e:
             print("({})".format(e))
             if notifyExcept:
-                QMessageBox.critical(self, "Open failed", str(e), QMessageBox.Close)
+                QMessageBox.critical(self.defaultStyleWidget, "Open failed",
+                    str(e), QMessageBox.Close)
             return
 
         rows = self.quickSendTable.rowCount()
@@ -938,7 +942,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             tmp = [d[-2] + d[-1] for d in data if len(d) >= 2]
             for t in tmp:
                 if not is_hex(t):
-                    QMessageBox.critical(self, "Error",
+                    QMessageBox.critical(self.defaultStyleWidget, "Error",
                         "'%s' is not hexadecimal." % (t), QMessageBox.Close)
                     return
 
@@ -957,7 +961,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def readerExcept(self, e):
         self.closePort()
-        QMessageBox.critical(self, "Read failed", str(e), QMessageBox.Close)
+        QMessageBox.critical(self.defaultStyleWidget, "Read failed", str(e), QMessageBox.Close)
 
     def timestamp(self):
         return datetime.datetime.now().time().isoformat()[:-3]
@@ -984,8 +988,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.serialport.write(byteArray)
                 except serial.SerialException as e:
                     print("Exception in transmitHex(%s)" % repr(hexarray))
-                    QMessageBox.critical(self, "Exception in transmitHex", str(e),
-                        QMessageBox.Close)
+                    QMessageBox.critical(self.defaultStyleWidget, 
+                        "Exception in transmitHex", str(e), QMessageBox.Close)
                 else:
                     # self.txCount += len( b )
                     # self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
@@ -1036,12 +1040,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         _port = self.GetPort()
         if '' == _port:
-            QMessageBox.information(self, "Invalid parameters", "Port is empty.")
+            QMessageBox.information(self.defaultStyleWidget, "Invalid parameters", "Port is empty.")
             return
 
         _baudrate = self.cmbBaudRate.currentText()
         if '' == _baudrate:
-            QMessageBox.information(self, "Invalid parameters", "Baudrate is empty.")
+            QMessageBox.information(self.defaultStyleWidget, "Invalid parameters", "Baudrate is empty.")
             return
 
         self.serialport.port     = _port
@@ -1056,8 +1060,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         try:
             self.serialport.open()
         except serial.SerialException as e:
-            QMessageBox.critical(self, "Could not open serial port", str(e),
-                QMessageBox.Close)
+            QMessageBox.critical(self.defaultStyleWidget, 
+                "Could not open serial port", str(e), QMessageBox.Close)
         else:
             self._start_reader()
             self.setWindowTitle("%s on %s [%s, %s%s%s%s%s]" % (
@@ -1169,13 +1173,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.cmbPort.addItem(p)
 
     def onAbout(self):
-        q = QWidget()
-        icon = QtGui.QIcon(":/MyTerm.ico")
-        q.setWindowIcon(icon)
-        QMessageBox.about(q, "About MyTerm", appInfo.aboutme)
+        QMessageBox.about(self.defaultStyleWidget, "About MyTerm", appInfo.aboutme)
 
     def onAboutQt(self):
-        QMessageBox.aboutQt(None)
+        QMessageBox.aboutQt(self.defaultStyleWidget)
 
     def onExit(self):
         if self.serialport.isOpen():
