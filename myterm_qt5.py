@@ -140,6 +140,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.receiver_thread = readerThread(self)
         self.receiver_thread.setPort(self.serialport)
         self._localEcho = None
+        self._viewMode = None
 
         self.setupUi(self)
         self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
@@ -820,10 +821,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ReceiveView = tree.findtext('GUISettings/View/ReceiveView', default='HEX(UPPERCASE)')
             if 'Ascii' in ReceiveView:
                 self.actionAscii.setChecked(True)
+                self._viewMode = VIEWMODE_ASCII
             elif 'lowercase' in ReceiveView:
                 self.actionHex_lowercase.setChecked(True)
+                self._viewMode = VIEWMODE_HEX_LOWERCASE
             elif 'UPPERCASE' in ReceiveView:
                 self.actionHEX_UPPERCASE.setChecked(True)
+                self._viewMode = VIEWMODE_HEX_UPPERCASE
 
     def closeEvent(self, event):
         self.saveLayout()
@@ -956,18 +960,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         "'%s' is not hexadecimal." % (word), QMessageBox.Close)
                     return
 
-            if self.transmitBytearray(bytearray(hexarray)):
-                self.appendOutputText("\n%s T->:%s" % (self.timestamp(), hexstring), Qt.blue)
-            else:
-                print("Exception in transmitHex(%s)" % hexstring)
+            self.transmitBytearray(bytearray(hexarray))
 
     def transmitAsc(self, text):
         if len(text) > 0:
             byteArray = [ord(char) for char in text]
-            if self.transmitBytearray(byteArray):
-                self.appendOutputText("\n%s T->:%s" % (self.timestamp(), text), Qt.blue)
-            else:
-                print("Exception in transmitAsc(%s)" % text)
+            self.transmitBytearray(byteArray)
 
     def transmitBytearray(self, byteArray):
         if self.serialport.isOpen():
@@ -976,9 +974,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             except serial.SerialException as e:
                 QMessageBox.critical(self.defaultStyleWidget,
                     "Exception in transmit", str(e), QMessageBox.Close)
-                return False
+                print("Exception in transmitBytearray(%s)" % text)
             else:
-                return True
+                if self._viewMode == VIEWMODE_ASCII:
+                    text = byteArray.decode('unicode_escape')
+                elif self._viewMode == VIEWMODE_HEX_LOWERCASE:
+                    text = ''.join('%02x ' % t for t in byteArray)
+                elif self._viewMode == VIEWMODE_HEX_UPPERCASE:
+                    text = ''.join('%02X ' % t for t in byteArray)
+                self.appendOutputText("\n%s T->:%s" % (self.timestamp(), text), Qt.blue)
 
     def onReaderExcept(self, e):
         self.closePort()
@@ -1202,15 +1206,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def onViewChanged(self):
         checked = self._viewGroup.checkedAction()
         if checked is None:
+            self._viewMode = VIEWMODE_HEX_UPPERCASE
             self.actionHEX_UPPERCASE.setChecked(True)
-            self.receiver_thread.setViewMode(VIEWMODE_HEX_UPPERCASE)
         else:
             if 'Ascii' in checked.text():
-                self.receiver_thread.setViewMode(VIEWMODE_ASCII)
+                self._viewMode = VIEWMODE_ASCII
             elif 'lowercase' in checked.text():
-                self.receiver_thread.setViewMode(VIEWMODE_HEX_LOWERCASE)
+                self._viewMode = VIEWMODE_HEX_LOWERCASE
             elif 'UPPERCASE' in checked.text():
-                self.receiver_thread.setViewMode(VIEWMODE_HEX_UPPERCASE)
+                self._viewMode = VIEWMODE_HEX_UPPERCASE
+
+        self.receiver_thread.setViewMode(self._viewMode)
 
 def is_hex(s):
     try:
