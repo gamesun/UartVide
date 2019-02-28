@@ -205,7 +205,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnClear.clicked.connect(self.onClear)
         self.btnSaveLog.clicked.connect(self.onSaveLog)
         self.btnEnumPorts.clicked.connect(self.onEnumPorts)
-        self.btnSendHex.clicked.connect(self.onSendHex)
+        self.btnSendHex.clicked.connect(self.onSend)
 
         self.receiver_thread.read.connect(self.onReceive)
         self.receiver_thread.exception.connect(self.onReaderExcept)
@@ -853,7 +853,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.quickSendTable.setVerticalHeaderItem(row, item)
             self.quickSendTable.setRowHeight(row, 16)
 
-        self.quickSendTable.verticalHeader().sectionClicked.connect(self.onSendHex)
+        #self.quickSendTable.verticalHeader().sectionClicked.connect(self.onSend)
 
         if os.path.isfile(get_config_path('QckSndBckup.csv')):
             self.loadQuickSend(get_config_path('QckSndBckup.csv'))
@@ -935,52 +935,50 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #self.quickSendTable.resizeRowsToContents()
 
     def onQuickSend(self, row):
-        cols = self.quickSendTable.columnCount()
-        try:
-            data = ['0' + self.quickSendTable.item(row, col).text()
-                for col in range(1, cols)
-                if self.quickSendTable.item(row, col) is not None
-                    and self.quickSendTable.item(row, col).text() is not '']
-        except:
-            print("Exception in get table data(row = %d)" % (row + 1))
-        else:
-            tmp = [d[-2] + d[-1] for d in data if len(d) >= 2]
-            for t in tmp:
-                if not is_hex(t):
+        if self.quickSendTable.item(row, 2) is not None:
+            tablestring = self.quickSendTable.item(row, 2).text()
+            self.transmitHex(tablestring)
+
+    def onSend(self):
+        sendstring = self.txtEdtInput.toPlainText()
+        self.transmitHex(sendstring)
+
+    def transmitHex(self, hexstring):
+        if len(hexstring) > 0:
+            hexarray = []
+            _hexstring = ''.join(hexstring.split(" "))
+            for i in range(0, len(_hexstring), 2):
+                word = _hexstring[i:i+2]
+                if is_hex(word):
+                    hexarray.append(int(word, 16))
+                else:
                     QMessageBox.critical(self.defaultStyleWidget, "Error",
-                        "'%s' is not hexadecimal." % (t), QMessageBox.Close)
+                        "'%s' is not hexadecimal." % (word), QMessageBox.Close)
                     return
 
-            h = [int(t, 16) for t in tmp]
-            self.transmitHex(h)
+            if self.transmitBytearray(bytearray(hexarray)):
+                self.appendOutputText("\n%s T->:%s" % (self.timestamp(), hexstring), Qt.blue)
+            else:
+                print("Exception in transmitHex(%s)" % hexstring)
 
-    def onSendHex(self):
-        hexStr = self.txtEdtInput.toPlainText()
-        hexStr = ''.join(hexStr.split(" "))
+    def transmitAsc(self, text):
+        if len(text) > 0:
+            byteArray = [ord(char) for char in text]
+            if self.transmitBytearray(byteArray):
+                self.appendOutputText("\n%s T->:%s" % (self.timestamp(), text), Qt.blue)
+            else:
+                print("Exception in transmitAsc(%s)" % text)
 
-        hexarray = []
-        for i in range(0, len(hexStr), 2):
-            hexarray.append(int(hexStr[i:i+2], 16))
-
-        self.transmitHex(hexarray)
-
-    def transmitHex(self, hexarray):
-        if len(hexarray) > 0:
-            byteArray = bytearray(hexarray)
-            if self.serialport.isOpen():
-                try:
-                    self.serialport.write(byteArray)
-                except serial.SerialException as e:
-                    print("Exception in transmitHex(%s)" % repr(hexarray))
-                    QMessageBox.critical(self.defaultStyleWidget, 
-                        "Exception in transmitHex", str(e), QMessageBox.Close)
-                else:
-                    # self.txCount += len( b )
-                    # self.frame.statusbar.SetStatusText('Tx:%d' % self.txCount, 2)
-
-                    text = ''.join(['%02X ' % i for i in hexarray])
-                    self.appendOutputText("\n%s T->:%s" % (self.timestamp(), text),
-                        Qt.blue)
+    def transmitBytearray(self, byteArray):
+        if self.serialport.isOpen():
+            try:
+                self.serialport.write(byteArray)
+            except serial.SerialException as e:
+                QMessageBox.critical(self.defaultStyleWidget,
+                    "Exception in transmit", str(e), QMessageBox.Close)
+                return False
+            else:
+                return True
 
     def onReaderExcept(self, e):
         self.closePort()
