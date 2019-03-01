@@ -34,7 +34,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget, \
     QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget, QToolButton, \
     QFileDialog
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper, QFile, QIODevice
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper, QFile, QIODevice, \
+    QPoint
 import PyQt5.sip
 import appInfo
 from configpath import get_config_path
@@ -141,6 +142,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.receiver_thread.setPort(self.serialport)
         self._localEcho = None
         self._viewMode = None
+        self._quickSendOptRow = 1
 
         self.setupUi(self)
         self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
@@ -211,7 +213,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.receiver_thread.read.connect(self.onReceive)
         self.receiver_thread.exception.connect(self.onReaderExcept)
         self._signalMap = QSignalMapper(self)
-        self._signalMap.mapped[int].connect(self.onQuickSend)
+        self._signalMap.mapped[int].connect(self.onQuickSendOptions)
 
         # initial action
         self.actionHEX_UPPERCASE.setChecked(True)
@@ -235,22 +237,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.menuView = QtWidgets.QMenu(self.menuMenu)
         self.menuView.setTitle("&View")
         self.menuView.setObjectName("menuView")
-        self.menuReceive_View = QtWidgets.QMenu(self.menuMenu)
-        self.menuReceive_View.setTitle("Receive View")
-        self.menuReceive_View.setObjectName("menuReceive_View")
 
-        self.menuView.addAction(self.actionPort_Config_Panel)
-        self.menuView.addAction(self.actionQuick_Send_Panel)
-        self.menuView.addAction(self.actionSend_Hex_Panel)
-        self.menuReceive_View.addAction(self.actionAscii)
-        self.menuReceive_View.addAction(self.actionHex_lowercase)
-        self.menuReceive_View.addAction(self.actionHEX_UPPERCASE)
+        self.menuView.addAction(self.actionAscii)
+        self.menuView.addAction(self.actionHex_lowercase)
+        self.menuView.addAction(self.actionHEX_UPPERCASE)
         self.menuMenu.addAction(self.actionOpen_Cmd_File)
         self.menuMenu.addAction(self.actionSave_Log)
         self.menuMenu.addSeparator()
+        self.menuMenu.addAction(self.actionPort_Config_Panel)
+        self.menuMenu.addAction(self.actionQuick_Send_Panel)
+        self.menuMenu.addAction(self.actionSend_Hex_Panel)
         self.menuMenu.addAction(self.menuView.menuAction())
         self.menuMenu.addAction(self.actionLocal_Echo)
-        self.menuMenu.addAction(self.menuReceive_View.menuAction())
         self.menuMenu.addAction(self.actionAlways_On_Top)
         self.menuMenu.addSeparator()
         self.menuMenu.addAction(self.actionAbout)
@@ -261,25 +259,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.sendOptMenu = QtWidgets.QMenu(self)
         self.actionSend_Hex = QtWidgets.QAction(self)
         self.actionSend_Hex.setText("Send &Hex")
-        self.actionSend_Hex.setIconText("Send Hex")
-        self.actionSend_Hex.setToolTip("Send Hex")
-        self.actionSend_Hex.setStatusTip("Send Hex")
-        self.actionSend_Hex.setObjectName("actionSend_Hex")
+        self.actionSend_Hex.setStatusTip("Send Hex (e.g. 31 32 FF)")
+
         self.actionSend_Asc = QtWidgets.QAction(self)
         self.actionSend_Asc.setText("Send &Asc")
-        self.actionSend_Asc.setIconText("Send Asc")
-        self.actionSend_Asc.setToolTip("Send Asc")
-        self.actionSend_Asc.setStatusTip("Send Asc")
-        self.actionSend_Asc.setObjectName("actionSend_Asc")
-        self.actionSend_File = QtWidgets.QAction(self)
-        self.actionSend_File.setText("Send &File")
-        self.actionSend_File.setIconText("Send File")
-        self.actionSend_File.setToolTip("Send File")
-        self.actionSend_File.setStatusTip("Send File")
-        self.actionSend_File.setObjectName("actionSend_File")
+        self.actionSend_Asc.setStatusTip("Send Asc (e.g. abc123)")
+
+        self.actionSend_TFH = QtWidgets.QAction(self)
+        self.actionSend_TFH.setText("Send &Text file as hex")
+        self.actionSend_TFH.setStatusTip('Send text file as hex (e.g. strings "31 32 FF" in the file)')
+
+        self.actionSend_TFA = QtWidgets.QAction(self)
+        self.actionSend_TFA.setText("Send t&Ext file as asc")
+        self.actionSend_TFA.setStatusTip('Send text file as asc (e.g. strings "abc123" in the file)')
+
+        self.actionSend_FB = QtWidgets.QAction(self)
+        self.actionSend_FB.setText("Send &Bin/Hex file")
+        self.actionSend_FB.setStatusTip("Send a bin file or a hex file")
+
         self.sendOptMenu.addAction(self.actionSend_Hex)
         self.sendOptMenu.addAction(self.actionSend_Asc)
-        self.sendOptMenu.addAction(self.actionSend_File)
+        self.sendOptMenu.addAction(self.actionSend_TFH)
+        self.sendOptMenu.addAction(self.actionSend_TFA)
+        self.sendOptMenu.addAction(self.actionSend_FB)
+
+        self.actionSend_Hex.triggered.connect(self.onSetSendHex)
+        self.actionSend_Asc.triggered.connect(self.onSetSendAsc)
+        self.actionSend_TFH.triggered.connect(self.onSetSendTFH)
+        self.actionSend_TFA.triggered.connect(self.onSetSendTFA)
+        self.actionSend_FB.triggered.connect(self.onSetSendFB)
 
     def setupFlatUi(self):
         self._dragPos = self.pos()
@@ -846,8 +854,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             item = QToolButton(self)
             item.setText("H")
             item.setMaximumSize(QtCore.QSize(16, 16))
-            item.setPopupMode(QtWidgets.QToolButton.InstantPopup)
-            item.setMenu(self.sendOptMenu)
+            #item.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+            #item.setMenu(self.sendOptMenu)
             item.clicked.connect(self._signalMap.map)
             self._signalMap.setMapping(item, row)
             self.quickSendTable.setCellWidget(row, 0, item)
@@ -863,6 +871,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.loadQuickSend(get_config_path('QckSndBckup.csv'))
 
         self.quickSendTable.resizeColumnsToContents()
+
+    def onSetSendHex(self):
+        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 0)
+        item.setText('H')
+
+    def onSetSendAsc(self):
+        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 0)
+        item.setText('A')
+
+    def onSetSendTFH(self):
+        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 0)
+        item.setText('FH')
+
+    def onSetSendTFA(self):
+        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 0)
+        item.setText('FA')
+
+    def onSetSendFB(self):
+        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 0)
+        item.setText('FB')
+
+    def onQuickSendOptions(self, row):
+        self._quickSendOptRow = row
+        item = self.quickSendTable.cellWidget(row, 0)
+        self.sendOptMenu.popup(item.mapToGlobal(QPoint(item.size().width(), item.size().height())))
 
     def openQuickSend(self):
         fileName = QFileDialog.getOpenFileName(self, "Select a file",
