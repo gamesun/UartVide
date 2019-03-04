@@ -212,8 +212,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.receiver_thread.read.connect(self.onReceive)
         self.receiver_thread.exception.connect(self.onReaderExcept)
-        self._signalMap = QSignalMapper(self)
-        self._signalMap.mapped[int].connect(self.onQuickSendOptions)
+        self._signalMapQuickSendOpt = QSignalMapper(self)
+        self._signalMapQuickSendOpt.mapped[int].connect(self.onQuickSendOptions)
+        self._signalMapQuickSend = QSignalMapper(self)
+        self._signalMapQuickSend.mapped[int].connect(self.onQuickSend)
 
         # initial action
         self.actionHEX_UPPERCASE.setChecked(True)
@@ -847,54 +849,67 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #self.quickSendTable.horizontalHeader().setDefaultSectionSize(40)
         #self.quickSendTable.horizontalHeader().setMinimumSectionSize(25)
         self.quickSendTable.setRowCount(50)
-        self.quickSendTable.setColumnCount(2)
+        self.quickSendTable.setColumnCount(3)
         self.quickSendTable.verticalHeader().setSectionsClickable(True)
 
         for row in range(50):
-            item = QToolButton(self)
-            item.setText("H")
-            item.setMaximumSize(QtCore.QSize(16, 16))
-            #item.setPopupMode(QtWidgets.QToolButton.InstantPopup)
-            #item.setMenu(self.sendOptMenu)
-            item.clicked.connect(self._signalMap.map)
-            self._signalMap.setMapping(item, row)
-            self.quickSendTable.setCellWidget(row, 0, item)
-            
-            item = QtWidgets.QTableWidgetItem()
-            item.setText("cmd1")
-            self.quickSendTable.setVerticalHeaderItem(row, item)
-            self.quickSendTable.setRowHeight(row, 16)
-
-        #self.quickSendTable.verticalHeader().sectionClicked.connect(self.onSend)
+            self.initQuickSendButton(row)
 
         if os.path.isfile(get_config_path('QckSndBckup.csv')):
             self.loadQuickSend(get_config_path('QckSndBckup.csv'))
 
         self.quickSendTable.resizeColumnsToContents()
 
+    def initQuickSendButton(self, row, cmd = 'cmd', opt = 'H', dat = ''):
+        if self.quickSendTable.cellWidget(row, 0) is None:
+            item = QToolButton(self)
+            item.setText(cmd)
+            item.clicked.connect(self._signalMapQuickSend.map)
+            self._signalMapQuickSend.setMapping(item, row)
+            self.quickSendTable.setCellWidget(row, 0, item)
+        else:
+            self.quickSendTable.cellWidget(row, 0).setText(cmd)
+
+        if self.quickSendTable.cellWidget(row, 1) is None:
+            item = QToolButton(self)
+            item.setText(opt)
+            #item.setMaximumSize(QtCore.QSize(16, 16))
+            item.clicked.connect(self._signalMapQuickSendOpt.map)
+            self._signalMapQuickSendOpt.setMapping(item, row)
+            self.quickSendTable.setCellWidget(row, 1, item)
+        else:
+            self.quickSendTable.cellWidget(row, 1).setText(opt)
+
+        if self.quickSendTable.item(row, 2) is None:
+            self.quickSendTable.setItem(row, 2, QTableWidgetItem(dat))
+        else:
+            self.quickSendTable.item(row, 2).setText(dat)
+
+        self.quickSendTable.setRowHeight(row, 16)
+
     def onSetSendHex(self):
-        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 0)
+        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 1)
         item.setText('H')
 
     def onSetSendAsc(self):
-        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 0)
+        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 1)
         item.setText('A')
 
     def onSetSendTFH(self):
-        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 0)
+        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 1)
         item.setText('FH')
 
     def onSetSendTFA(self):
-        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 0)
+        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 1)
         item.setText('FA')
 
     def onSetSendFB(self):
-        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 0)
+        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 1)
         item.setText('FB')
 
     def onQuickSendOptions(self, row):
         self._quickSendOptRow = row
-        item = self.quickSendTable.cellWidget(row, 0)
+        item = self.quickSendTable.cellWidget(row, 1)
         self.sendOptMenu.popup(item.mapToGlobal(QPoint(item.size().width(), item.size().height())))
 
     def openQuickSend(self):
@@ -906,28 +921,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def saveQuickSend(self):
         # scan table
         rows = self.quickSendTable.rowCount()
-        cols = self.quickSendTable.columnCount()
+        #cols = self.quickSendTable.columnCount()
 
-        tmp_data = [[self.quickSendTable.item(row, col) is not None
-                    and self.quickSendTable.item(row, col).text() or ''
-                    for col in range(1, cols)] for row in range(rows)]
-
-        data = []
-        # delete trailing blanks
-        for row in tmp_data:
-            for idx, d in enumerate(row[::-1]):
-                if '' != d:
-                    break
-            new_row = row[:len(row) - idx]
-            data.append(new_row)
+        save_data = [[self.quickSendTable.cellWidget(row, 0).text(),
+                      self.quickSendTable.cellWidget(row, 1).text(),
+                      self.quickSendTable.item(row, 2) is not None
+                      and self.quickSendTable.item(row, 2).text() or ''] for row in range(rows)]
 
         #import pprint
-        #pprint.pprint(data, width=120, compact=True)
+        #pprint.pprint(save_data, width=120, compact=True)
 
         # write to file
         with open(get_config_path('QckSndBckup.csv'), 'w') as csvfile:
             csvwriter = csv.writer(csvfile, delimiter=',', lineterminator='\n')
-            csvwriter.writerows(data)
+            csvwriter.writerows(save_data)
 
     def loadQuickSend(self, path, notifyExcept = False):
         data = []
@@ -950,23 +957,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         rows = self.quickSendTable.rowCount()
         cols = self.quickSendTable.columnCount()
-        # clear table
-        for col in range(cols):
-            for row in range(rows):
-                self.quickSendTable.setItem(row, col, QTableWidgetItem(""))
 
-        self._csvFilePath = path
-        if (cols - 1) < set_cols:   # first colume is used by the "send" buttons.
-            cols = set_cols + 10
-            self.quickSendTable.setColumnCount(cols)
         if rows < set_rows:
-            rows = set_rows + 20
+            rows = set_rows + 10
             self.quickSendTable.setRowCount(rows)
 
         for row, rowdat in enumerate(data):
-            if len(rowdat) > 0:
-                for col, cell in enumerate(rowdat, 1):
-                    self.quickSendTable.setItem(row, col, QTableWidgetItem(str(cell)))
+            if len(rowdat) >= 3:
+                cmd, opt, dat = rowdat[0:3]
+                self.initQuickSendButton(row, cmd, opt, dat)
+#                self.quickSendTable.cellWidget(row, 0).setText(cmd)
+#                self.quickSendTable.cellWidget(row, 1).setText(opt)
+#                self.quickSendTable.setItem(row, 2, QTableWidgetItem(dat))
 
         self.quickSendTable.resizeColumnsToContents()
         #self.quickSendTable.resizeRowsToContents()
