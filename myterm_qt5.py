@@ -976,7 +976,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def onQuickSend(self, row):
         if self.quickSendTable.item(row, 2) is not None:
             tablestring = self.quickSendTable.item(row, 2).text()
-            self.transmitHex(tablestring)
+            format = self.quickSendTable.cellWidget(row, 1).text()
+            if 'H' == format:
+                self.transmitHex(tablestring)
+            elif 'A' == format:
+                self.transmitAsc(tablestring)
+            elif 'FB' == format:
+                try:
+                    with open(tablestring, 'rb') as f:
+                        bytes = f.read()
+                        self.transmitBytearray(bytes)
+                except IOError as e:
+                    print("({})".format(e))
+                    QMessageBox.critical(self.defaultStyleWidget, "Open failed",
+                        str(e), QMessageBox.Close)
+            else:
+                try:
+                    with open(tablestring, 'rt') as f:
+                        filestring = f.read()
+                        if 'FH' == format:
+                            self.transmitHex(filestring)
+                        elif 'FA' == format:
+                            self.transmitAsc(filestring)
+                except IOError as e:
+                    print("({})".format(e))
+                    QMessageBox.critical(self.defaultStyleWidget, "Open failed",
+                        str(e), QMessageBox.Close)
 
     def onSend(self):
         sendstring = self.txtEdtInput.toPlainText()
@@ -985,7 +1010,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def transmitHex(self, hexstring):
         if len(hexstring) > 0:
             hexarray = []
-            _hexstring = ''.join(hexstring.split(" "))
+            _hexstring = hexstring.replace(' ', '')
+            _hexstring = _hexstring.replace('\r', '')
+            _hexstring = _hexstring.replace('\n', '')
             for i in range(0, len(_hexstring), 2):
                 word = _hexstring[i:i+2]
                 if is_hex(word):
@@ -1000,7 +1027,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def transmitAsc(self, text):
         if len(text) > 0:
             byteArray = [ord(char) for char in text]
-            self.transmitBytearray(byteArray)
+            self.transmitBytearray(bytearray(byteArray))
 
     def transmitBytearray(self, byteArray):
         if self.serialport.isOpen():
