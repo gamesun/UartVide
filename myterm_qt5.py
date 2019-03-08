@@ -128,7 +128,7 @@ class readerThread(QThread):
                     #     for transformation in self.rx_transformations:
                     #         text = transformation.rx(text)
                     #     self.console.write(text)
-        except serial.SerialException as e:
+        except Exception as e:
             self.exception.emit('{}'.format(e))
             # raise       # XXX handle instead of re-raise?
 
@@ -233,7 +233,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.loadSettings()
 
     def setupMenu(self):
-        self.menuMenu = QtWidgets.QMenu(self)
+        self.menuMenu = QtWidgets.QMenu()
         self.menuMenu.setTitle("&File")
         self.menuMenu.setObjectName("menuMenu")
         self.menuView = QtWidgets.QMenu(self.menuMenu)
@@ -517,6 +517,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QMenuBar::item:pressed {
                 
             }
+            /*
             QMenu {
                 color: %(TextColor)s;
                 background: #ffffff;
@@ -534,7 +535,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QMenu::icon {
                 background: transparent;
                 border: 2px inset transparent;
-            }
+            }*/
 
             QDockWidget {
                 font-size:12px;
@@ -1033,7 +1034,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.serialport.isOpen():
             try:
                 self.serialport.write(byteArray)
-            except serial.SerialException as e:
+            except Exception as e:
                 QMessageBox.critical(self.defaultStyleWidget,
                     "Exception in transmit", str(e), QMessageBox.Close)
                 print("Exception in transmitBytearray(%s)" % text)
@@ -1113,7 +1114,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.serialport.writeTimeout = SERIAL_WRITE_TIMEOUT
         try:
             self.serialport.open()
-        except serial.SerialException as e:
+        except Exception as e:
             QMessageBox.critical(self.defaultStyleWidget, 
                 "Could not open serial port", str(e), QMessageBox.Close)
         else:
@@ -1209,9 +1210,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             "Log files (*.log);;Text files (*.txt);;All files (*.*)")[0]
         if fileName:
             import codecs
-            f = codecs.open(fileName, 'w', 'utf-8')
-            f.write(self.txtEdtOutput.toPlainText())
-            f.close()
+            with codecs.open(fileName, 'w', 'utf-8') as f:
+                f.write(self.txtEdtOutput.toPlainText())
 
     def moveScreenCenter(self):
         w = self.frameGeometry().width()
