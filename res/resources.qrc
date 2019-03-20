@@ -21,6 +21,7 @@
         <file>checkbox_checked_hover.png</file>
         <file>checkbox_checked_pressed.png</file>
         <file>default_layout.dat</file>
+        <file>default_layout_qt5.dat</file>
         <file>refresh.ico</file>
     </qresource>
 </RCC>

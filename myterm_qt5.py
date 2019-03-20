@@ -258,7 +258,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.menuMenu.addSeparator()
         self.menuMenu.addAction(self.actionExit)
 
-        self.sendOptMenu = QtWidgets.QMenu(self)
+        self.sendOptMenu = QtWidgets.QMenu()
         self.actionSend_Hex = QtWidgets.QAction(self)
         self.actionSend_Hex.setText("Send &Hex")
         self.actionSend_Hex.setStatusTip("Send Hex (e.g. 31 32 FF)")
@@ -777,13 +777,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ET.SubElement(View, "LocalEcho").text = self.actionLocal_Echo.isChecked() and "on" or "off"
         ET.SubElement(View, "ReceiveView").text = self._viewGroup.checkedAction().text()
 
-        with open(get_config_path('settings.xml'), 'w') as f:
+        with open(get_config_path('MyTerm.xml'), 'w') as f:
             f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             f.write(ET.tostring(root, encoding='utf-8', pretty_print=True).decode("utf-8"))
 
     def loadSettings(self):
-        if os.path.isfile(get_config_path("settings.xml")):
-            with open(get_config_path("settings.xml"), 'r') as f:
+        if os.path.isfile(get_config_path("MyTerm.xml")):
+            with open(get_config_path("MyTerm.xml"), 'r') as f:
                 tree = safeET.parse(f)
 
             port = tree.findtext('GUISettings/PortConfig/port', default='')
@@ -856,8 +856,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for row in range(50):
             self.initQuickSendButton(row)
 
-        if os.path.isfile(get_config_path('QckSndBckup.csv')):
-            self.loadQuickSend(get_config_path('QckSndBckup.csv'))
+        if os.path.isfile(get_config_path('QuickSend.csv')):
+            self.loadQuickSend(get_config_path('QuickSend.csv'))
 
         self.quickSendTable.resizeColumnsToContents()
 
@@ -933,7 +933,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #pprint.pprint(save_data, width=120, compact=True)
 
         # write to file
-        with open(get_config_path('QckSndBckup.csv'), 'w') as csvfile:
+        with open(get_config_path('QuickSend.csv'), 'w') as csvfile:
             csvwriter = csv.writer(csvfile, delimiter=',', lineterminator='\n')
             csvwriter.writerows(save_data)
 
@@ -1238,9 +1238,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.close()
 
     def restoreLayout(self):
-        if os.path.isfile(get_config_path("layout.dat")):
+        if os.path.isfile(get_config_path("UILayout.dat")):
             try:
-                f=open(get_config_path("layout.dat"), 'rb')
+                f=open(get_config_path("UILayout.dat"), 'rb')
                 geometry, state=pickle.load(f)
                 self.restoreGeometry(geometry)
                 self.restoreState(state)
@@ -1248,7 +1248,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 print("Exception on restoreLayout, {}".format(e))
         else:
             try:
-                f=QFile(':/default_layout.dat')
+                f=QFile(':/default_layout_qt5.dat')
                 f.open(QIODevice.ReadOnly)
                 geometry, state=pickle.loads(f.readAll())
                 self.restoreGeometry(geometry)
@@ -1257,7 +1257,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 print("Exception on restoreLayout, {}".format(e))
 
     def saveLayout(self):
-        with open(get_config_path("layout.dat"), 'wb') as f:
+        with open(get_config_path("UILayout.dat"), 'wb') as f:
             pickle.dump((self.saveGeometry(), self.saveState()), f)
 
     def syncMenu(self):
