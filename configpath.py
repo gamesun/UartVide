@@ -26,7 +26,8 @@
 
 import os
 
-setting_root = os.path.join(os.path.expanduser('~'), 'MyTerm')
+#setting_root = os.path.join(os.path.expanduser('~'), 'MyTerm')
+setting_root = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Settings')
 
 def ensure_root():
     if not os.path.isdir(setting_root):
@@ -34,5 +35,5 @@ def ensure_root():
     
 def get_config_path(file_name):
     ensure_root()
-    return os.path.join(os.path.expanduser('~'), 'MyTerm', file_name)
+    return os.path.join(setting_root, file_name)
 
