@@ -680,6 +680,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnRefresh.setEnabled(True)
         self.btnRefresh.setIcon(QtGui.QIcon(':/refresh.ico'))
         self.btnRefresh.setGeometry(110,3,18,18)
+        self.btnRefresh.clicked.connect(self.onEnumPorts)
         
         self.verticalLayout_1.removeWidget(self.cmbPort)
         self.cmbPort.setParent(self)
@@ -839,6 +840,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif 'UPPERCASE' in ReceiveView:
                 self.actionHEX_UPPERCASE.setChecked(True)
                 self._viewMode = VIEWMODE_HEX_UPPERCASE
+            self.receiver_thread.setViewMode(self._viewMode)
 
     def closeEvent(self, event):
         self.saveLayout()
