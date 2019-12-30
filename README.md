@@ -27,7 +27,7 @@ For detail see LICENSE.txt.
 [Download MyTerm from Softpedia](http://www.softpedia.com/get/Network-Tools/Misc-Networking-Tools/MyTerm.shtml)  
 [Download MyTerm from SourceForge](https://sourceforge.net/projects/myterm/)
 
-[![](doc/softpedia_free_award_f.gif "")](http://www.softpedia.com/progClean/MyTerm-Clean-242031.html)
+[![ ](doc/softpedia_free_award_f.gif "")](http://www.softpedia.com/progClean/MyTerm-Clean-242031.html)
 
 ### Linux Version
 The source code is executable in Linux.  
@@ -41,6 +41,6 @@ C:\Users\\&lt;user name&gt;\MyTerm\error.log
 
 
 ## Entirely new UI
-![](doc/main_flat.jpg "screenshot")
+![ ](doc/main_flat.jpg "screenshot")
 
-![](doc/floatable_widgets_flat.jpg "floatable widgets")
+![ ](doc/floatable_widgets_flat.jpg "floatable widgets")
