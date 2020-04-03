@@ -879,7 +879,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.sendOptMenu.popup(item.mapToGlobal(QPoint(item.size().width(), item.size().height())))
 
     def openQuickSend(self):
-        fileName = QFileDialog.getOpenFileName(self, "Select a file",
+        fileName = QFileDialog.getOpenFileName(self.defaultStyleWidget, "Select a file",
             os.getcwd(), "CSV Files (*.csv)")[0]
         if fileName:
             self.loadQuickSend(fileName, notifyExcept = True)
@@ -1164,7 +1164,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.txtEdtOutput.clear()
 
     def onSaveLog(self):
-        fileName = QFileDialog.getSaveFileName(self, "Save as", os.getcwd(),
+        fileName = QFileDialog.getSaveFileName(self.defaultStyleWidget, "Save as", os.getcwd(),
             "Log files (*.log);;Text files (*.txt);;All files (*.*)")[0]
         if fileName:
             import codecs
@@ -1178,6 +1178,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         screenW = desktop.screen().width()
         screenH = desktop.screen().height()
         self.setGeometry((screenW-w)/2, (screenH-h)/2, w, h)
+
+        w = self.defaultStyleWidget.frameGeometry().width()
+        h = self.defaultStyleWidget.frameGeometry().height()
+        self.defaultStyleWidget.setGeometry((screenW-w)/2, (screenH-h)/2, w, h)
 
     def onEnumPorts(self):
         self.cmbPort.clear()
