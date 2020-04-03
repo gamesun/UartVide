@@ -36,14 +36,14 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget, \
     QFileDialog
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper, QFile, QIODevice, \
     QPoint
-import PyQt5.sip
+#import PyQt5.sip
 import appInfo
 from configpath import get_config_path
-#from gui_qt4.ui_mainwindow import Ui_MainWindow
 from gui_qt5.ui_mainwindow import Ui_MainWindow
 from res import resources_pyqt5
 from enum_ports import enum_ports
 import serial
+from time import sleep
 
 extension = os.path.splitext(sys.argv[0])[1]
 if extension != '.py':
@@ -276,7 +276,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QComboBox::down-arrow:on {
                 image: url(:/uparrow.png);
             }
-            
+            QAbstractItemView {
+                background: white;
+            }
+
             QGroupBox {
                 color:%(TextColor)s;
                 font-size:12px;
@@ -615,17 +618,41 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.verticalLayout_1.removeWidget(self.cmbPort)
         self.cmbPort.setParent(self)
-        self.cmbPort.setGeometry(128,3,60,18)
-        
+        if os.name == 'nt':
+            self.cmbPort.setGeometry(128,3,60,18)
+        elif os.name == 'posix':
+            self.cmbPort.setGeometry(128,3,100,18)
+    
         self.verticalLayout_1.removeWidget(self.btnOpen)
         self.btnOpen.setParent(self)
-        self.btnOpen.setGeometry(210,3,60,18)
+        if os.name == 'nt':
+            self.btnOpen.setGeometry(210,3,60,18)
+        elif os.name == 'posix':
+            self.btnOpen.setGeometry(250,3,60,18)
+        
+        self.verticalLayout_1.removeWidget(self.btnClear)
+        self.btnClear.setParent(self)
+        if os.name == 'nt':
+            self.btnClear.setGeometry(280,3,60,18)
+        elif os.name == 'posix':
+            self.btnClear.setGeometry(320,3,60,18)
+
+        self.verticalLayout_1.removeWidget(self.btnSaveLog)
+        self.btnSaveLog.setParent(self)
+        if os.name == 'nt':
+            self.btnSaveLog.setGeometry(350,3,60,18)
+        elif os.name == 'posix':
+            self.btnSaveLog.setGeometry(390,3,60,18)
+
+        self.btnEnumPorts.setVisible(False)
+        self.label_Port.setVisible(False)
         
     def resizeEvent(self, event):
-        w = event.size().width()
-        self._minBtn.move(w-103,0)
-        self._maxBtn.move(w-74,0)
-        self._closeBtn.move(w-45,0)
+        if hasattr(self, '_maxBtn'):
+            w = event.size().width()
+            self._minBtn.move(w-103,0)
+            self._maxBtn.move(w-74,0)
+            self._closeBtn.move(w-45,0)
 
     def onMinimize(self):
         self.showMinimized()
@@ -642,6 +669,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.setMaximizeButton("restore")
     
     def setMaximizeButton(self, style):
+        if not hasattr(self, '_maxBtn'):
+            return
+
         if "maximize" == style:
             self._maxBtn.setStyleSheet("""
                 QPushButton {
@@ -693,7 +723,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         event.accept()
 
     def saveSettings(self):
-        root = ET.Element("MyTerm")
+        root = ET.Element(appInfo.title)
         GUISettings = ET.SubElement(root, "GUISettings")
 
         PortCfg = ET.SubElement(GUISettings, "PortConfig")
@@ -709,13 +739,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ET.SubElement(View, "LocalEcho").text = self.actionLocal_Echo.isChecked() and "on" or "off"
         ET.SubElement(View, "ReceiveView").text = self._viewGroup.checkedAction().text()
 
-        with open(get_config_path('MyTerm.xml'), 'w') as f:
+        with open(get_config_path(appInfo.title+'.xml'), 'w') as f:
             f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             f.write(ET.tostring(root, encoding='utf-8', pretty_print=True).decode("utf-8"))
 
     def loadSettings(self):
-        if os.path.isfile(get_config_path("MyTerm.xml")):
-            with open(get_config_path("MyTerm.xml"), 'r') as f:
+        if os.path.isfile(get_config_path(appInfo.title+".xml")):
+            with open(get_config_path(appInfo.title+".xml"), 'r') as f:
                 tree = safeET.parse(f)
 
             port = tree.findtext('GUISettings/PortConfig/port', default='')
