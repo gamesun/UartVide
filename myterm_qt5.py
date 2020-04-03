@@ -61,85 +61,16 @@ VIEWMODE_ASCII           = 0
 VIEWMODE_HEX_LOWERCASE   = 1
 VIEWMODE_HEX_UPPERCASE   = 2
 
-class readerThread(QThread):
-    """loop and copy serial->GUI"""
-    read = pyqtSignal(str)
-    exception = pyqtSignal(str)
-
-    def __init__(self, parent=None):
-        super(readerThread, self).__init__(parent)
-        self._alive = None
-        self._serialport = None
-        self._viewMode = None
-
-    def setPort(self, port):
-        self._serialport = port
-
-    def setViewMode(self, mode):
-        self._viewMode = mode
-
-    def start(self, priority = QThread.InheritPriority):
-        self._alive = True
-        super(readerThread, self).start(priority)
-
-    def __del__(self):
-        if self._alive:
-            self._alive = False
-            if hasattr(self._serialport, 'cancel_read'):
-                self._serialport.cancel_read()
-            else:
-                self._serialport.close()
-        self.wait()
-
-    def join(self):
-        self.__del__()
-
-    def run(self):
-        # print("readerThread id:{}".format(self.currentThreadId()))
-        text = str()
-        try:
-            while self._alive:
-                # read all that is there or wait for one byte
-                data = self._serialport.read(self._serialport.inWaiting() or 1)
-                if data:
-                    try:
-                        if self._viewMode == VIEWMODE_ASCII:
-                            text = data.decode('unicode_escape')
-                        elif self._viewMode == VIEWMODE_HEX_LOWERCASE:
-                            text = ''.join('%02x ' % t for t in data)
-                        elif self._viewMode == VIEWMODE_HEX_UPPERCASE:
-                            text = ''.join('%02X ' % t for t in data)
-                    except UnicodeDecodeError:
-                        pass
-                    else:
-                        self.read.emit(text)
-                    # if -1 != text.find('\r\n'):
-                    #     print(repr(text))
-                    #     text = text.replace('\r\n', '\n')
-                    #     text = text.replace('\n\n', '\n')
-                    #     if text[0] == '\n':
-                    #         text = text[1:]
-                    #     self.read.emit(text)
-                    #     text = str()
-                    # if self.raw:
-                    #     self.console.write_bytes(data)
-                    # else:
-                    #     text = self.rx_decoder.decode(data)
-                    #     for transformation in self.rx_transformations:
-                    #         text = transformation.rx(text)
-                    #     self.console.write(text)
-        except Exception as e:
-            self.exception.emit('{}'.format(e))
-            # raise       # XXX handle instead of re-raise?
-
 class MainWindow(QMainWindow, Ui_MainWindow):
     """docstring for MainWindow."""
     def __init__(self, parent=None):
         super(MainWindow, self).__init__()
         self._csvFilePath = ""
         self.serialport = serial.Serial()
-        self.receiver_thread = readerThread(self)
-        self.receiver_thread.setPort(self.serialport)
+        self.readerThread = ReaderThread(self)
+        self.readerThread.setPort(self.serialport)
+        self.portMonitorThread = PortMonitorThread(self)
+        self.portMonitorThread.setPort(self.serialport)
         self._localEcho = None
         self._viewMode = None
         self._quickSendOptRow = 1
@@ -210,8 +141,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnEnumPorts.clicked.connect(self.onEnumPorts)
         self.btnSendHex.clicked.connect(self.onSend)
 
-        self.receiver_thread.read.connect(self.onReceive)
-        self.receiver_thread.exception.connect(self.onReaderExcept)
+        self.readerThread.read.connect(self.onReceive)
+        self.readerThread.exception.connect(self.onReaderExcept)
         self._signalMapQuickSendOpt = QSignalMapper(self)
         self._signalMapQuickSendOpt.mapped[int].connect(self.onQuickSendOptions)
         self._signalMapQuickSend = QSignalMapper(self)
@@ -219,7 +150,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # initial action
         self.actionHEX_UPPERCASE.setChecked(True)
-        self.receiver_thread.setViewMode(VIEWMODE_HEX_UPPERCASE)
+        self.readerThread.setViewMode(VIEWMODE_HEX_UPPERCASE)
         self.initQuickSend()
         self.restoreLayout()
         self.moveScreenCenter()
@@ -840,9 +771,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif 'UPPERCASE' in ReceiveView:
                 self.actionHEX_UPPERCASE.setChecked(True)
                 self._viewMode = VIEWMODE_HEX_UPPERCASE
-            self.receiver_thread.setViewMode(self._viewMode)
+            self.readerThread.setViewMode(self._viewMode)
 
     def closeEvent(self, event):
+        if self.serialport.isOpen():
+            self.closePort()
         self.saveLayout()
         self.saveQuickSend()
         self.saveSettings()
@@ -1112,7 +1045,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.serialport.parity   = self.getParity()
         self.serialport.rtscts   = self.chkRTSCTS.isChecked()
         self.serialport.xonxoff  = self.chkXonXoff.isChecked()
-        # self.serialport.timeout  = THREAD_TIMEOUT
+        self.serialport.timeout  = 0.5
         # self.serialport.writeTimeout = SERIAL_WRITE_TIMEOUT
         try:
             self.serialport.open()
@@ -1120,7 +1053,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QMessageBox.critical(self.defaultStyleWidget, 
                 "Could not open serial port", str(e), QMessageBox.Close)
         else:
-            self._start_reader()
+            self.readerThread.start()
             self.setWindowTitle("%s on %s [%s, %s%s%s%s%s]" % (
                 appInfo.title,
                 self.serialport.portstr,
@@ -1141,7 +1074,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def closePort(self):
         if self.serialport.isOpen():
-            self._stop_reader()
+            self.readerThread.join()
+            self.portMonitorThread.join()
             self.serialport.close()
             self.setWindowTitle(appInfo.title)
             pal = self.btnOpen.style().standardPalette()
@@ -1149,14 +1083,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.btnOpen.setPalette(pal)
             self.btnOpen.setText('Open')
             self.btnOpen.update()
-
-    def _start_reader(self):
-        """Start reader thread"""
-        self.receiver_thread.start()
-
-    def _stop_reader(self):
-        """Stop reader thread only, wait for clean exit of thread"""
-        self.receiver_thread.join()
 
     def onTogglePrtCfgPnl(self):
         if self.actionPort_Config_Panel.isChecked():
@@ -1280,7 +1206,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif 'UPPERCASE' in checked.text():
                 self._viewMode = VIEWMODE_HEX_UPPERCASE
 
-        self.receiver_thread.setViewMode(self._viewMode)
+        self.readerThread.setViewMode(self._viewMode)
 
 def is_hex(s):
     try:
@@ -1288,6 +1214,120 @@ def is_hex(s):
         return True
     except ValueError:
         return False
+
+
+
+class ReaderThread(QThread):
+    """loop and copy serial->GUI"""
+    read = pyqtSignal(str)
+    exception = pyqtSignal(str)
+
+    def __init__(self, parent=None):
+        super(ReaderThread, self).__init__(parent)
+        self._alive = None
+        self._serialport = None
+        self._viewMode = None
+
+    def setPort(self, port):
+        self._serialport = port
+
+    def setViewMode(self, mode):
+        self._viewMode = mode
+
+    def start(self, priority = QThread.InheritPriority):
+        if not self._alive:
+            self._alive = True
+            super(ReaderThread, self).start(priority)
+
+    def __del__(self):
+        if self._alive:
+            self._alive = False
+            if hasattr(self._serialport, 'cancel_read'):
+                self._serialport.cancel_read()
+            else:
+                self._serialport.close()
+        self.wait()
+
+    def join(self):
+        self.__del__()
+
+    def run(self):
+        # print("readerThread id:{}".format(self.currentThreadId()))
+        text = str()
+        try:
+            while self._alive:
+                # read all that is there or wait for one byte
+                data = self._serialport.read(self._serialport.inWaiting() or 1)
+                if not self._alive:
+                    return
+                else:
+                    sleep(0.05)
+                if self._serialport.inWaiting():
+                    data = data + self._serialport.read(self._serialport.inWaiting())
+                if data:
+                    try:
+                        if self._viewMode == VIEWMODE_ASCII:
+                            text = data.decode('unicode_escape')
+                        elif self._viewMode == VIEWMODE_HEX_LOWERCASE:
+                            text = ''.join('%02x ' % t for t in data)
+                        elif self._viewMode == VIEWMODE_HEX_UPPERCASE:
+                            text = ''.join('%02X ' % t for t in data)
+                    except UnicodeDecodeError:
+                        pass
+                    else:
+                        self.read.emit(text)
+                    # if -1 != text.find('\r\n'):
+                    #     print(repr(text))
+                    #     text = text.replace('\r\n', '\n')
+                    #     text = text.replace('\n\n', '\n')
+                    #     if text[0] == '\n':
+                    #         text = text[1:]
+                    #     self.read.emit(text)
+                    #     text = str()
+                    # if self.raw:
+                    #     self.console.write_bytes(data)
+                    # else:
+                    #     text = self.rx_decoder.decode(data)
+                    #     for transformation in self.rx_transformations:
+                    #         text = transformation.rx(text)
+                    #     self.console.write(text)
+        except Exception as e:
+            self.exception.emit('{}'.format(e))
+            # raise       # XXX handle instead of re-raise?
+
+
+class PortMonitorThread(QThread):
+    portPlugOut = pyqtSignal()
+    exception = pyqtSignal(str)
+    
+    def __init__(self, parent=None):
+        super(PortMonitorThread, self).__init__(parent)
+        self._alive = None
+        self._serialport = None
+
+    def setPort(self, port):
+        self._serialport = port
+
+    def start(self, priority = QThread.InheritPriority):
+        if not self._alive:
+            self._alive = True
+            super(PortMonitorThread, self).start(priority)
+
+    def __del__(self):
+        self._alive = False
+        self.wait()
+
+    def join(self):
+        self.__del__()
+
+    def run(self):
+        while self._alive:
+            try:
+                if self._serialport.portstr not in enum_ports():
+                    self.portPlugOut.emit()
+                sleep(0.5)
+            except Exception as e:
+                self.exception.emit('{}'.format(e))
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
