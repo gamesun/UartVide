@@ -1099,10 +1099,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.serialport.xonxoff and ' Xon/Xoff' or '',
                 )
             )
-            pal = self.btnOpen.palette()
-            pal.setColor(QtGui.QPalette.Button, QtGui.QColor(0,0xff,0x7f))
-            self.btnOpen.setAutoFillBackground(True)
-            self.btnOpen.setPalette(pal)
+#            pal = self.cmbPort.palette()
+#            pal.setColor(QtGui.QPalette.Base, QtGui.QColor(0,0xff,0xaa))
+#            self.cmbPort.setAutoFillBackground(True)
+#            self.cmbPort.setPalette(pal)
+#            self.cmbPort.setEnabled(False)
+#            self.cmbPort.update()
+            self.cmbPort.setStyleSheet('''
+                QComboBox:editable {
+                    background: yellow;
+                }
+            ''')
+            
             self.btnOpen.setText('Close')
             self.btnOpen.update()
 
@@ -1112,9 +1120,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.portMonitorThread.join()
             self.serialport.close()
             self.setWindowTitle(appInfo.title)
-            pal = self.btnOpen.style().standardPalette()
-            self.btnOpen.setAutoFillBackground(True)
-            self.btnOpen.setPalette(pal)
+
+#            pal = self.cmbPort.style().standardPalette()
+#            self.cmbPort.setAutoFillBackground(True)
+#            self.cmbPort.setPalette(pal)
+#            self.cmbPort.setEnabled(True)
+#            self.cmbPort.update()
+            self.cmbPort.setStyleSheet('''
+                QComboBox:editable {
+                    background: white;
+                }
+            ''')
+            
             self.btnOpen.setText('Open')
             self.btnOpen.update()
 
