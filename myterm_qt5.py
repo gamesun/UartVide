@@ -1017,7 +1017,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QMessageBox.critical(self.defaultStyleWidget, "Read failed", str(e), QMessageBox.Close)
 
     def timestamp(self):
-        return datetime.datetime.now().time().isoformat()[:-3]
+        ts = datetime.datetime.now().time().isoformat()[:-3]
+        if ts.microsecond:
+            return ts.isoformat()[:-3]
+        else:
+            return ts.isoformat() + '.000'
 
     def onReceive(self, data):
         self.appendOutputText("\n%s R<-:%s" % (self.timestamp(), data))
