@@ -1279,7 +1279,8 @@ class ReaderThread(QThread):
 
     def __init__(self, parent=None):
         super(ReaderThread, self).__init__(parent)
-        self._alive = None
+        self._alive = False
+        self._stopped = True
         self._serialport = None
         self._viewMode = None
 
@@ -1301,13 +1302,15 @@ class ReaderThread(QThread):
                 self._serialport.cancel_read()
             else:
                 self._serialport.close()
-        self.wait()
+        if not self._stopped:
+            self.wait()
 
     def join(self):
         self.__del__()
 
     def run(self):
         # print("readerThread id:{}".format(self.currentThreadId()))
+        self._stopped = False
         text = str()
         try:
             while self._alive:
@@ -1349,7 +1352,7 @@ class ReaderThread(QThread):
         except Exception as e:
             self.exception.emit('{}'.format(e))
             # raise       # XXX handle instead of re-raise?
-
+        self._stopped = True
 
 class PortMonitorThread(QThread):
     portPlugOut = pyqtSignal()
@@ -1357,7 +1360,8 @@ class PortMonitorThread(QThread):
     
     def __init__(self, parent=None):
         super(PortMonitorThread, self).__init__(parent)
-        self._alive = None
+        self._alive = False
+        self._stopped = True
         self._serialport = None
 
     def setPort(self, port):
@@ -1370,12 +1374,14 @@ class PortMonitorThread(QThread):
 
     def __del__(self):
         self._alive = False
-        self.wait()
+        if not self._stopped:
+            self.wait()
 
     def join(self):
         self.__del__()
 
     def run(self):
+        self._stopped = False
         while self._alive:
             try:
                 if self._serialport.portstr not in enum_ports():
@@ -1383,6 +1389,7 @@ class PortMonitorThread(QThread):
                 sleep(0.5)
             except Exception as e:
                 self.exception.emit('{}'.format(e))
+        self._stopped = True
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
