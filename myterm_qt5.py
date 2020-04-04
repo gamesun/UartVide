@@ -614,6 +614,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnRefresh.setEnabled(True)
         self.btnRefresh.setIcon(QtGui.QIcon(':/refresh.ico'))
         self.btnRefresh.setGeometry(110,3,18,18)
+        self.btnRefresh.setStyleSheet("""
+            QToolButton {
+                background-color:#6eccda;
+            }
+            QToolButton:hover {
+                background-color:#51c0d1;
+            }
+            QToolButton:pressed {
+                background-color:#3a9ecc;
+            }
+        """)
         self.btnRefresh.clicked.connect(self.onEnumPorts)
         
         self.verticalLayout_1.removeWidget(self.cmbPort)
