@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(800, 600)
+        MainWindow.resize(800, 612)
         MainWindow.setWindowTitle("MyTerm")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -48,6 +48,7 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
         self.dockWidget_PortConfig = QtWidgets.QDockWidget(MainWindow)
+        self.dockWidget_PortConfig.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
         self.dockWidget_PortConfig.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea|QtCore.Qt.RightDockWidgetArea)
         self.dockWidget_PortConfig.setWindowTitle("Port Config")
         self.dockWidget_PortConfig.setObjectName("dockWidget_PortConfig")
@@ -280,6 +281,8 @@ class Ui_MainWindow(object):
         self.dockWidget_PortConfig.setWidget(self.dockWidgetContents)
         MainWindow.addDockWidget(QtCore.Qt.DockWidgetArea(1), self.dockWidget_PortConfig)
         self.dockWidget_SendHex = QtWidgets.QDockWidget(MainWindow)
+        self.dockWidget_SendHex.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
+        self.dockWidget_SendHex.setAllowedAreas(QtCore.Qt.BottomDockWidgetArea|QtCore.Qt.LeftDockWidgetArea|QtCore.Qt.RightDockWidgetArea)
         self.dockWidget_SendHex.setWindowTitle("Send Hex")
         self.dockWidget_SendHex.setObjectName("dockWidget_SendHex")
         self.dockWidgetContents_2 = QtWidgets.QWidget()
@@ -303,6 +306,7 @@ class Ui_MainWindow(object):
         self.dockWidget_SendHex.setWidget(self.dockWidgetContents_2)
         MainWindow.addDockWidget(QtCore.Qt.DockWidgetArea(8), self.dockWidget_SendHex)
         self.dockWidget_QuickSend = QtWidgets.QDockWidget(MainWindow)
+        self.dockWidget_QuickSend.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
         self.dockWidget_QuickSend.setAllowedAreas(QtCore.Qt.BottomDockWidgetArea|QtCore.Qt.LeftDockWidgetArea|QtCore.Qt.RightDockWidgetArea)
         self.dockWidget_QuickSend.setWindowTitle("Quick Send")
         self.dockWidget_QuickSend.setObjectName("dockWidget_QuickSend")
@@ -330,10 +334,11 @@ class Ui_MainWindow(object):
         self.dockWidget_QuickSend.setWidget(self.dockWidgetContents_3)
         MainWindow.addDockWidget(QtCore.Qt.DockWidgetArea(2), self.dockWidget_QuickSend)
         self.toolBar = QtWidgets.QToolBar(MainWindow)
-        self.toolBar.setMinimumSize(QtCore.QSize(0, 24))
-        self.toolBar.setMaximumSize(QtCore.QSize(16777215, 24))
+        self.toolBar.setMinimumSize(QtCore.QSize(0, 28))
+        self.toolBar.setMaximumSize(QtCore.QSize(16777215, 28))
+        self.toolBar.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
         self.toolBar.setMovable(False)
-        self.toolBar.setAllowedAreas(QtCore.Qt.BottomToolBarArea|QtCore.Qt.TopToolBarArea)
+        self.toolBar.setAllowedAreas(QtCore.Qt.TopToolBarArea)
         self.toolBar.setFloatable(False)
         self.toolBar.setObjectName("toolBar")
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
@@ -423,9 +428,7 @@ class Ui_MainWindow(object):
         self.actionAbout_Qt.setStatusTip("About Qt")
         self.actionAbout_Qt.setObjectName("actionAbout_Qt")
         self.actionOpen_Cmd_File = QtWidgets.QAction(MainWindow)
-        self.actionOpen_Cmd_File.setText("Open Cmd File")
         self.actionOpen_Cmd_File.setIconText("Open Cmd File")
-        self.actionOpen_Cmd_File.setToolTip("Open Cmd File")
         self.actionOpen_Cmd_File.setStatusTip("Open Cmd File")
         self.actionOpen_Cmd_File.setObjectName("actionOpen_Cmd_File")
         self.actionQuick_Send_Panel = QtWidgets.QAction(MainWindow)
@@ -443,5 +446,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
+        self.actionOpen_Cmd_File.setText(_translate("MainWindow", "Open Quick Send File"))
+        self.actionOpen_Cmd_File.setToolTip(_translate("MainWindow", "Load Quick Send Settings"))
 
 from combo import Combo

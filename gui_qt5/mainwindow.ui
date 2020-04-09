@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>600</height>
+    <height>612</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -77,6 +77,9 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dockWidget_PortConfig">
+   <property name="contextMenuPolicy">
+    <enum>Qt::PreventContextMenu</enum>
+   </property>
    <property name="allowedAreas">
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
@@ -699,6 +702,12 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidget_SendHex">
+   <property name="contextMenuPolicy">
+    <enum>Qt::PreventContextMenu</enum>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::BottomDockWidgetArea|Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
    <property name="windowTitle">
     <string notr="true">Send Hex</string>
    </property>
@@ -746,6 +755,9 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidget_QuickSend">
+   <property name="contextMenuPolicy">
+    <enum>Qt::PreventContextMenu</enum>
+   </property>
    <property name="allowedAreas">
     <set>Qt::BottomDockWidgetArea|Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
@@ -831,14 +843,17 @@
    <property name="minimumSize">
     <size>
      <width>0</width>
-     <height>24</height>
+     <height>28</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
      <width>16777215</width>
-     <height>24</height>
+     <height>28</height>
     </size>
+   </property>
+   <property name="contextMenuPolicy">
+    <enum>Qt::PreventContextMenu</enum>
    </property>
    <property name="windowTitle">
     <string>toolBar</string>
@@ -847,7 +862,7 @@
     <bool>false</bool>
    </property>
    <property name="allowedAreas">
-    <set>Qt::BottomToolBarArea|Qt::TopToolBarArea</set>
+    <set>Qt::TopToolBarArea</set>
    </property>
    <property name="floatable">
     <bool>false</bool>
@@ -1064,13 +1079,13 @@
   </action>
   <action name="actionOpen_Cmd_File">
    <property name="text">
-    <string notr="true">Open Cmd File</string>
+    <string>Open Quick Send File</string>
    </property>
    <property name="iconText">
     <string notr="true">Open Cmd File</string>
    </property>
    <property name="toolTip">
-    <string notr="true">Open Cmd File</string>
+    <string>Load Quick Send Settings</string>
    </property>
    <property name="statusTip">
     <string notr="true">Open Cmd File</string>
