@@ -233,6 +233,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 /*background-image: url(:/background.png);*/
                 outline: none;
             }
+            QToolBar {
+                border: none;
+            }
             QLabel {
                 color:%(TextColor)s;
                 font-size:12px;
@@ -557,7 +560,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         w = self.frameGeometry().width()
         self._minBtn = QPushButton(self)
-        self._minBtn.setGeometry(w-103,0,28,24)
+        self._minBtn.setGeometry(w-103,0,28,28)
         self._minBtn.clicked.connect(self.onMinimize)
         self._minBtn.setStyleSheet("""
             QPushButton {
@@ -577,12 +580,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """)
         
         self._maxBtn = QPushButton(self)
-        self._maxBtn.setGeometry(w-74,0,28,24)
+        self._maxBtn.setGeometry(w-74,0,28,28)
         self._maxBtn.clicked.connect(self.onMaximize)
         self.setMaximizeButton("maximize")
         
         self._closeBtn = QPushButton(self)
-        self._closeBtn.setGeometry(w-45,0,36,24)
+        self._closeBtn.setGeometry(w-45,0,36,28)
         self._closeBtn.clicked.connect(self.onExit)
         self._closeBtn.setStyleSheet("""
             QPushButton {
