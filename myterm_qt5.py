@@ -191,24 +191,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.sendOptMenu = QtWidgets.QMenu()
         self.actionSend_Hex = QtWidgets.QAction(self)
-        self.actionSend_Hex.setText("Send &Hex")
+        self.actionSend_Hex.setText("HEX")
         self.actionSend_Hex.setStatusTip("Send Hex (e.g. 31 32 FF)")
 
         self.actionSend_Asc = QtWidgets.QAction(self)
-        self.actionSend_Asc.setText("Send &Asc")
+        self.actionSend_Asc.setText("ASCII")
         self.actionSend_Asc.setStatusTip("Send Asc (e.g. abc123)")
 
         self.actionSend_TFH = QtWidgets.QAction(self)
-        self.actionSend_TFH.setText("Send &Text file as hex")
-        self.actionSend_TFH.setStatusTip('Send text file as hex (e.g. strings "31 32 FF" in the file)')
+        self.actionSend_TFH.setText("HEX form text file")
+        self.actionSend_TFH.setStatusTip('Send text file in HEX form(e.g. "31 32 FF")')
 
         self.actionSend_TFA = QtWidgets.QAction(self)
-        self.actionSend_TFA.setText("Send t&Ext file as asc")
-        self.actionSend_TFA.setStatusTip('Send text file as asc (e.g. strings "abc123" in the file)')
+        self.actionSend_TFA.setText("ASCII form text file")
+        self.actionSend_TFA.setStatusTip('Send text file in ASCII form(e.g. "abc123")')
 
         self.actionSend_FB = QtWidgets.QAction(self)
-        self.actionSend_FB.setText("Send &Bin/Hex file")
-        self.actionSend_FB.setStatusTip("Send a bin file or a hex file")
+        self.actionSend_FB.setText("Bin file")
+        self.actionSend_FB.setStatusTip("Send a Bin/HEX file")
 
         self.sendOptMenu.addAction(self.actionSend_Hex)
         self.sendOptMenu.addAction(self.actionSend_Asc)
@@ -867,24 +867,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.quickSendTable.setRowHeight(row, 16)
 
     def onSetSendHex(self):
-        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 1)
-        item.setText('H')
+        self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('H')
 
     def onSetSendAsc(self):
-        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 1)
-        item.setText('A')
+        self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('A')
 
     def onSetSendTFH(self):
-        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 1)
-        item.setText('FH')
+        self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('HF')
 
     def onSetSendTFA(self):
-        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 1)
-        item.setText('FA')
+        self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('AF')
 
     def onSetSendFB(self):
-        item = self.quickSendTable.cellWidget(self._quickSendOptRow, 1)
-        item.setText('FB')
+        self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('BF')
 
     def onQuickSendOptions(self, row):
         self._quickSendOptRow = row
@@ -953,40 +948,43 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #self.quickSendTable.resizeRowsToContents()
 
     def onQuickSend(self, row):
-        if self.quickSendTable.item(row, 2) is not None:
-            tablestring = self.quickSendTable.item(row, 2).text()
-            format = self.quickSendTable.cellWidget(row, 1).text()
-            if 'H' == format:
-                self.transmitHex(tablestring)
-            elif 'A' == format:
-                self.transmitAsc(tablestring)
-            elif 'FB' == format:
-                try:
-                    with open(tablestring, 'rb') as f:
-                        bytes = f.read()
-                        self.transmitBytearray(bytes)
-                except IOError as e:
-                    print("({})".format(e))
-                    QMessageBox.critical(self.defaultStyleWidget, "Open failed",
-                        str(e), QMessageBox.Close)
-            else:
-                try:
-                    with open(tablestring, 'rt') as f:
-                        filestring = f.read()
-                        if 'FH' == format:
-                            self.transmitHex(filestring)
-                        elif 'FA' == format:
-                            self.transmitAsc(filestring)
-                except IOError as e:
-                    print("({})".format(e))
-                    QMessageBox.critical(self.defaultStyleWidget, "Open failed",
-                        str(e), QMessageBox.Close)
+        if self.serialport.isOpen():
+            if self.quickSendTable.item(row, 2) is not None:
+                tablestring = self.quickSendTable.item(row, 2).text()
+                form = self.quickSendTable.cellWidget(row, 1).text()
+                if 'H' == form:
+                    self.transmitHex(tablestring)
+                elif 'A' == form:
+                    self.transmitAsc(tablestring)
+                else:
+                    self.transmitFile(tablestring, form)
+
+    def transmitFile(self, filepath, form):
+        try:
+            with open(filepath, 'rb' if 'BF' == form else 'rt') as f:
+                self.appendOutputText("\n%s sending %s [%s]" % (self.timestamp(), filepath, form), Qt.blue)
+                self.repaint()
+                
+                content = f.read()
+                sent_len = 0
+                if 'HF' == form:
+                    sent_len = self.transmitHex(content, echo = False)
+                elif 'AF' == form:
+                    sent_len = self.transmitAsc(content, echo = False)
+                elif 'BF' == form:
+                    sent_len = self.transmitBytearray(content, echo = False)
+                
+                self.appendOutputText("\n%s %d bytes sent" % (self.timestamp(), sent_len), Qt.blue)
+        except IOError as e:
+            print("({})".format(e))
+            QMessageBox.critical(self.defaultStyleWidget, "Open failed", str(e), QMessageBox.Close)
 
     def onSend(self):
-        sendstring = self.txtEdtInput.toPlainText()
-        self.transmitHex(sendstring)
+        if self.serialport.isOpen():
+            sendstring = self.txtEdtInput.toPlainText()
+            self.transmitHex(sendstring)
 
-    def transmitHex(self, hexstring):
+    def transmitHex(self, hexstring, echo = True):
         if len(hexstring) > 0:
             hexarray = []
             _hexstring = hexstring.replace(' ', '')
@@ -999,16 +997,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 else:
                     QMessageBox.critical(self.defaultStyleWidget, "Error",
                         "'%s' is not hexadecimal." % (word), QMessageBox.Close)
-                    return
+                    return 0
 
-            self.transmitBytearray(bytearray(hexarray))
+            return self.transmitBytearray(bytearray(hexarray), echo)
 
-    def transmitAsc(self, text):
+    def transmitAsc(self, text, echo = True):
         if len(text) > 0:
             byteArray = [ord(char) for char in text]
-            self.transmitBytearray(bytearray(byteArray))
+            return self.transmitBytearray(bytearray(byteArray), echo)
 
-    def transmitBytearray(self, byteArray):
+    def transmitBytearray(self, byteArray, echo = True):
         if self.serialport.isOpen():
             try:
                 self.serialport.write(byteArray)
@@ -1016,21 +1014,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 QMessageBox.critical(self.defaultStyleWidget,
                     "Exception in transmit", str(e), QMessageBox.Close)
                 print("Exception in transmitBytearray(%s)" % text)
+                return 0
             else:
-                if self._viewMode == VIEWMODE_ASCII:
-                    text = byteArray.decode('unicode_escape')
-                elif self._viewMode == VIEWMODE_HEX_LOWERCASE:
-                    text = ''.join('%02x ' % t for t in byteArray)
-                elif self._viewMode == VIEWMODE_HEX_UPPERCASE:
+                #if self._viewMode == VIEWMODE_ASCII:
+                #    text = byteArray.decode('unicode_escape')
+                #elif self._viewMode == VIEWMODE_HEX_LOWERCASE:
+                #    text = ''.join('%02x ' % t for t in byteArray)
+                #elif self._viewMode == VIEWMODE_HEX_UPPERCASE:
+                #    text = ''.join('%02X ' % t for t in byteArray)
+                #self.appendOutputText("\n%s Tx:%s" % (self.timestamp(), text), Qt.blue)
+                if echo:
                     text = ''.join('%02X ' % t for t in byteArray)
-                self.appendOutputText("\n%s T->:%s" % (self.timestamp(), text), Qt.blue)
+                    self.appendOutputText("\n%s Tx:%s" % (self.timestamp(), text), Qt.blue)
+                return len(byteArray)
 
     def onReaderExcept(self, e):
         self.closePort()
         QMessageBox.critical(self.defaultStyleWidget, "Read failed", str(e), QMessageBox.Close)
 
     def timestamp(self):
-        ts = datetime.datetime.now().time().isoformat()[:-3]
+        ts = datetime.datetime.now().time()
         if ts.microsecond:
             return ts.isoformat()[:-3]
         else:
