@@ -601,19 +601,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }
         """)
         
+        #self.toolBar.setFixedHeight(28)
+        
         self.btnMenu = QtWidgets.QToolButton(self)
         self.btnMenu.setEnabled(True)
         self.btnMenu.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
         self.btnMenu.setIcon(QtGui.QIcon(':/MyTerm.ico'))
         self.btnMenu.setText('Myterm  ')
-        self.btnMenu.setGeometry(3,3,80,18)
+        self.btnMenu.setGeometry(6,4,85,20)
         self.btnMenu.setMenu(self.menuMenu)
         self.btnMenu.setPopupMode(QtWidgets.QToolButton.InstantPopup)
         
         self.btnRefresh = QtWidgets.QToolButton(self)
         self.btnRefresh.setEnabled(True)
         self.btnRefresh.setIcon(QtGui.QIcon(':/refresh.ico'))
-        self.btnRefresh.setGeometry(110,3,18,18)
+        self.btnRefresh.setGeometry(110,4,18,20)
         self.btnRefresh.setStyleSheet("""
             QToolButton {
                 background-color:#6eccda;
@@ -630,30 +632,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.verticalLayout_1.removeWidget(self.cmbPort)
         self.cmbPort.setParent(self)
         if os.name == 'nt':
-            self.cmbPort.setGeometry(128,3,60,18)
+            self.cmbPort.setGeometry(128,4,60,20)
         elif os.name == 'posix':
-            self.cmbPort.setGeometry(128,3,100,18)
+            self.cmbPort.setGeometry(128,4,100,20)
     
         self.verticalLayout_1.removeWidget(self.btnOpen)
         self.btnOpen.setParent(self)
         if os.name == 'nt':
-            self.btnOpen.setGeometry(210,3,60,18)
+            self.btnOpen.setGeometry(210,4,60,20)
         elif os.name == 'posix':
-            self.btnOpen.setGeometry(250,3,60,18)
+            self.btnOpen.setGeometry(250,4,60,20)
         
         self.verticalLayout_1.removeWidget(self.btnClear)
         self.btnClear.setParent(self)
         if os.name == 'nt':
-            self.btnClear.setGeometry(280,3,60,18)
+            self.btnClear.setGeometry(280,4,60,20)
         elif os.name == 'posix':
-            self.btnClear.setGeometry(320,3,60,18)
+            self.btnClear.setGeometry(320,4,60,20)
 
         self.verticalLayout_1.removeWidget(self.btnSaveLog)
         self.btnSaveLog.setParent(self)
         if os.name == 'nt':
-            self.btnSaveLog.setGeometry(350,3,60,18)
+            self.btnSaveLog.setGeometry(350,4,60,20)
         elif os.name == 'posix':
-            self.btnSaveLog.setGeometry(390,3,60,18)
+            self.btnSaveLog.setGeometry(390,4,60,20)
 
         self.btnEnumPorts.setVisible(False)
         self.label_Port.setVisible(False)
