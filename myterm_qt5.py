@@ -36,7 +36,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget, \
     QFileDialog
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper, QFile, QIODevice, \
     QPoint
-#import PyQt5.sip
+import sip
 import appInfo
 from configpath import get_config_path
 from gui_qt5.ui_mainwindow import Ui_MainWindow
@@ -54,7 +54,7 @@ if os.name == 'nt':
     EDITOR_FONT = "SimSun"
     UI_FONT = "Meiryo UI"
 elif os.name == 'posix':
-    EDITOR_FONT = "Courier 10 Pitch"
+    EDITOR_FONT = "Monospace"
     UI_FONT = None
 
 VIEWMODE_ASCII           = 0
@@ -618,7 +618,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnRefresh = QtWidgets.QToolButton(self)
         self.btnRefresh.setEnabled(True)
         self.btnRefresh.setIcon(QtGui.QIcon(':/refresh.ico'))
-        self.btnRefresh.setGeometry(110,4,18,20)
+        self.btnRefresh.setGeometry(104,4,18,20)
         self.btnRefresh.setStyleSheet("""
             QToolButton {
                 background-color:#6eccda;
@@ -635,9 +635,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.verticalLayout_1.removeWidget(self.cmbPort)
         self.cmbPort.setParent(self)
         if os.name == 'nt':
-            self.cmbPort.setGeometry(128,4,60,20)
+            self.cmbPort.setGeometry(122,4,60,20)
         elif os.name == 'posix':
-            self.cmbPort.setGeometry(128,4,100,20)
+            self.cmbPort.setGeometry(122,4,116,20)
     
         self.verticalLayout_1.removeWidget(self.btnOpen)
         self.btnOpen.setParent(self)
