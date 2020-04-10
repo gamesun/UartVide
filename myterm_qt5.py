@@ -898,7 +898,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def saveQuickSend(self):
         # scan table
         rows = self.quickSendTable.rowCount()
-        #cols = self.quickSendTable.columnCount()
 
         save_data = [[self.quickSendTable.cellWidget(row, 0).text(),
                       self.quickSendTable.cellWidget(row, 1).text(),
@@ -914,41 +913,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             csvwriter.writerows(save_data)
 
     def loadQuickSend(self, path, notifyExcept = False):
-        data = []
-        set_rows = 0
-        set_cols = 0
         try:
             with open(path) as csvfile:
                 csvData = csv.reader(csvfile)
-                for row in csvData:
-                    data.append(row)
-                    set_rows = set_rows + 1
-                    if len(row) > set_cols:
-                        set_cols = len(row)
+                data = [row for row in csvData]
         except IOError as e:
             print("({})".format(e))
             if notifyExcept:
                 QMessageBox.critical(self.defaultStyleWidget, "Open failed",
                     str(e), QMessageBox.Close)
-            return
+        else:
+            rows = self.quickSendTable.rowCount()
 
-        rows = self.quickSendTable.rowCount()
-        cols = self.quickSendTable.columnCount()
+            if rows < len(data):
+                rows = len(data) + 10
+                self.quickSendTable.setRowCount(rows)
 
-        if rows < set_rows:
-            rows = set_rows + 10
-            self.quickSendTable.setRowCount(rows)
+            for row, rowdat in enumerate(data):
+                if len(rowdat) >= 3:
+                    cmd, opt, dat = rowdat[0:3]
+                    self.initQuickSendButton(row, cmd, opt, dat)
 
-        for row, rowdat in enumerate(data):
-            if len(rowdat) >= 3:
-                cmd, opt, dat = rowdat[0:3]
-                self.initQuickSendButton(row, cmd, opt, dat)
-#                self.quickSendTable.cellWidget(row, 0).setText(cmd)
-#                self.quickSendTable.cellWidget(row, 1).setText(opt)
-#                self.quickSendTable.setItem(row, 2, QTableWidgetItem(dat))
-
-        self.quickSendTable.resizeColumnsToContents()
-        #self.quickSendTable.resizeRowsToContents()
+            self.quickSendTable.resizeColumnsToContents()
+            #self.quickSendTable.resizeRowsToContents()
 
     def onQuickSend(self, row):
         if self.serialport.isOpen():
