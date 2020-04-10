@@ -3,8 +3,8 @@
 block_cipher = None
 
 
-a = Analysis(['myterm_qt5.py'],
-             pathex=['D:\\Projects\\MyTerm'],
+a = Analysis(['myterm.py'],
+             pathex=[],
              binaries=[],
              datas=[],
              hiddenimports=[],
@@ -21,7 +21,7 @@ exe = EXE(pyz,
           a.scripts,
           [],
           exclude_binaries=True,
-          name='myterm_qt5',
+          name='myterm',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
@@ -33,4 +33,4 @@ coll = COLLECT(exe,
                a.datas,
                strip=False,
                upx=True,
-               name='myterm_qt5')
+               name='myterm')
