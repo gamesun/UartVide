@@ -1205,9 +1205,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.defaultStyleWidget.setGeometry((screenW-w)/2, (screenH-h)/2, w, h)
 
     def onEnumPorts(self):
+        sel = self.cmbPort.currentText()
         self.cmbPort.clear()
         for p in enum_ports():
             self.cmbPort.addItem(p)
+        idx = self.cmbPort.findText(sel)
+        if idx != -1:
+            self.cmbPort.setCurrentIndex(idx)
 
     def onAbout(self):
         QMessageBox.about(self.defaultStyleWidget, "About MyTerm", appInfo.aboutme)
