@@ -962,7 +962,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 elif 'AF' == form:
                     sent_len = self.transmitAsc(content, echo = False)
                 elif 'BF' == form:
-                    sent_len = self.transmitBytearray(content, echo = False)
+                    sent_len = self.transmitBytearray(content)
                 
                 self.appendOutputText("\n%s %d bytes sent" % (self.timestamp(), sent_len), Qt.blue)
         except IOError as e:
@@ -988,15 +988,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     QMessageBox.critical(self.defaultStyleWidget, "Error",
                         "'%s' is not hexadecimal." % (word), QMessageBox.Close)
                     return 0
-
-            return self.transmitBytearray(bytearray(hexarray), echo)
+            if echo:
+                text = ''.join('%02X ' % t for t in hexarray)
+                self.appendOutputText("\n%s Tx:%s" % (self.timestamp(), text), Qt.blue)
+            return self.transmitBytearray(bytearray(hexarray))
 
     def transmitAsc(self, text, echo = True):
         if len(text) > 0:
             byteArray = [ord(char) for char in text]
-            return self.transmitBytearray(bytearray(byteArray), echo)
+            if echo:
+                self.appendOutputText("\n%s Tx:%s" % (self.timestamp(), text), Qt.blue)
+            return self.transmitBytearray(bytearray(byteArray))
 
-    def transmitBytearray(self, byteArray, echo = True):
+    def transmitBytearray(self, byteArray):
         if self.serialport.isOpen():
             try:
                 self.serialport.write(byteArray)
@@ -1006,16 +1010,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 print("Exception in transmitBytearray(%s)" % text)
                 return 0
             else:
-                #if self._viewMode == VIEWMODE_ASCII:
-                #    text = byteArray.decode('unicode_escape')
-                #elif self._viewMode == VIEWMODE_HEX_LOWERCASE:
-                #    text = ''.join('%02x ' % t for t in byteArray)
-                #elif self._viewMode == VIEWMODE_HEX_UPPERCASE:
-                #    text = ''.join('%02X ' % t for t in byteArray)
-                #self.appendOutputText("\n%s Tx:%s" % (self.timestamp(), text), Qt.blue)
-                if echo:
-                    text = ''.join('%02X ' % t for t in byteArray)
-                    self.appendOutputText("\n%s Tx:%s" % (self.timestamp(), text), Qt.blue)
                 return len(byteArray)
 
     def onReaderExcept(self, e):
