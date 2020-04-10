@@ -1099,18 +1099,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.serialport.xonxoff and ' Xon/Xoff' or '',
                 )
             )
-#            pal = self.cmbPort.palette()
-#            pal.setColor(QtGui.QPalette.Base, QtGui.QColor(0,0xff,0xaa))
-#            self.cmbPort.setAutoFillBackground(True)
-#            self.cmbPort.setPalette(pal)
-#            self.cmbPort.setEnabled(False)
-#            self.cmbPort.update()
-            self.cmbPort.setStyleSheet('''
-                QComboBox:editable {
-                    background: yellow;
-                }
-            ''')
-            
+            self.cmbPort.setEnabled(False)
+            self.cmbPort.setStyleSheet('QComboBox:editable {background: yellow;}')
             self.btnOpen.setText('Close')
             self.btnOpen.update()
 
@@ -1120,18 +1110,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.portMonitorThread.join()
             self.serialport.close()
             self.setWindowTitle(appInfo.title)
-
-#            pal = self.cmbPort.style().standardPalette()
-#            self.cmbPort.setAutoFillBackground(True)
-#            self.cmbPort.setPalette(pal)
-#            self.cmbPort.setEnabled(True)
-#            self.cmbPort.update()
-            self.cmbPort.setStyleSheet('''
-                QComboBox:editable {
-                    background: white;
-                }
-            ''')
-            
+            self.cmbPort.setEnabled(True)
+            self.cmbPort.setStyleSheet('QComboBox:editable {background: white;}')
             self.btnOpen.setText('Open')
             self.btnOpen.update()
 
@@ -1313,7 +1293,6 @@ class ReaderThread(QThread):
         self.__del__()
 
     def run(self):
-        # print("readerThread id:{}".format(self.currentThreadId()))
         self._stopped = False
         text = str()
         try:
@@ -1338,24 +1317,8 @@ class ReaderThread(QThread):
                         pass
                     else:
                         self.read.emit(text)
-                    # if -1 != text.find('\r\n'):
-                    #     print(repr(text))
-                    #     text = text.replace('\r\n', '\n')
-                    #     text = text.replace('\n\n', '\n')
-                    #     if text[0] == '\n':
-                    #         text = text[1:]
-                    #     self.read.emit(text)
-                    #     text = str()
-                    # if self.raw:
-                    #     self.console.write_bytes(data)
-                    # else:
-                    #     text = self.rx_decoder.decode(data)
-                    #     for transformation in self.rx_transformations:
-                    #         text = transformation.rx(text)
-                    #     self.console.write(text)
         except Exception as e:
             self.exception.emit('{}'.format(e))
-            # raise       # XXX handle instead of re-raise?
         self._stopped = True
 
 class PortMonitorThread(QThread):
