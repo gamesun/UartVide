@@ -1215,7 +1215,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 print("Exception on restoreLayout, {}".format(e))
         else:
             try:
-                f=QFile(':/default_layout_qt5.dat')
+                f=QFile(':/default_layout.dat')
                 f.open(QIODevice.ReadOnly)
                 geometry, state=pickle.loads(f.readAll())
                 self.restoreGeometry(geometry)
