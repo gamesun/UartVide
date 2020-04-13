@@ -1,4 +1,4 @@
-# MyTerm
+# MyTerm ![logo](res/MyTerm/48.png)   
 MyTerm is a RS232 serial port communication utility and runs on all platforms supported by PyQt including Windows, Linux.
 
 Its features including  
