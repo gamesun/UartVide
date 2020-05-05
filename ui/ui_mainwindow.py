@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.13.0
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -317,6 +319,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setSpacing(0)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.quickSendTable = QtWidgets.QTableWidget(self.dockWidgetContents_3)
+        font = QtGui.QFont()
+        font.setFamily("Consolas")
+        self.quickSendTable.setFont(font)
         self.quickSendTable.setEditTriggers(QtWidgets.QAbstractItemView.AllEditTriggers)
         self.quickSendTable.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
         self.quickSendTable.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
@@ -334,8 +339,8 @@ class Ui_MainWindow(object):
         self.dockWidget_QuickSend.setWidget(self.dockWidgetContents_3)
         MainWindow.addDockWidget(QtCore.Qt.DockWidgetArea(2), self.dockWidget_QuickSend)
         self.toolBar = QtWidgets.QToolBar(MainWindow)
-        self.toolBar.setMinimumSize(QtCore.QSize(0, 28))
-        self.toolBar.setMaximumSize(QtCore.QSize(16777215, 28))
+        self.toolBar.setMinimumSize(QtCore.QSize(0, 31))
+        self.toolBar.setMaximumSize(QtCore.QSize(16777215, 31))
         self.toolBar.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
         self.toolBar.setMovable(False)
         self.toolBar.setAllowedAreas(QtCore.Qt.TopToolBarArea)
@@ -448,5 +453,4 @@ class Ui_MainWindow(object):
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
         self.actionOpen_Cmd_File.setText(_translate("MainWindow", "Open Quick Send File"))
         self.actionOpen_Cmd_File.setToolTip(_translate("MainWindow", "Load Quick Send Settings"))
-
 from combo import Combo

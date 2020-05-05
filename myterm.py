@@ -39,7 +39,7 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper, QFile, QIODevic
 import sip
 import appInfo
 from configpath import get_config_path
-from gui_qt5.ui_mainwindow import Ui_MainWindow
+from ui.ui_mainwindow import Ui_MainWindow
 from res import resources_pyqt5
 from enum_ports import enum_ports
 import serial
@@ -428,8 +428,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 background-color:#30a7b8;
                 border:none;
                 color:#ffffff;
-                font-size:12px;
-                /*font-family:Century;*/
+                font-size:15px;
+                font-family:Microsoft YaHei UI;
             }
             QToolButton:hover, QPushButton:hover {
                 background-color:#51c0d1;
@@ -540,8 +540,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.dockWidget_QuickSend.setStyleSheet("""
             QToolButton, QPushButton {
                 background-color:#27b798;
-                /*font-family:Consolas;*/
-                /*font-size:12px;*/
+                font-family:Tahoma;
+                font-size:12px;
                 /*min-width:46px;*/
             }
             QToolButton:hover, QPushButton:hover {
@@ -560,7 +560,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         w = self.frameGeometry().width()
         self._minBtn = QPushButton(self)
-        self._minBtn.setGeometry(w-103,0,28,28)
+        self._minBtn.setGeometry(w-112,0,31,31)
         self._minBtn.clicked.connect(self.onMinimize)
         self._minBtn.setStyleSheet("""
             QPushButton {
@@ -580,12 +580,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """)
         
         self._maxBtn = QPushButton(self)
-        self._maxBtn.setGeometry(w-74,0,28,28)
+        self._maxBtn.setGeometry(w-81,0,31,31)
         self._maxBtn.clicked.connect(self.onMaximize)
         self.setMaximizeButton("maximize")
         
         self._closeBtn = QPushButton(self)
-        self._closeBtn.setGeometry(w-45,0,36,28)
+        self._closeBtn.setGeometry(w-50,0,40,31)
         self._closeBtn.clicked.connect(self.onExit)
         self._closeBtn.setStyleSheet("""
             QPushButton {
@@ -606,19 +606,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         #self.toolBar.setFixedHeight(28)
         
+        font = QtGui.QFont()
+        font.setFamily(UI_FONT)
+        font.setPointSize(9)
+        
+        x,y,w,h = 6,4,100,23
         self.btnMenu = QtWidgets.QToolButton(self)
+        self.btnMenu.setFont(font)
         self.btnMenu.setEnabled(True)
         self.btnMenu.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
         self.btnMenu.setIcon(QtGui.QIcon(':/MyTerm.ico'))
         self.btnMenu.setText('Myterm  ')
-        self.btnMenu.setGeometry(6,4,85,20)
+        self.btnMenu.setGeometry(x,y,w,h)
         self.btnMenu.setMenu(self.menuMenu)
         self.btnMenu.setPopupMode(QtWidgets.QToolButton.InstantPopup)
         
+        x,w = x+w+15,18
         self.btnRefresh = QtWidgets.QToolButton(self)
         self.btnRefresh.setEnabled(True)
         self.btnRefresh.setIcon(QtGui.QIcon(':/refresh.ico'))
-        self.btnRefresh.setGeometry(104,4,18,20)
+        self.btnRefresh.setGeometry(x,y,w,h)
         self.btnRefresh.setStyleSheet("""
             QToolButton {
                 background-color:#6eccda;
@@ -635,30 +642,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.verticalLayout_1.removeWidget(self.cmbPort)
         self.cmbPort.setParent(self)
         if os.name == 'nt':
-            self.cmbPort.setGeometry(122,4,60,20)
+            x,w = x+w,80
+            self.cmbPort.setGeometry(x,y,w,h)
         elif os.name == 'posix':
-            self.cmbPort.setGeometry(122,4,116,20)
+            x,w = x+w,120
+            self.cmbPort.setGeometry(x,y,w,h)
     
         self.verticalLayout_1.removeWidget(self.btnOpen)
         self.btnOpen.setParent(self)
-        if os.name == 'nt':
-            self.btnOpen.setGeometry(210,4,60,20)
-        elif os.name == 'posix':
-            self.btnOpen.setGeometry(250,4,60,20)
+        x,w = x+w+15,60
+        self.btnOpen.setGeometry(x,y,w,h)
         
         self.verticalLayout_1.removeWidget(self.btnClear)
         self.btnClear.setParent(self)
-        if os.name == 'nt':
-            self.btnClear.setGeometry(280,4,60,20)
-        elif os.name == 'posix':
-            self.btnClear.setGeometry(320,4,60,20)
+        x,w = x+w+15,60
+        self.btnClear.setGeometry(x,y,w,h)
 
         self.verticalLayout_1.removeWidget(self.btnSaveLog)
         self.btnSaveLog.setParent(self)
-        if os.name == 'nt':
-            self.btnSaveLog.setGeometry(350,4,60,20)
-        elif os.name == 'posix':
-            self.btnSaveLog.setGeometry(390,4,60,20)
+        x,w = x+w+15,80
+        self.btnSaveLog.setGeometry(x,y,w,h)
 
         self.btnEnumPorts.setVisible(False)
         self.label_Port.setVisible(False)
@@ -666,9 +669,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def resizeEvent(self, event):
         if hasattr(self, '_maxBtn'):
             w = event.size().width()
-            self._minBtn.move(w-103,0)
-            self._maxBtn.move(w-74,0)
-            self._closeBtn.move(w-45,0)
+            self._minBtn.move(w-112,0)
+            self._maxBtn.move(w-81,0)
+            self._closeBtn.move(w-50,0)
 
     def onMinimize(self):
         self.showMinimized()
@@ -867,7 +870,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.quickSendTable.item(row, 2).setText(dat)
 
-        self.quickSendTable.setRowHeight(row, 16)
+        self.quickSendTable.setRowHeight(row, 18)
 
     def onSetSendHex(self):
         self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('H')

@@ -786,6 +786,11 @@
      </property>
      <item>
       <widget class="QTableWidget" name="quickSendTable">
+       <property name="font">
+        <font>
+         <family>Consolas</family>
+        </font>
+       </property>
        <property name="editTriggers">
         <set>QAbstractItemView::AllEditTriggers</set>
        </property>
@@ -816,10 +821,10 @@
        <attribute name="verticalHeaderVisible">
         <bool>false</bool>
        </attribute>
-       <attribute name="verticalHeaderDefaultSectionSize">
+       <attribute name="verticalHeaderMinimumSectionSize">
         <number>16</number>
        </attribute>
-       <attribute name="verticalHeaderMinimumSectionSize">
+       <attribute name="verticalHeaderDefaultSectionSize">
         <number>16</number>
        </attribute>
        <row/>
@@ -843,13 +848,13 @@
    <property name="minimumSize">
     <size>
      <width>0</width>
-     <height>28</height>
+     <height>31</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
      <width>16777215</width>
-     <height>28</height>
+     <height>31</height>
     </size>
    </property>
    <property name="contextMenuPolicy">
