@@ -51,7 +51,7 @@ if extension != '.py':
     sys.excepthook = except_logger.exceptHook
 
 if os.name == 'nt':
-    EDITOR_FONT = "SimSun"
+    EDITOR_FONT = "Consolas"
     UI_FONT = "Meiryo UI"
 elif os.name == 'posix':
     EDITOR_FONT = "Monospace"
@@ -84,13 +84,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.txtEdtOutput.setFont(font)
         self.txtEdtInput.setFont(font)
         #self.quickSendTable.setFont(font)
-        if UI_FONT is not None:
-            font = QtGui.QFont()
-            font.setFamily(UI_FONT)
-            font.setPointSize(9)
-            self.dockWidget_PortConfig.setFont(font)
-            self.dockWidget_SendHex.setFont(font)
-            self.dockWidget_QuickSend.setFont(font)
         self.setupMenu()
         self.setupFlatUi()
         self.onEnumPorts()
@@ -202,31 +195,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionSend_AscS.setText(r"ASCII Special chars(\n \r \t...)")
         self.actionSend_AscS.setStatusTip("Send Asc (e.g. abc123) converting escape chars")
 
-        self.actionSend_TFH = QtWidgets.QAction(self)
-        self.actionSend_TFH.setText("HEX form text file")
-        self.actionSend_TFH.setStatusTip('Send text file in HEX form(e.g. "31 32 FF")')
+        self.actionSend_HF = QtWidgets.QAction(self)
+        self.actionSend_HF.setText("HEX text File")
+        self.actionSend_HF.setStatusTip('Send text file in HEX form(e.g. "31 32 FF")')
 
-        self.actionSend_TFA = QtWidgets.QAction(self)
-        self.actionSend_TFA.setText("ASCII form text file")
-        self.actionSend_TFA.setStatusTip('Send text file in ASCII form(e.g. "abc123")')
+        self.actionSend_AF = QtWidgets.QAction(self)
+        self.actionSend_AF.setText("ASCII text file")
+        self.actionSend_AF.setStatusTip('Send text file in ASCII form(e.g. "abc123")')
 
-        self.actionSend_FB = QtWidgets.QAction(self)
-        self.actionSend_FB.setText("Bin file")
-        self.actionSend_FB.setStatusTip("Send a Bin/HEX file")
+        self.actionSend_BF = QtWidgets.QAction(self)
+        self.actionSend_BF.setText("Bin/HEX file")
+        self.actionSend_BF.setStatusTip("Send a Bin/HEX file")
 
         self.sendOptMenu.addAction(self.actionSend_Hex)
         self.sendOptMenu.addAction(self.actionSend_Asc)
         self.sendOptMenu.addAction(self.actionSend_AscS)
-        self.sendOptMenu.addAction(self.actionSend_TFH)
-        self.sendOptMenu.addAction(self.actionSend_TFA)
-        self.sendOptMenu.addAction(self.actionSend_FB)
+        self.sendOptMenu.addAction(self.actionSend_HF)
+        self.sendOptMenu.addAction(self.actionSend_AF)
+        self.sendOptMenu.addAction(self.actionSend_BF)
 
         self.actionSend_Hex.triggered.connect(self.onSetSendHex)
         self.actionSend_Asc.triggered.connect(self.onSetSendAsc)
         self.actionSend_AscS.triggered.connect(self.onSetSendAscS)
-        self.actionSend_TFH.triggered.connect(self.onSetSendTFH)
-        self.actionSend_TFA.triggered.connect(self.onSetSendTFA)
-        self.actionSend_FB.triggered.connect(self.onSetSendFB)
+        self.actionSend_HF.triggered.connect(self.onSetSendHF)
+        self.actionSend_AF.triggered.connect(self.onSetSendAF)
+        self.actionSend_BF.triggered.connect(self.onSetSendBF)
 
     def setupFlatUi(self):
         self._dragPos = self.pos()
@@ -244,14 +237,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }
             QLabel {
                 color:%(TextColor)s;
-                font-size:12px;
-                /*font-family:Century;*/
+                font-size:9pt;
+                font-family:%(UIFont)s;
             }
             
             QComboBox {
                 color:%(TextColor)s;
-                font-size:12px;
-                /*font-family:Century;*/
+                font-size:9pt;
+                font-family:%(UIFont)s;
             }
             QComboBox {
                 border: none;
@@ -291,8 +284,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             QGroupBox {
                 color:%(TextColor)s;
-                font-size:12px;
-                /*font-family:Century;*/
+                font-size:8pt;
+                font-family:%(UIFont)s;
                 border: 1px solid gray;
                 margin-top: 15px;
             }
@@ -306,8 +299,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QCheckBox {
                 color:%(TextColor)s;
                 spacing: 5px;
-                font-size:12px;
-                /*font-family:Century;*/
+                font-size:7pt;
+                font-family:%(UIFont)s;
             }
             QCheckBox::indicator:unchecked {
                 image: url(:/checkbox_unchecked.png);
@@ -434,8 +427,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 background-color:#30a7b8;
                 border:none;
                 color:#ffffff;
-                font-size:15px;
-                font-family:Microsoft YaHei UI;
+                font-size:9pt;
+                font-family:%(UIFont)s;
             }
             QToolButton:hover, QPushButton:hover {
                 background-color:#51c0d1;
@@ -481,8 +474,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }*/
 
             QDockWidget {
-                font-size:12px;
-                /*font-family:Century;*/
+                font-size:9pt;
+                font-family:%(UIFont)s;
                 color: %(TextColor)s;
                 titlebar-close-icon: none;
                 titlebar-normal-icon: none;
@@ -536,7 +529,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ScrollBar_Line =   '#7ecfe4',
             TableView_Corner = '#8ae6d2',
             TableView_Header = '#8ae6d2',
-            TableView_Border = '#eeeeee'
+            TableView_Border = '#eeeeee',
+            UIFont = 'Microsoft YaHei UI',
         ))
         self.dockWidgetContents.setStyleSheet("""
             QPushButton {
@@ -547,7 +541,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QToolButton, QPushButton {
                 background-color:#27b798;
                 font-family:Tahoma;
-                font-size:12px;
+                font-size:8pt;
                 /*min-width:46px;*/
             }
             QToolButton:hover, QPushButton:hover {
@@ -648,7 +642,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.verticalLayout_1.removeWidget(self.cmbPort)
         self.cmbPort.setParent(self)
         if os.name == 'nt':
-            x,w = x+w,80
+            x,w = x+w,90
             self.cmbPort.setGeometry(x,y,w,h)
         elif os.name == 'posix':
             x,w = x+w,120
@@ -844,7 +838,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.quickSendTable.verticalHeader().setSectionsClickable(True)
 
         for row in range(50):
-            self.initQuickSendButton(row)
+            self.initQuickSendButton(row, cmd = '%d' % (row+1))
 
         if os.path.isfile(get_config_path('QuickSend.csv')):
             self.loadQuickSend(get_config_path('QuickSend.csv'))
@@ -876,7 +870,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.quickSendTable.item(row, 2).setText(dat)
 
-        self.quickSendTable.setRowHeight(row, 18)
+        self.quickSendTable.setRowHeight(row, 20)
 
     def onSetSendHex(self):
         self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('H')
@@ -887,13 +881,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def onSetSendAscS(self):
         self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('AS')
 
-    def onSetSendTFH(self):
+    def onSetSendHF(self):
         self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('HF')
 
-    def onSetSendTFA(self):
+    def onSetSendAF(self):
         self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('AF')
 
-    def onSetSendFB(self):
+    def onSetSendBF(self):
         self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('BF')
 
     def onQuickSendOptions(self, row):
