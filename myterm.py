@@ -3,7 +3,7 @@
 #
 #############################################################################
 ##
-## Copyright (c) 2013-2018, gamesun
+## Copyright (c) 2013-2020, gamesun
 ## All right reserved.
 ##
 ## This file is part of MyTerm.
