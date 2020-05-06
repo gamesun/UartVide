@@ -21,12 +21,10 @@ DisableProgramGroupPage=no
 LicenseFile=LICENSE.txt
 
 [Files]
-Source: "build\exe.win32-3.4\*"; DestDir: "{app}"
-Source: "build\exe.win32-3.4\imageformats\*"; DestDir: "{app}\imageformats"
-;Source: "build\exe.win32-3.4\platforms\*"; DestDir: "{app}\platforms"
+Source: "dist\{#AppName}\*"; DestDir: "{app}"; Flags: recursesubdirs
 Source: "LICENSE.txt"; DestDir: "{app}"
 Source: "whatsnew.htm"; DestDir: "{app}"
-Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
+; Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 
 [Icons]
 ; add icon to desktop
