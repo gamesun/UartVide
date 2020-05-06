@@ -197,6 +197,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionSend_Asc = QtWidgets.QAction(self)
         self.actionSend_Asc.setText("ASCII")
         self.actionSend_Asc.setStatusTip("Send Asc (e.g. abc123)")
+        
+        self.actionSend_AscS = QtWidgets.QAction(self)
+        self.actionSend_AscS.setText(r"ASCII Special chars(\n \r \t...)")
+        self.actionSend_AscS.setStatusTip("Send Asc (e.g. abc123) converting escape chars")
 
         self.actionSend_TFH = QtWidgets.QAction(self)
         self.actionSend_TFH.setText("HEX form text file")
@@ -212,12 +216,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.sendOptMenu.addAction(self.actionSend_Hex)
         self.sendOptMenu.addAction(self.actionSend_Asc)
+        self.sendOptMenu.addAction(self.actionSend_AscS)
         self.sendOptMenu.addAction(self.actionSend_TFH)
         self.sendOptMenu.addAction(self.actionSend_TFA)
         self.sendOptMenu.addAction(self.actionSend_FB)
 
         self.actionSend_Hex.triggered.connect(self.onSetSendHex)
         self.actionSend_Asc.triggered.connect(self.onSetSendAsc)
+        self.actionSend_AscS.triggered.connect(self.onSetSendAscS)
         self.actionSend_TFH.triggered.connect(self.onSetSendTFH)
         self.actionSend_TFA.triggered.connect(self.onSetSendTFA)
         self.actionSend_FB.triggered.connect(self.onSetSendFB)
@@ -616,12 +622,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnMenu.setEnabled(True)
         self.btnMenu.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
         self.btnMenu.setIcon(QtGui.QIcon(':/MyTerm.ico'))
-        self.btnMenu.setText('Myterm  ')
+        self.btnMenu.setText('MyTerm  ')
         self.btnMenu.setGeometry(x,y,w,h)
         self.btnMenu.setMenu(self.menuMenu)
         self.btnMenu.setPopupMode(QtWidgets.QToolButton.InstantPopup)
         
-        x,w = x+w+15,18
+        x,w = x+w+15,23
         self.btnRefresh = QtWidgets.QToolButton(self)
         self.btnRefresh.setEnabled(True)
         self.btnRefresh.setIcon(QtGui.QIcon(':/refresh.ico'))
@@ -877,6 +883,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def onSetSendAsc(self):
         self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('A')
+        
+    def onSetSendAscS(self):
+        self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('AS')
 
     def onSetSendTFH(self):
         self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('HF')
@@ -949,6 +958,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.transmitHex(tablestring)
                 elif 'A' == form:
                     self.transmitAsc(tablestring)
+                elif 'AS' == form:
+                    self.transmitAscS(tablestring)
                 else:
                     self.transmitFile(tablestring, form)
 
@@ -1002,6 +1013,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if echo:
                 self.appendOutputText("\n%s Tx:%s" % (self.timestamp(), text), Qt.blue)
             return self.transmitBytearray(bytearray(byteArray))
+
+    def transmitAscS(self, text, echo = True):
+        if len(text) > 0:
+            t = text.replace(r'\r', '\r')
+            t = t.replace(r'\n', '\n')
+            t = t.replace(r'\t', '\t')
+            t = t.replace(r'\'', "'")
+            t = t.replace(r'\"', '"')
+            t = t.replace(r'\\', '\\')
+            self.transmitAsc(t, echo)
 
     def transmitBytearray(self, byteArray):
         if self.serialport.isOpen():
