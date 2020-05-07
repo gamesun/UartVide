@@ -299,7 +299,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QCheckBox {
                 color:%(TextColor)s;
                 spacing: 5px;
-                font-size:7pt;
+                font-size:8pt;
                 font-family:%(UIFont)s;
             }
             QCheckBox::indicator:unchecked {
