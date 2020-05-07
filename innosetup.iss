@@ -2,37 +2,48 @@
 ; 
 
 #define AppName "MyTerm"
-#define AppVersion "2.1.0"
+#define AppVersion "2.2.0"
 
 [Setup]
-AppName={#AppName}
+AppName={#AppName} {#AppVersion}
 AppVersion={#AppVersion}
-DefaultDirName={pf}\{#AppName}
-DefaultGroupName={#AppName}
+AppVerName={#AppName} {#AppVersion}
+DefaultDirName={autopf32}\{#AppName} {#AppVersion}
+DefaultGroupName={#AppName} {#AppVersion}
 UninstallDisplayIcon={app}\{#AppName}.exe
 UninstallDisplayName={#AppName} {#AppVersion}
 VersionInfoVersion={#AppVersion}
-AppPublisher="gamesun"
-AppCopyright="Copyright (C) 2013-2020 gamesun"
+AppPublisher=gamesun
+AppPublisherURL=http://sourceforge.net/projects/myterm/
+AppCopyright=Copyright (C) 2013-2020 gamesun
 OutputBaseFilename={#AppName}-{#AppVersion}-win32
 OutputDir=Release
 DisableDirPage=no
 DisableProgramGroupPage=no
 LicenseFile=LICENSE.txt
+ShowTasksTreeLines=yes
+AppMutex={#AppName}Mutex
+SetupMutex={#AppName}Mutex
+WizardStyle=modern
+PrivilegesRequired=lowest
+DisableWelcomePage=no
+CloseApplicationsFilter=*.*
 
 [Files]
 Source: "dist\{#AppName}\*"; DestDir: "{app}"; Flags: recursesubdirs
 Source: "LICENSE.txt"; DestDir: "{app}"
 Source: "whatsnew.htm"; DestDir: "{app}"
-; Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
+
+[UninstallDelete]
+Type: filesandordirs; Name: "{app}\Settings"
 
 [Icons]
 ; add icon to desktop
-Name: "{commondesktop}\{#AppName}"; Filename: "{app}\{#AppName}.exe"
+Name: "{userdesktop}\{#AppName} {#AppVersion}"; Filename: "{app}\{#AppName}.exe"
 
 ; add icons to Start Menu/All Programs
-Name: "{group}\{#AppName}"; Filename: "{app}\{#AppName}.exe"; WorkingDir: "{app}"
-Name: "{group}\Uninstall {#AppName}"; Filename: "{uninstallexe}"
+Name: "{userprograms}\{#AppName} {#AppVersion}\{#AppName} {#AppVersion}"; Filename: "{app}\{#AppName}.exe"; WorkingDir: "{app}"
+Name: "{userprograms}\{#AppName} {#AppVersion}\Uninstall {#AppName} {#AppVersion}"; Filename: "{uninstallexe}"
 
 [Run]
 Filename: "{app}\{#AppName}.exe"; Description: "Launch application"; \
