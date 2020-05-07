@@ -33,12 +33,6 @@ For detail see LICENSE.txt.
 The source code is executable in Linux.  
 The package for Linux is being prepared.  
 
-## Directory of error log
-### Windows
-C:\Users\\&lt;user name&gt;\MyTerm\error.log
-### Linux
-~/MyTerm/error.log
-
 
 ## Entirely new UI
 ![main window](doc/main_window.png "main window")
