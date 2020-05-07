@@ -41,6 +41,6 @@ C:\Users\\&lt;user name&gt;\MyTerm\error.log
 
 
 ## Entirely new UI
-![ ](doc/main_flat.jpg "screenshot")
+![main window](doc/main_window.png "main window")
 
-![ ](doc/floatable_widgets_flat.jpg "floatable widgets")
+![floatable windows](doc/floatable_windows.png "floatable windows")
