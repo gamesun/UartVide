@@ -3,31 +3,23 @@ MyTerm is a flat UI RS232 serial port communication utility and runs on all plat
 
 Its features including  
 * quick send custom commands  
-* configure the connection parameters  
+* supported send formats: HEX, ASCII, ASCII(\r \n \t ...), Hex text file, ASCII text file, BIN/HEX file  
 * detect the valid serial ports  
-* echo the sending data in local or not  
-* display data either in hexadecimal or ASCII format  
-* custom resizable and floatable widgets  
+* display receive data either in hexadecimal or ASCII format  
+* custom resizable and floatable windows  
   
 MyTerm is licensed on all supported platforms under the GNU GPL v3.  
 For detail see LICENSE.txt. 
 
 ## Download
-### Windows Version
-<table>
-   <tr>
-      <td>Size</td>
-      <td>23.6 MB</td>
-   </tr>
-   <tr>
-      <td>OS</td>
-      <td>Windows Vista / 7 / 8 / 10</td>
-   </tr>
-</table>
-[Download MyTerm from Softpedia](http://www.softpedia.com/get/Network-Tools/Misc-Networking-Tools/MyTerm.shtml)  
-[![Download MyTerm](https://a.fsdn.com/con/app/sf-download-button)](https://sourceforge.net/projects/myterm/files/latest/download)
+### Windows Version  
+![](https://img.shields.io/badge/platform-win--7%20|%20win--8%20|%20win--10-lightgrey)  
+![](https://img.shields.io/badge/platform-win--32%20|%20win--64-lightgrey)  
 
-[![ ](doc/softpedia_free_award_f.gif "")](http://www.softpedia.com/progClean/MyTerm-Clean-242031.html)
+[![Download MyTerm](https://a.fsdn.com/con/app/sf-download-button)](https://sourceforge.net/projects/myterm/files/latest/download)  
+
+[Download MyTerm from Softpedia](http://www.softpedia.com/get/Network-Tools/Misc-Networking-Tools/MyTerm.shtml)  
+[![ ](doc/softpedia_free_award_f.gif "")](http://www.softpedia.com/progClean/MyTerm-Clean-242031.html)  
 
 ### Linux Version
 The source code is executable in Linux.  
