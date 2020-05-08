@@ -17,7 +17,7 @@ For detail see LICENSE.txt.
 <table>
    <tr>
       <td>Size</td>
-      <td>32.3 MB</td>
+      <td>23.6 MB</td>
    </tr>
    <tr>
       <td>OS</td>
@@ -25,7 +25,7 @@ For detail see LICENSE.txt.
    </tr>
 </table>
 [Download MyTerm from Softpedia](http://www.softpedia.com/get/Network-Tools/Misc-Networking-Tools/MyTerm.shtml)  
-[Download MyTerm from SourceForge](https://sourceforge.net/projects/myterm/)
+[![Download MyTerm](https://a.fsdn.com/con/app/sf-download-button)](https://sourceforge.net/projects/myterm/files/latest/download)
 
 [![ ](doc/softpedia_free_award_f.gif "")](http://www.softpedia.com/progClean/MyTerm-Clean-242031.html)
 
