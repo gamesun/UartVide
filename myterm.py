@@ -130,6 +130,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionAbout.triggered.connect(self.onAbout)
         self.actionAbout_Qt.triggered.connect(self.onAboutQt)
 
+        self.cmbBaudRate.currentTextChanged.connect(self.onBaudRateChanged)
+        self.cmbDataBits.currentTextChanged.connect(self.onDataBitsChanged)
+        self.cmbStopBits.currentTextChanged.connect(self.onStopBitsChanged)
+        self.cmbParity.currentTextChanged.connect(self.onParityChanged)
+        self.chkRTSCTS.stateChanged.connect(self.onRTSCTSChanged)
+        self.chkXonXoff.stateChanged.connect(self.onXonXoffChanged)
+        
         self.btnOpen.clicked.connect(self.onOpen)
         self.btnClear.clicked.connect(self.onClear)
         self.btnSaveLog.clicked.connect(self.onSaveLog)
@@ -160,6 +167,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.setMaximizeButton("maximize")
             
         self.loadSettings()
+
+    def onBaudRateChanged(self, text):
+        self.serialport.baudrate = self.cmbBaudRate.currentText()
+        
+    def onDataBitsChanged(self, text):
+        self.serialport.bytesize = self.getDataBits()
+        
+    def onStopBitsChanged(self, text):
+        old = self.serialport.stopbits
+        try:
+            self.serialport.stopbits = self.getStopBits()
+        except ValueError:
+            QMessageBox.critical(self.defaultStyleWidget, "Exception", "Wrong setting", QMessageBox.Close)
+            self.cmbStopBits.setCurrentText('1')
+        except Exception as e:
+            QMessageBox.critical(self.defaultStyleWidget, "Exception", str(e), QMessageBox.Close)
+            self.cmbStopBits.setCurrentText('1')
+    
+    def onParityChanged(self, text):
+        self.serialport.parity = self.getParity()
+        
+    def onRTSCTSChanged(self, state):
+        self.serialport.rtscts = self.chkRTSCTS.isChecked()
+        
+    def onXonXoffChanged(self, state):
+        self.serialport.xonxoff = self.chkXonXoff.isChecked()
 
     def setupMenu(self):
         self.menuMenu = QtWidgets.QMenu()
