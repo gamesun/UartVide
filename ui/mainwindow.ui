@@ -743,11 +743,38 @@
         <widget class="QTextEdit" name="txtEdtInput"/>
        </item>
        <item>
-        <widget class="QToolButton" name="btnSendHex">
-         <property name="text">
-          <string notr="true">Send</string>
-         </property>
-        </widget>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QToolButton" name="btnSendHex">
+           <property name="text">
+            <string notr="true">Send</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnPeriodicSend">
+           <property name="text">
+            <string notr="true">Period Send</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spnPeriod">
+           <property name="suffix">
+            <string notr="true">ms</string>
+           </property>
+           <property name="minimum">
+            <number>10</number>
+           </property>
+           <property name="maximum">
+            <number>999999</number>
+           </property>
+           <property name="value">
+            <number>1000</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </item>
@@ -821,10 +848,10 @@
        <attribute name="verticalHeaderVisible">
         <bool>false</bool>
        </attribute>
-       <attribute name="verticalHeaderMinimumSectionSize">
+       <attribute name="verticalHeaderDefaultSectionSize">
         <number>16</number>
        </attribute>
-       <attribute name="verticalHeaderDefaultSectionSize">
+       <attribute name="verticalHeaderMinimumSectionSize">
         <number>16</number>
        </attribute>
        <row/>

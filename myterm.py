@@ -71,9 +71,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.readerThread.setPort(self.serialport)
         self.portMonitorThread = PortMonitorThread(self)
         self.portMonitorThread.setPort(self.serialport)
+        self.periodThread = PeriodThread(self)
         self._localEcho = None
         self._viewMode = None
         self._quickSendOptRow = 1
+        self._is_periodic_send = False
 
         self.setupUi(self)
         self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
@@ -133,6 +135,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnSaveLog.clicked.connect(self.onSaveLog)
         self.btnEnumPorts.clicked.connect(self.onEnumPorts)
         self.btnSendHex.clicked.connect(self.onSend)
+        
+        self.btnPeriodicSend.clicked.connect(self.onPeriodicSend)
+        self.periodThread.trigger.connect(self.onPeriodTrigger)
 
         self.readerThread.read.connect(self.onReceive)
         self.readerThread.exception.connect(self.onReaderExcept)
@@ -977,6 +982,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             print("({})".format(e))
             QMessageBox.critical(self.defaultStyleWidget, "Open failed", str(e), QMessageBox.Close)
 
+    def onPeriodicSend(self):
+        if self._is_periodic_send:
+            self.periodThread.join()
+            self.btnPeriodicSend.setStyleSheet("QWidget {}")
+            self._is_periodic_send = False
+        else:
+            period_spacing = int(self.spnPeriod.text()[:-2]) / 1000.0
+            self.periodThread.start(period_spacing)
+            self.btnPeriodicSend.setStyleSheet("QWidget {background-color:#b400c8}")
+            self._is_periodic_send = True
+
+    def onPeriodTrigger(self):
+        self.onSend()
+    
     def onSend(self):
         if self.serialport.isOpen():
             sendstring = self.txtEdtInput.toPlainText()
@@ -1372,6 +1391,40 @@ class PortMonitorThread(QThread):
                 if self._serialport.portstr not in enum_ports():
                     self.portPlugOut.emit()
                 sleep(0.5)
+            except Exception as e:
+                self.exception.emit('{}'.format(e))
+        self._stopped = True
+
+class PeriodThread(QThread):
+    trigger = pyqtSignal()
+    exception = pyqtSignal(str)
+    
+    def __init__(self, parent=None):
+        super(PeriodThread, self).__init__(parent)
+        self._alive = False
+        self._stopped = True
+        self._spacing = 1.0
+
+    def start(self, period_spacing, priority = QThread.InheritPriority):
+        if not self._alive:
+            self._alive = True
+            self._spacing = period_spacing
+            super(PeriodThread, self).start(priority)
+
+    def __del__(self):
+        self._alive = False
+        if not self._stopped:
+            self.wait()
+
+    def join(self):
+        self.__del__()
+
+    def run(self):
+        self._stopped = False
+        while self._alive:
+            try:
+                self.trigger.emit()
+                sleep(self._spacing)
             except Exception as e:
                 self.exception.emit('{}'.format(e))
         self._stopped = True

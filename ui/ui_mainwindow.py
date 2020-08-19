@@ -2,13 +2,11 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.0
+# Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -300,10 +298,24 @@ class Ui_MainWindow(object):
         self.txtEdtInput = QtWidgets.QTextEdit(self.dockWidgetContents_2)
         self.txtEdtInput.setObjectName("txtEdtInput")
         self.horizontalLayout.addWidget(self.txtEdtInput)
+        self.verticalLayout_4 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
         self.btnSendHex = QtWidgets.QToolButton(self.dockWidgetContents_2)
         self.btnSendHex.setText("Send")
         self.btnSendHex.setObjectName("btnSendHex")
-        self.horizontalLayout.addWidget(self.btnSendHex)
+        self.verticalLayout_4.addWidget(self.btnSendHex)
+        self.btnPeriodicSend = QtWidgets.QPushButton(self.dockWidgetContents_2)
+        self.btnPeriodicSend.setText("Period Send")
+        self.btnPeriodicSend.setObjectName("btnPeriodicSend")
+        self.verticalLayout_4.addWidget(self.btnPeriodicSend)
+        self.spnPeriod = QtWidgets.QSpinBox(self.dockWidgetContents_2)
+        self.spnPeriod.setSuffix("ms")
+        self.spnPeriod.setMinimum(10)
+        self.spnPeriod.setMaximum(999999)
+        self.spnPeriod.setProperty("value", 1000)
+        self.spnPeriod.setObjectName("spnPeriod")
+        self.verticalLayout_4.addWidget(self.spnPeriod)
+        self.horizontalLayout.addLayout(self.verticalLayout_4)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.dockWidget_SendHex.setWidget(self.dockWidgetContents_2)
         MainWindow.addDockWidget(QtCore.Qt.DockWidgetArea(8), self.dockWidget_SendHex)
@@ -453,4 +465,5 @@ class Ui_MainWindow(object):
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
         self.actionOpen_Cmd_File.setText(_translate("MainWindow", "Open Quick Send File"))
         self.actionOpen_Cmd_File.setToolTip(_translate("MainWindow", "Load Quick Send Settings"))
+
 from combo import Combo
