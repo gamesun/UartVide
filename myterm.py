@@ -36,13 +36,14 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget, \
     QFileDialog
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper, QFile, QIODevice, \
     QPoint
+from PyQt5.QtGui import QFontMetrics
 import sip
 import appInfo
 from configpath import get_config_path
 from ui.ui_mainwindow import Ui_MainWindow
 from res import resources_pyqt5
-from enum_ports import enum_ports
 import serial
+from serial.tools.list_ports import comports
 from time import sleep
 
 extension = os.path.splitext(sys.argv[0])[1]
@@ -88,8 +89,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #self.quickSendTable.setFont(font)
         self.setupMenu()
         self.setupFlatUi()
-        self.onEnumPorts()
-
+        
         icon = QtGui.QIcon(":/MyTerm.ico")
         self.setWindowIcon(icon)
         self.actionAbout.setIcon(icon)
@@ -154,6 +154,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._signalMapQuickSend.mapped[int].connect(self.onQuickSend)
 
         # initial action
+        self.setTabWidth(4)
         self.actionHEX_UPPERCASE.setChecked(True)
         self.readerThread.setViewMode(VIEWMODE_HEX_UPPERCASE)
         self.initQuickSend()
@@ -165,8 +166,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.setMaximizeButton("restore")
         else:
             self.setMaximizeButton("maximize")
-            
+
         self.loadSettings()
+        self.onEnumPorts()
+
+    def setTabWidth(self, n):
+        fm = QFontMetrics(self.txtEdtOutput.fontMetrics())
+        if hasattr(fm, 'horizontalAdvance'):
+            w = fm.horizontalAdvance(' ')
+        else:
+            w = fm.width(' ')
+        self.txtEdtOutput.setTabStopWidth(n * w)
+        
+        fm = QFontMetrics(self.txtEdtInput.fontMetrics())
+        if hasattr(fm, 'horizontalAdvance'):
+            w = fm.horizontalAdvance(' ')
+        else:
+            w = fm.width(' ')
+        self.txtEdtInput.setTabStopWidth(n * w)
 
     def onBaudRateChanged(self, text):
         self.serialport.baudrate = self.cmbBaudRate.currentText()
@@ -685,6 +702,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         elif os.name == 'posix':
             x,w = x+w,120
             self.cmbPort.setGeometry(x,y,w,h)
+        self.cmbPort.currentTextChanged.connect(self.onPortChanged)
     
         self.verticalLayout_1.removeWidget(self.btnOpen)
         self.btnOpen.setParent(self)
@@ -704,6 +722,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnEnumPorts.setVisible(False)
         self.label_Port.setVisible(False)
         
+
+    def onPortChanged(self, text):
+        pos = text.find(' ')
+        if 0 < pos:
+            port_name = text[:pos]
+            self.cmbPort.setCurrentText(port_name)
+
     def resizeEvent(self, event):
         if hasattr(self, '_maxBtn'):
             w = event.size().width()
@@ -1257,8 +1282,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def onEnumPorts(self):
         sel = self.cmbPort.currentText()
         self.cmbPort.clear()
-        for p in enum_ports():
-            self.cmbPort.addItem(p)
+        fm = QFontMetrics(self.cmbPort.fontMetrics())
+        maxlen = 0
+        for port, desc, hwid in sorted(comports()):
+            text = port + '  ' + desc
+            self.cmbPort.addItem(text)
+            if hasattr(fm, 'horizontalAdvance'):
+                l = fm.horizontalAdvance(text)
+            else:
+                l = fm.width(text)
+            if maxlen < l:
+                maxlen = l
+        self.cmbPort.view().setFixedWidth(maxlen+40)
+        
         idx = self.cmbPort.findText(sel)
         if idx != -1:
             self.cmbPort.setCurrentIndex(idx)
@@ -1421,7 +1457,8 @@ class PortMonitorThread(QThread):
         self._stopped = False
         while self._alive:
             try:
-                if self._serialport.portstr not in enum_ports():
+                port_lst = [port for port, desc, hwid in sorted(comports())]
+                if self._serialport.portstr not in port_lst:
                     self.portPlugOut.emit()
                 sleep(0.5)
             except Exception as e:
