@@ -357,7 +357,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QCheckBox {
                 color:%(TextColor)s;
                 spacing: 5px;
-                font-size:8pt;
+                font-size:9pt;
                 font-family:%(UIFont)s;
             }
             QCheckBox::indicator:unchecked { image: url(:/checkbox_unchecked.png); }
@@ -1064,14 +1064,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def onPeriodicSend(self):
         if self._is_periodic_send:
-            self.periodThread.join()
-            self.btnPeriodicSend.setStyleSheet("QWidget {}")
-            self._is_periodic_send = False
+            self.stopPeriodicSend()
         else:
-            period_spacing = int(self.spnPeriod.text()[:-2]) / 1000.0
-            self.periodThread.start(period_spacing)
-            self.btnPeriodicSend.setStyleSheet("QWidget {background-color:#b400c8}")
-            self._is_periodic_send = True
+            self.startPeriodicSend()
+
+    def startPeriodicSend(self):
+        period_spacing = int(self.spnPeriod.text()[:-2]) / 1000.0
+        self.periodThread.start(period_spacing)
+        self.btnPeriodicSend.setStyleSheet("QWidget {background-color:#b400c8}")
+        self._is_periodic_send = True
+            
+    def stopPeriodicSend(self):
+        self.periodThread.join()
+        self.btnPeriodicSend.setStyleSheet("QWidget {}")
+        self._is_periodic_send = False
 
     def onPeriodTrigger(self):
         self.onSend()
@@ -1223,6 +1229,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def closePort(self):
         if self.serialport.isOpen():
+            self.stopPeriodicSend()
             self.readerThread.join()
             self.portMonitorThread.join()
             self.serialport.close()
