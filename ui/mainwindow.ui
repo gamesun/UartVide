@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>865</width>
     <height>612</height>
    </rect>
   </property>
@@ -19,13 +19,13 @@
      <number>0</number>
     </property>
     <property name="leftMargin">
-     <number>0</number>
+     <number>1</number>
     </property>
     <property name="topMargin">
      <number>0</number>
     </property>
     <property name="rightMargin">
-     <number>0</number>
+     <number>1</number>
     </property>
     <property name="bottomMargin">
      <number>0</number>
@@ -55,6 +55,546 @@
         <number>0</number>
        </property>
        <item>
+        <widget class="QFrame" name="frame_PortCfg">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>29</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>29</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <property name="lineWidth">
+          <number>0</number>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>4</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>4</number>
+          </property>
+          <property name="bottomMargin">
+           <number>2</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string notr="true">Baud Rate</string>
+              </property>
+              <property name="statusTip">
+               <string notr="true">Baud Rate</string>
+              </property>
+              <property name="text">
+               <string notr="true">BR</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="cmbBaudRate">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>23</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>23</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string notr="true">Baud Rate</string>
+              </property>
+              <property name="statusTip">
+               <string notr="true">Baud Rate</string>
+              </property>
+              <property name="editable">
+               <bool>true</bool>
+              </property>
+              <property name="currentIndex">
+               <number>12</number>
+              </property>
+              <property name="maxVisibleItems">
+               <number>30</number>
+              </property>
+              <item>
+               <property name="text">
+                <string notr="true">50</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">75</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">110</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">134</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">150</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">200</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">300</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">600</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">1200</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">1800</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">2400</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">4800</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">9600</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">19200</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">38400</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">57600</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">115200</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">230400</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">460800</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">500000</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">576000</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">921600</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">1000000</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">1152000</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">1500000</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">2000000</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">2500000</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">3000000</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">3500000</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">4000000</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string notr="true">Data Bits</string>
+              </property>
+              <property name="statusTip">
+               <string notr="true">Data Bits</string>
+              </property>
+              <property name="text">
+               <string notr="true">D</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="cmbDataBits">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>23</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>23</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string notr="true">Data Bits</string>
+              </property>
+              <property name="statusTip">
+               <string notr="true">Data Bits</string>
+              </property>
+              <property name="currentText">
+               <string notr="true">8</string>
+              </property>
+              <item>
+               <property name="text">
+                <string notr="true">8</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">7</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">6</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">5</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_4">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string notr="true">Parity</string>
+              </property>
+              <property name="statusTip">
+               <string notr="true">Parity</string>
+              </property>
+              <property name="text">
+               <string notr="true">P</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="cmbParity">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>23</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>23</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string notr="true">Parity</string>
+              </property>
+              <property name="statusTip">
+               <string notr="true">Parity</string>
+              </property>
+              <property name="currentText">
+               <string notr="true">None</string>
+              </property>
+              <item>
+               <property name="text">
+                <string notr="true">None</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">Even</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">Odd</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">Mark</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">Space</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_5">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string notr="true">Stop Bits</string>
+              </property>
+              <property name="statusTip">
+               <string notr="true">Stop Bits</string>
+              </property>
+              <property name="text">
+               <string notr="true">S</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="cmbStopBits">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>23</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>23</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string notr="true">Stop Bits</string>
+              </property>
+              <property name="statusTip">
+               <string notr="true">Stop Bits</string>
+              </property>
+              <property name="currentText">
+               <string notr="true">1</string>
+              </property>
+              <item>
+               <property name="text">
+                <string notr="true">1</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">1.5</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">2</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="chkRTSCTS">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>22</height>
+               </size>
+              </property>
+              <property name="text">
+               <string notr="true">RTS/CTS</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="chkXonXoff">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>22</height>
+               </size>
+              </property>
+              <property name="text">
+               <string notr="true">Xon/Xoff</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QTextEdit" name="txtEdtOutput">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -76,631 +616,6 @@
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QDockWidget" name="dockWidget_PortConfig">
-   <property name="contextMenuPolicy">
-    <enum>Qt::PreventContextMenu</enum>
-   </property>
-   <property name="allowedAreas">
-    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
-   </property>
-   <property name="windowTitle">
-    <string notr="true">Port Config</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents">
-    <layout class="QVBoxLayout" name="verticalLayout_6">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QFrame" name="frame">
-       <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_8">
-        <property name="spacing">
-         <number>1</number>
-        </property>
-        <property name="leftMargin">
-         <number>3</number>
-        </property>
-        <property name="topMargin">
-         <number>3</number>
-        </property>
-        <property name="rightMargin">
-         <number>3</number>
-        </property>
-        <property name="bottomMargin">
-         <number>3</number>
-        </property>
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout_1">
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <property name="leftMargin">
-           <number>1</number>
-          </property>
-          <property name="topMargin">
-           <number>1</number>
-          </property>
-          <property name="rightMargin">
-           <number>1</number>
-          </property>
-          <property name="bottomMargin">
-           <number>1</number>
-          </property>
-          <item>
-           <widget class="QToolButton" name="btnEnumPorts">
-            <property name="text">
-             <string notr="true">Enum Ports</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_Port">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="text">
-             <string notr="true">Port</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="Combo" name="cmbPort">
-            <property name="editable">
-             <bool>true</bool>
-            </property>
-            <property name="currentText">
-             <string notr="true"/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_2">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="text">
-             <string notr="true">Baud Rate</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="cmbBaudRate">
-            <property name="editable">
-             <bool>true</bool>
-            </property>
-            <property name="currentIndex">
-             <number>12</number>
-            </property>
-            <property name="maxVisibleItems">
-             <number>30</number>
-            </property>
-            <item>
-             <property name="text">
-              <string notr="true">50</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">75</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">110</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">134</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">150</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">200</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">300</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">600</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">1200</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">1800</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">2400</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">4800</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">9600</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">19200</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">38400</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">57600</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">115200</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">230400</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">460800</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">500000</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">576000</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">921600</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">1000000</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">1152000</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">1500000</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">2000000</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">2500000</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">3000000</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">3500000</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">4000000</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_3">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="text">
-             <string notr="true">Data Bits</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="cmbDataBits">
-            <property name="currentText">
-             <string notr="true">8</string>
-            </property>
-            <item>
-             <property name="text">
-              <string notr="true">8</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">7</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">6</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">5</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_4">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="text">
-             <string notr="true">Parity</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="cmbParity">
-            <property name="currentText">
-             <string notr="true">None</string>
-            </property>
-            <item>
-             <property name="text">
-              <string notr="true">None</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">Even</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">Odd</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">Mark</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">Space</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_5">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="text">
-             <string notr="true">Stop Bits</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="cmbStopBits">
-            <property name="currentText">
-             <string notr="true">1</string>
-            </property>
-            <item>
-             <property name="text">
-              <string notr="true">1</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">1.5</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">2</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_1">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>0</width>
-              <height>5</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QGroupBox" name="groupBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="title">
-             <string notr="true">HandShake</string>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_7">
-             <property name="spacing">
-              <number>0</number>
-             </property>
-             <property name="leftMargin">
-              <number>2</number>
-             </property>
-             <property name="topMargin">
-              <number>2</number>
-             </property>
-             <property name="rightMargin">
-              <number>2</number>
-             </property>
-             <property name="bottomMargin">
-              <number>2</number>
-             </property>
-             <item>
-              <widget class="QCheckBox" name="chkRTSCTS">
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>22</height>
-                </size>
-               </property>
-               <property name="text">
-                <string notr="true">RTS/CTS</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="chkXonXoff">
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>22</height>
-                </size>
-               </property>
-               <property name="text">
-                <string notr="true">Xon/Xoff</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>0</width>
-              <height>5</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QToolButton" name="btnOpen">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string notr="true">Open</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>0</width>
-              <height>5</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QToolButton" name="btnClear">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string notr="true">Clear</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>0</width>
-              <height>5</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QToolButton" name="btnSaveLog">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string notr="true">Save Log</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>0</width>
-              <height>10</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
   <widget class="QDockWidget" name="dockWidget_SendHex">
    <property name="contextMenuPolicy">
     <enum>Qt::PreventContextMenu</enum>
@@ -712,21 +627,21 @@
     <string notr="true">Send Hex</string>
    </property>
    <attribute name="dockWidgetArea">
-    <number>8</number>
+    <number>2</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_2">
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
      <property name="spacing">
-      <number>0</number>
+      <number>2</number>
      </property>
      <property name="leftMargin">
       <number>0</number>
      </property>
      <property name="topMargin">
-      <number>0</number>
+      <number>2</number>
      </property>
      <property name="rightMargin">
-      <number>0</number>
+      <number>4</number>
      </property>
      <property name="bottomMargin">
       <number>0</number>
@@ -734,49 +649,135 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <property name="spacing">
-        <number>2</number>
+        <number>4</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>1</number>
        </property>
        <property name="rightMargin">
         <number>2</number>
        </property>
+       <property name="bottomMargin">
+        <number>1</number>
+       </property>
        <item>
-        <widget class="QTextEdit" name="txtEdtInput"/>
+        <widget class="QToolButton" name="btnSendHex">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>23</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string notr="true">Send once</string>
+         </property>
+         <property name="statusTip">
+          <string notr="true">Send once</string>
+         </property>
+         <property name="text">
+          <string notr="true"> Send </string>
+         </property>
+        </widget>
        </item>
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
-         <item>
-          <widget class="QToolButton" name="btnSendHex">
-           <property name="text">
-            <string notr="true">Send</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="btnPeriodicSend">
-           <property name="text">
-            <string notr="true">Period Send</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="spnPeriod">
-           <property name="suffix">
-            <string notr="true">ms</string>
-           </property>
-           <property name="minimum">
-            <number>10</number>
-           </property>
-           <property name="maximum">
-            <number>999999</number>
-           </property>
-           <property name="value">
-            <number>1000</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <spacer name="horizontalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>14</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnPeriodicSend">
+         <property name="toolTip">
+          <string notr="true">Periodic Send</string>
+         </property>
+         <property name="statusTip">
+          <string notr="true">Periodic Send</string>
+         </property>
+         <property name="text">
+          <string> Periodic Send </string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spnPeriod">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>23</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>23</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string notr="true">Period</string>
+         </property>
+         <property name="statusTip">
+          <string notr="true">Period</string>
+         </property>
+         <property name="suffix">
+          <string notr="true">ms</string>
+         </property>
+         <property name="minimum">
+          <number>10</number>
+         </property>
+         <property name="maximum">
+          <number>999999</number>
+         </property>
+         <property name="value">
+          <number>1000</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
+     </item>
+     <item>
+      <widget class="QTextEdit" name="txtEdtInput">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="lineWidth">
+        <number>0</number>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
@@ -786,7 +787,7 @@
     <enum>Qt::PreventContextMenu</enum>
    </property>
    <property name="allowedAreas">
-    <set>Qt::BottomDockWidgetArea|Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
     <string notr="true">Quick Send</string>
@@ -888,7 +889,7 @@
     <enum>Qt::PreventContextMenu</enum>
    </property>
    <property name="windowTitle">
-    <string>toolBar</string>
+    <string notr="true">toolBar</string>
    </property>
    <property name="movable">
     <bool>false</bool>
@@ -1111,13 +1112,13 @@
   </action>
   <action name="actionOpen_Cmd_File">
    <property name="text">
-    <string>Open Quick Send File</string>
+    <string notr="true">Open Quick Send File</string>
    </property>
    <property name="iconText">
     <string notr="true">Open Cmd File</string>
    </property>
    <property name="toolTip">
-    <string>Load Quick Send Settings</string>
+    <string notr="true">Load Quick Send Settings</string>
    </property>
    <property name="statusTip">
     <string notr="true">Open Cmd File</string>
@@ -1141,13 +1142,6 @@
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>Combo</class>
-   <extends>QComboBox</extends>
-   <header>combo.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

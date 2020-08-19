@@ -22,5 +22,7 @@
         <file>checkbox_checked_pressed.png</file>
         <file>default_layout.dat</file>
         <file>refresh.ico</file>
+        <file>up.png</file>
+        <file>down.png</file>
     </qresource>
 </RCC>

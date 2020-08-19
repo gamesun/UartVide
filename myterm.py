@@ -35,8 +35,9 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget, \
     QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget, QToolButton, \
     QFileDialog
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper, QFile, QIODevice, \
-    QPoint
+    QPoint, QPropertyAnimation
 from PyQt5.QtGui import QFontMetrics
+from combo import Combo
 import sip
 import appInfo
 from configpath import get_config_path
@@ -114,10 +115,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionOpen.triggered.connect(self.openPort)
         self.actionClose.triggered.connect(self.closePort)
 
-        self.actionPort_Config_Panel.triggered.connect(self.onTogglePrtCfgPnl)
+        #self.actionPort_Config_Panel.triggered.connect(self.onTogglePrtCfgPnl)
         self.actionQuick_Send_Panel.triggered.connect(self.onToggleQckSndPnl)
         self.actionSend_Hex_Panel.triggered.connect(self.onToggleHexPnl)
-        self.dockWidget_PortConfig.visibilityChanged.connect(self.onVisiblePrtCfgPnl)
+        #self.dockWidget_PortConfig.visibilityChanged.connect(self.onVisiblePrtCfgPnl)
         self.dockWidget_QuickSend.visibilityChanged.connect(self.onVisibleQckSndPnl)
         self.dockWidget_SendHex.visibilityChanged.connect(self.onVisibleHexPnl)
         self.actionLocal_Echo.triggered.connect(self.onLocalEcho)
@@ -140,7 +141,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnOpen.clicked.connect(self.onOpen)
         self.btnClear.clicked.connect(self.onClear)
         self.btnSaveLog.clicked.connect(self.onSaveLog)
-        self.btnEnumPorts.clicked.connect(self.onEnumPorts)
+        #self.btnEnumPorts.clicked.connect(self.onEnumPorts)
         self.btnSendHex.clicked.connect(self.onSend)
         
         self.btnPeriodicSend.clicked.connect(self.onPeriodicSend)
@@ -161,7 +162,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.restoreLayout()
         self.moveScreenCenter()
         self.syncMenu()
-        
+        self.setPortCfgBarVisible(False)
+
         if self.isMaximized():
             self.setMaximizeButton("restore")
         else:
@@ -225,7 +227,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.menuMenu.addAction(self.actionOpen_Cmd_File)
         self.menuMenu.addAction(self.actionSave_Log)
         self.menuMenu.addSeparator()
-        self.menuMenu.addAction(self.actionPort_Config_Panel)
+        #self.menuMenu.addAction(self.actionPort_Config_Panel)
         self.menuMenu.addAction(self.actionQuick_Send_Panel)
         self.menuMenu.addAction(self.actionSend_Hex_Panel)
         self.menuMenu.addAction(self.menuView.menuAction())
@@ -308,15 +310,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QComboBox:editable {
                 background: white;
             }
-            QComboBox:!editable, QComboBox::drop-down:editable {
-                background: #62c7e0;
-            }
-            QComboBox:!editable:hover, QComboBox::drop-down:editable:hover {
-                background: #c7eaf3;
-            }
-            QComboBox:!editable:pressed, QComboBox::drop-down:editable:pressed {
-                background: #35b6d7;
-            }
+            QComboBox:!editable, QComboBox::drop-down:editable { background: #62c7e0; }
+            QComboBox:!editable:hover, QComboBox::drop-down:editable:hover { background: #c7eaf3; }
+            QComboBox:!editable:pressed, QComboBox::drop-down:editable:pressed { background: #35b6d7; }
             QComboBox:on {
                 padding-top: 3px;
                 padding-left: 4px;
@@ -327,16 +323,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 width: 16px;
                 border: none;
             }
-            QComboBox::down-arrow {
-                image: url(:/downarrow.png);
-            }
-            QComboBox::down-arrow:on {
-                image: url(:/uparrow.png);
-            }
-            QAbstractItemView {
-                background: white;
-            }
+            QComboBox::down-arrow { image: url(:/downarrow.png); }
+            QComboBox::down-arrow:on { image: url(:/uparrow.png); }
+            QAbstractItemView { background: white; }
 
+            QSpinBox {
+                border: none;
+                background: white;
+                color:%(TextColor)s;
+                font-size:9pt;
+                font-family:%(UIFont)s;
+            }
+            QSpinBox::up-button { image: url(:/uparrow.png); height: 12px; }
+            QSpinBox::down-button { image: url(:/downarrow.png); height: 12px; }
+            QSpinBox::up-button, QSpinBox::down-button { background: #62c7e0; }
+            QSpinBox::up-button:hover, QSpinBox::down-button:hover { background: #c7eaf3; }
+            QSpinBox::up-button:pressed, QSpinBox::down-button:pressed { background: #35b6d7; }
+            
             QGroupBox {
                 color:%(TextColor)s;
                 font-size:8pt;
@@ -357,29 +360,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 font-size:8pt;
                 font-family:%(UIFont)s;
             }
-            QCheckBox::indicator:unchecked {
-                image: url(:/checkbox_unchecked.png);
-            }
-
-            QCheckBox::indicator:unchecked:hover {
-                image: url(:/checkbox_unchecked_hover.png);
-            }
-
-            QCheckBox::indicator:unchecked:pressed {
-                image: url(:/checkbox_unchecked_pressed.png);
-            }
-
-            QCheckBox::indicator:checked {
-                image: url(:/checkbox_checked.png);
-            }
-
-            QCheckBox::indicator:checked:hover {
-                image: url(:/checkbox_checked_hover.png);
-            }
-
-            QCheckBox::indicator:checked:pressed {
-                image: url(:/checkbox_checked_pressed.png);
-            }
+            QCheckBox::indicator:unchecked { image: url(:/checkbox_unchecked.png); }
+            QCheckBox::indicator:unchecked:hover { image: url(:/checkbox_unchecked_hover.png); }
+            QCheckBox::indicator:unchecked:pressed { image: url(:/checkbox_unchecked_pressed.png); }
+            QCheckBox::indicator:checked { image: url(:/checkbox_checked.png); }
+            QCheckBox::indicator:checked:hover { image: url(:/checkbox_checked_hover.png); }
+            QCheckBox::indicator:checked:pressed { image: url(:/checkbox_checked_pressed.png); }
             
             QScrollBar:horizontal {
                 background-color:%(BackgroundColor)s;
@@ -587,11 +573,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             TableView_Border = '#eeeeee',
             UIFont = 'Microsoft YaHei UI',
         ))
-        self.dockWidgetContents.setStyleSheet("""
-            QPushButton {
-                min-height:23px;
-            }
-        """)
         self.dockWidget_QuickSend.setStyleSheet("""
             QToolButton, QPushButton {
                 background-color:#27b798;
@@ -676,52 +657,93 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnMenu.setMenu(self.menuMenu)
         self.btnMenu.setPopupMode(QtWidgets.QToolButton.InstantPopup)
         
-        x,w = x+w+15,23
-        self.btnRefresh = QtWidgets.QToolButton(self)
-        self.btnRefresh.setEnabled(True)
-        self.btnRefresh.setIcon(QtGui.QIcon(':/refresh.ico'))
-        self.btnRefresh.setGeometry(x,y,w,h)
-        self.btnRefresh.setStyleSheet("""
-            QToolButton {
-                background-color:#6eccda;
-            }
-            QToolButton:hover {
-                background-color:#51c0d1;
-            }
-            QToolButton:pressed {
-                background-color:#3a9ecc;
-            }
-        """)
-        self.btnRefresh.clicked.connect(self.onEnumPorts)
+        #x,w = x+w+15,23
+        #self.btnRefresh = QtWidgets.QToolButton(self)
+        #self.btnRefresh.setEnabled(True)
+        #self.btnRefresh.setIcon(QtGui.QIcon(':/refresh.ico'))
+        #self.btnRefresh.setGeometry(x,y,w,h)
+        #self.btnRefresh.setStyleSheet("""
+            #QToolButton {
+                #background-color:#6eccda;
+            #}
+            #QToolButton:hover {
+                #background-color:#51c0d1;
+            #}
+            #QToolButton:pressed {
+                #background-color:#3a9ecc;
+            #}
+        #""")
+        #self.btnRefresh.clicked.connect(self.onEnumPorts)
         
-        self.verticalLayout_1.removeWidget(self.cmbPort)
+        #self.verticalLayout_1.removeWidget(self.cmbPort)
+        self.cmbPort = Combo(self.toolBar)
+        self.cmbPort.setEditable(True)
+        self.cmbPort.setCurrentText("")
         self.cmbPort.setParent(self)
         if os.name == 'nt':
-            x,w = x+w,90
+            x,w = x+w+15,90
             self.cmbPort.setGeometry(x,y,w,h)
         elif os.name == 'posix':
-            x,w = x+w,120
+            x,w = x+w+15,120
             self.cmbPort.setGeometry(x,y,w,h)
+        self.cmbPort.listShowEntered.connect(self.onEnumPorts)
         self.cmbPort.currentTextChanged.connect(self.onPortChanged)
     
-        self.verticalLayout_1.removeWidget(self.btnOpen)
+        self.btnOpen = QtWidgets.QToolButton(self.toolBar)
+        self.btnOpen.setEnabled(True)
+        self.btnOpen.setText("Open")
+        #self.verticalLayout_1.removeWidget(self.btnOpen)
         self.btnOpen.setParent(self)
         x,w = x+w+15,60
         self.btnOpen.setGeometry(x,y,w,h)
         
-        self.verticalLayout_1.removeWidget(self.btnClear)
+        self.btnClear = QtWidgets.QToolButton(self.toolBar)
+        self.btnClear.setEnabled(True)
+        self.btnClear.setText("Clear")
+        #self.verticalLayout_1.removeWidget(self.btnClear)
         self.btnClear.setParent(self)
         x,w = x+w+15,60
         self.btnClear.setGeometry(x,y,w,h)
 
-        self.verticalLayout_1.removeWidget(self.btnSaveLog)
+        self.btnSaveLog = QtWidgets.QToolButton(self.toolBar)
+        self.btnSaveLog.setEnabled(True)
+        self.btnSaveLog.setText("Save Log")
+        #self.verticalLayout_1.removeWidget(self.btnSaveLog)
         self.btnSaveLog.setParent(self)
         x,w = x+w+15,80
         self.btnSaveLog.setGeometry(x,y,w,h)
 
-        self.btnEnumPorts.setVisible(False)
-        self.label_Port.setVisible(False)
+        self.btnTogglePortCfgBar = QtWidgets.QToolButton(self.toolBar)
+        self.btnTogglePortCfgBar.setEnabled(True)
+        #self.btnTogglePortCfgBar.setIcon(QtGui.QIcon(':/up.png'))
+        self.btnTogglePortCfgBar.setStyleSheet("QToolButton {image: url(:/up.png);}")
+        self.btnTogglePortCfgBar.setParent(self)
+        x,w = x+w+15,23
+        self.btnTogglePortCfgBar.setGeometry(x,y,w,h)
+        self.btnTogglePortCfgBar.clicked.connect(self.onTogglePortCfgBar)
         
+        #self.pos_animation = QPropertyAnimation()
+        #self.pos_animation.setTargetObject(self.frame_PortCfg)
+        #self.pos_animation.setPropertyName("pos".encode())
+        #self.pos_animation.setDuration(200)
+        #self.pos_animation.setStartValue(QPoint(1,0))
+        #self.pos_animation.setEndValue(QPoint(1,-26))
+        ##self.pos_animation.setEasingCurve()
+        
+    def onTogglePortCfgBar(self):
+        #self.pos_animation.start()
+        if self.frame_PortCfg.isVisible():
+            self.setPortCfgBarVisible(False)
+        else:
+            self.setPortCfgBarVisible(True)
+
+    def setPortCfgBarVisible(self, visible):
+        if visible:
+            self.frame_PortCfg.show()
+            self.btnTogglePortCfgBar.setStyleSheet("QToolButton {image: url(:/up.png);}")
+        else:
+            self.frame_PortCfg.hide()
+            self.btnTogglePortCfgBar.setStyleSheet("QToolButton {image: url(:/down.png);}")
 
     def onPortChanged(self, text):
         pos = text.find(' ')
@@ -1175,7 +1197,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.serialport.rtscts   = self.chkRTSCTS.isChecked()
         self.serialport.xonxoff  = self.chkXonXoff.isChecked()
         self.serialport.timeout  = 0.5
-        # self.serialport.writeTimeout = SERIAL_WRITE_TIMEOUT
+        # self.serialport.writeTimeout = 1.0
         try:
             self.serialport.open()
         except Exception as e:
@@ -1210,11 +1232,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.btnOpen.setText('Open')
             self.btnOpen.update()
 
-    def onTogglePrtCfgPnl(self):
-        if self.actionPort_Config_Panel.isChecked():
-            self.dockWidget_PortConfig.show()
-        else:
-            self.dockWidget_PortConfig.hide()
+    #def onTogglePrtCfgPnl(self):
+        #if self.actionPort_Config_Panel.isChecked():
+            #self.dockWidget_PortConfig.show()
+        #else:
+            #self.dockWidget_PortConfig.hide()
 
     def onToggleQckSndPnl(self):
         if self.actionQuick_Send_Panel.isChecked():
@@ -1334,7 +1356,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             pickle.dump((self.saveGeometry(), self.saveState()), f)
 
     def syncMenu(self):
-        self.actionPort_Config_Panel.setChecked(not self.dockWidget_PortConfig.isHidden())
+        #self.actionPort_Config_Panel.setChecked(not self.dockWidget_PortConfig.isHidden())
         self.actionQuick_Send_Panel.setChecked(not self.dockWidget_QuickSend.isHidden())
         self.actionSend_Hex_Panel.setChecked(not self.dockWidget_SendHex.isHidden())
 
