@@ -31,4 +31,3 @@ The package for Linux is being prepared.
 ## Entirely new UI
 ![main window](doc/main_window.png "main window")
 
-![floatable windows](doc/floatable_windows.png "floatable windows")
