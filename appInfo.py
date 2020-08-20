@@ -30,20 +30,23 @@ url = 'http://sourceforge.net/projects/myterm/'
 author = 'gamesun'
 copyright = 'Copyright (C) 2013-2020, gamesun'
 aboutme = """
-%(title)s %(ver)s
-%(copyright)s
-
-%(title)s is a RS232 serial port communication utility and runs on all platforms supported by PyQt including Windows, Linux.
-
-Its features including 
-  quick send custom commands
-  configure the connection parameters
-  detect the valid serial ports
-  echo the sending data in local or not
-  display data either in hexadecimal or ASCII format
-  custom resizable and floatable widgets
-  
-%(title)s is licensed on all supported platforms under the GNU GPL v3.
-For detail see LICENSE.txt. 
+%(title)s %(ver)s<br>
+%(copyright)s<br>
+<br>
+<a href='https://github.com/gamesun/MyTerm'>Homepage on GitHub</a><br>
+<a href='http://sourceforge.net/projects/myterm/'>Download from SourceForge</a><br>
+<br>
+MyTerm is a flat-UI and straightforward and lightweight RS232 serial port communication utility that allows you to configure the connection parameters and communicate via the port.<br>
+<br>
+Its features including
+<ul>
+  <li>quick send custom commands</li>
+  <li>supported send formats: HEX, ASCII, ASCII(\\r \\n \\t ...), Hex text file, ASCII text file, BIN/HEX file</li>
+  <li>detect the valid serial ports</li>
+  <li>display data either in hexadecimal or ASCII format</li>
+  <li>custom resizable and floatable widgets</li>
+</ul>
+%(title)s is licensed on all supported platforms under the GNU GPL v3.<br>
+For detail see LICENSE.txt. <br>
 """ % dict(title=title, ver=version, copyright=copyright)
 
