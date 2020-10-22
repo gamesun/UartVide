@@ -24,5 +24,11 @@
         <file>refresh.ico</file>
         <file>up.png</file>
         <file>down.png</file>
+        <file>radiobutton_unchecked.png</file>
+        <file>radiobutton_unchecked_hover.png</file>
+        <file>radiobutton_unchecked_pressed.png</file>
+        <file>radiobutton_checked.png</file>
+        <file>radiobutton_checked_hover.png</file>
+        <file>radiobutton_checked_pressed.png</file>
     </qresource>
 </RCC>

@@ -73,11 +73,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.readerThread.setPort(self.serialport)
         self.portMonitorThread = PortMonitorThread(self)
         self.portMonitorThread.setPort(self.serialport)
-        self.periodThread = PeriodThread(self)
+        self.loopSendThread = LoopSendThread(self)
         self._localEcho = None
         self._viewMode = None
         self._quickSendOptRow = 1
-        self._is_periodic_send = False
+        self._is_loop_sending = False
 
         self.setupUi(self)
         self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
@@ -138,14 +138,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.chkRTSCTS.stateChanged.connect(self.onRTSCTSChanged)
         self.chkXonXoff.stateChanged.connect(self.onXonXoffChanged)
         
+        self.chkLoop.stateChanged.connect(self.onLoopChanged)
+        
         self.btnOpen.clicked.connect(self.onOpen)
         self.btnClear.clicked.connect(self.onClear)
         self.btnSaveLog.clicked.connect(self.onSaveLog)
         #self.btnEnumPorts.clicked.connect(self.onEnumPorts)
-        self.btnSendHex.clicked.connect(self.onSend)
+        self.btnSend.clicked.connect(self.onSend)
         
-        self.btnPeriodicSend.clicked.connect(self.onPeriodicSend)
-        self.periodThread.trigger.connect(self.onPeriodTrigger)
+        self.loopSendThread.trigger.connect(self.onPeriodTrigger)
 
         self.readerThread.read.connect(self.onReceive)
         self.readerThread.exception.connect(self.onReaderExcept)
@@ -163,6 +164,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.moveScreenCenter()
         self.syncMenu()
         self.setPortCfgBarVisible(False)
+        
+        self.rdoHEX.setChecked(True)
+        self.chkLoop.setChecked(False)
+        self.spnPeriod.setEnabled(False)
 
         if self.isMaximized():
             self.setMaximizeButton("restore")
@@ -339,6 +344,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QSpinBox::up-button, QSpinBox::down-button { background: #62c7e0; }
             QSpinBox::up-button:hover, QSpinBox::down-button:hover { background: #c7eaf3; }
             QSpinBox::up-button:pressed, QSpinBox::down-button:pressed { background: #35b6d7; }
+            QSpinBox::up-button:disabled, QSpinBox::up-button:off, 
+            QSpinBox::down-button:disabled, QSpinBox::down-button:off { background: #c0c0c0; }
+            QSpinBox:disabled { background: #e0e0e0; }
             
             QGroupBox {
                 color:%(TextColor)s;
@@ -354,18 +362,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 top:3px;
             }
             
-            QCheckBox {
-                color:%(TextColor)s;
-                spacing: 5px;
-                font-size:9pt;
-                font-family:%(UIFont)s;
-            }
+            QCheckBox { color:%(TextColor)s; spacing: 5px; font-size:9pt; font-family:%(UIFont)s; }
             QCheckBox::indicator:unchecked { image: url(:/checkbox_unchecked.png); }
             QCheckBox::indicator:unchecked:hover { image: url(:/checkbox_unchecked_hover.png); }
             QCheckBox::indicator:unchecked:pressed { image: url(:/checkbox_unchecked_pressed.png); }
             QCheckBox::indicator:checked { image: url(:/checkbox_checked.png); }
             QCheckBox::indicator:checked:hover { image: url(:/checkbox_checked_hover.png); }
             QCheckBox::indicator:checked:pressed { image: url(:/checkbox_checked_pressed.png); }
+            
+            QRadioButton { color:%(TextColor)s; spacing: 4px; font-size:9pt; font-family:%(UIFont)s; }
+            QRadioButton::indicator:unchecked { image: url(:/radiobutton_unchecked.png); }
+            QRadioButton::indicator:unchecked:hover { image: url(:/radiobutton_unchecked_hover.png); }
+            QRadioButton::indicator:unchecked:pressed { image: url(:/radiobutton_unchecked_pressed.png); }
+            QRadioButton::indicator:checked { image: url(:/radiobutton_checked.png); }
+            QRadioButton::indicator:checked:hover { image: url(:/radiobutton_checked_hover.png); }
+            QRadioButton::indicator:checked:pressed { image: url(:/radiobutton_checked_pressed.png); }
             
             QScrollBar:horizontal {
                 background-color:%(BackgroundColor)s;
@@ -1062,30 +1073,40 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             print("({})".format(e))
             QMessageBox.critical(self.defaultStyleWidget, "Open failed", str(e), QMessageBox.Close)
 
-    def onPeriodicSend(self):
-        if self._is_periodic_send:
-            self.stopPeriodicSend()
-        else:
-            self.startPeriodicSend()
+    def onLoopChanged(self, state):
+        self.spnPeriod.setEnabled(state)
 
-    def startPeriodicSend(self):
+    def startLoopSend(self):
         period_spacing = int(self.spnPeriod.text()[:-2]) / 1000.0
-        self.periodThread.start(period_spacing)
-        self.btnPeriodicSend.setStyleSheet("QWidget {background-color:#b400c8}")
-        self._is_periodic_send = True
-            
-    def stopPeriodicSend(self):
-        self.periodThread.join()
-        self.btnPeriodicSend.setStyleSheet("QWidget {}")
-        self._is_periodic_send = False
+        self.loopSendThread.start(period_spacing)
+        self.btnSend.setStyleSheet("QWidget {background-color:#b400c8}")
+        self._is_loop_sending = True
+
+    def stopLoopSend(self):
+        self.loopSendThread.join()
+        self.btnSend.setStyleSheet("QWidget {}")
+        self._is_loop_sending = False
 
     def onPeriodTrigger(self):
-        self.onSend()
-    
+        self.send()
+
     def onSend(self):
         if self.serialport.isOpen():
+            if self.chkLoop.isChecked():
+                if self._is_loop_sending:
+                    self.stopLoopSend()
+                else:
+                    self.startLoopSend()
+            else:
+                self.send()
+
+    def send(self):
+        if self.serialport.isOpen():
             sendstring = self.txtEdtInput.toPlainText()
-            self.transmitHex(sendstring)
+            if self.rdoHEX.isChecked():
+                self.transmitHex(sendstring)
+            else:
+                self.transmitAsc(sendstring)
 
     def transmitHex(self, hexstring, echo = True):
         if len(hexstring) > 0:
@@ -1229,7 +1250,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def closePort(self):
         if self.serialport.isOpen():
-            self.stopPeriodicSend()
+            self.stopLoopSend()
             self.readerThread.join()
             self.portMonitorThread.join()
             self.serialport.close()
@@ -1494,12 +1515,12 @@ class PortMonitorThread(QThread):
                 self.exception.emit('{}'.format(e))
         self._stopped = True
 
-class PeriodThread(QThread):
+class LoopSendThread(QThread):
     trigger = pyqtSignal()
     exception = pyqtSignal(str)
     
     def __init__(self, parent=None):
-        super(PeriodThread, self).__init__(parent)
+        super(LoopSendThread, self).__init__(parent)
         self._alive = False
         self._stopped = True
         self._spacing = 1.0
@@ -1508,7 +1529,7 @@ class PeriodThread(QThread):
         if not self._alive:
             self._alive = True
             self._spacing = period_spacing
-            super(PeriodThread, self).start(priority)
+            super(LoopSendThread, self).start(priority)
 
     def __del__(self):
         self._alive = False
