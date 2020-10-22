@@ -151,7 +151,6 @@ class Ui_MainWindow(object):
         self.cmbDataBits.setMaximumSize(QtCore.QSize(16777215, 23))
         self.cmbDataBits.setToolTip("Data Bits")
         self.cmbDataBits.setStatusTip("Data Bits")
-        self.cmbDataBits.setStyleSheet("QWidget {}")
         self.cmbDataBits.setCurrentText("8")
         self.cmbDataBits.setObjectName("cmbDataBits")
         self.cmbDataBits.addItem("")

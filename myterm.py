@@ -302,13 +302,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 font-size:9pt;
                 font-family:%(UIFont)s;
             }
-            
+
             QComboBox {
                 color:%(TextColor)s;
                 font-size:9pt;
                 font-family:%(UIFont)s;
-            }
-            QComboBox {
                 border: none;
                 padding: 1px 1px 1px 3px;
             }
@@ -318,6 +316,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QComboBox:!editable, QComboBox::drop-down:editable { background: #62c7e0; }
             QComboBox:!editable:hover, QComboBox::drop-down:editable:hover { background: #c7eaf3; }
             QComboBox:!editable:pressed, QComboBox::drop-down:editable:pressed { background: #35b6d7; }
+            QComboBox:!editable:disabled, QComboBox::drop-down:editable:disabled { background: #c0c0c0; }
             QComboBox:on {
                 padding-top: 3px;
                 padding-left: 4px;
@@ -330,7 +329,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }
             QComboBox::down-arrow { image: url(:/downarrow.png); }
             QComboBox::down-arrow:on { image: url(:/uparrow.png); }
-            QAbstractItemView { background: white; }
+            QComboBox QAbstractItemView { background: white; }
 
             QSpinBox {
                 border: none;
@@ -741,6 +740,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #self.pos_animation.setEndValue(QPoint(1,-26))
         ##self.pos_animation.setEasingCurve()
         
+        if os.name == 'posix':
+            self.fixComboViewSize(self.cmbBaudRate)
+            self.fixComboViewSize(self.cmbDataBits)
+            self.fixComboViewSize(self.cmbParity)
+            self.fixComboViewSize(self.cmbStopBits)
+
+    def fixComboViewSize(self, widget):
+        fm = QFontMetrics(widget.fontMetrics())
+        maxlen = 0
+        for id in range(widget.count()):
+            text = widget.itemText(id)
+            if hasattr(fm, 'horizontalAdvance'):
+                l = fm.horizontalAdvance(text)
+            else:
+                l = fm.width(text)
+            if maxlen < l:
+                maxlen = l
+        widget.view().setFixedWidth(maxlen + 44)
+
     def onTogglePortCfgBar(self):
         #self.pos_animation.start()
         if self.frame_PortCfg.isVisible():
@@ -1332,18 +1350,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def onEnumPorts(self):
         sel = self.cmbPort.currentText()
         self.cmbPort.clear()
-        fm = QFontMetrics(self.cmbPort.fontMetrics())
-        maxlen = 0
         for port, desc, hwid in sorted(comports()):
-            text = port + '  ' + desc
-            self.cmbPort.addItem(text)
-            if hasattr(fm, 'horizontalAdvance'):
-                l = fm.horizontalAdvance(text)
-            else:
-                l = fm.width(text)
-            if maxlen < l:
-                maxlen = l
-        self.cmbPort.view().setFixedWidth(maxlen+40)
+            self.cmbPort.addItem(port + '  ' + desc)
+        self.fixComboViewSize(self.cmbPort)
         
         idx = self.cmbPort.findText(sel)
         if idx != -1:
