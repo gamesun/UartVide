@@ -36,7 +36,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget, \
     QFileDialog
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper, QFile, QIODevice, \
     QPoint, QPropertyAnimation
-from PyQt5.QtGui import QFontMetrics
+from PyQt5.QtGui import QFontMetrics, QFont, QIcon
 from combo import Combo
 import sip
 import appInfo
@@ -82,7 +82,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
         self.setCorner(Qt.BottomLeftCorner, Qt.LeftDockWidgetArea)
-        font = QtGui.QFont()
+        font = QFont()
         font.setFamily(EDITOR_FONT)
         font.setPointSize(9)
         self.txtEdtOutput.setFont(font)
@@ -91,14 +91,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupMenu()
         self.setupFlatUi()
         
-        icon = QtGui.QIcon(":/MyTerm.ico")
+        icon = QIcon(":/MyTerm.ico")
         self.setWindowIcon(icon)
         self.actionAbout.setIcon(icon)
 
         self.defaultStyleWidget = QWidget()
         self.defaultStyleWidget.setWindowIcon(icon)
 
-        icon = QtGui.QIcon(":/qt_logo_16.ico")
+        icon = QIcon(":/qt_logo_16.ico")
         self.actionAbout_Qt.setIcon(icon)
 
         self._viewGroup = QActionGroup(self)
@@ -652,25 +652,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         #self.toolBar.setFixedHeight(28)
         
-        font = QtGui.QFont()
+        font = QFont()
         font.setFamily(UI_FONT)
         font.setPointSize(9)
         
         x,y,w,h = 6,4,100,23
-        self.btnMenu = QtWidgets.QToolButton(self)
+        self.btnMenu = QToolButton(self)
         self.btnMenu.setFont(font)
         self.btnMenu.setEnabled(True)
         self.btnMenu.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-        self.btnMenu.setIcon(QtGui.QIcon(':/MyTerm.ico'))
+        self.btnMenu.setIcon(QIcon(':/MyTerm.ico'))
         self.btnMenu.setText('MyTerm  ')
         self.btnMenu.setGeometry(x,y,w,h)
         self.btnMenu.setMenu(self.menuMenu)
         self.btnMenu.setPopupMode(QtWidgets.QToolButton.InstantPopup)
         
         #x,w = x+w+15,23
-        #self.btnRefresh = QtWidgets.QToolButton(self)
+        #self.btnRefresh = QToolButton(self)
         #self.btnRefresh.setEnabled(True)
-        #self.btnRefresh.setIcon(QtGui.QIcon(':/refresh.ico'))
+        #self.btnRefresh.setIcon(QIcon(':/refresh.ico'))
         #self.btnRefresh.setGeometry(x,y,w,h)
         #self.btnRefresh.setStyleSheet("""
             #QToolButton {
@@ -699,15 +699,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.cmbPort.listShowEntered.connect(self.onEnumPorts)
         self.cmbPort.currentTextChanged.connect(self.onPortChanged)
     
-        self.btnOpen = QtWidgets.QToolButton(self.toolBar)
+        self.btnOpen = QToolButton(self.toolBar)
         self.btnOpen.setEnabled(True)
-        self.btnOpen.setText("Open")
+        #self.btnOpen.setText("Open")
         #self.verticalLayout_1.removeWidget(self.btnOpen)
         self.btnOpen.setParent(self)
-        x,w = x+w+15,60
+        x,w = x+w+15,23
         self.btnOpen.setGeometry(x,y,w,h)
+        self.btnOpen.setStyleSheet("""
+            QToolButton, QPushButton {
+                background-color:transparent;
+                border:none;
+            }
+            /*QToolButton:hover, QPushButton:hover {
+                background-color:#51c0d1;
+            }*/
+            QToolButton:pressed, QPushButton:pressed {
+                /*background-color:#3a9ecc;*/
+                padding-top: 1px;
+            }
+        """)
         
-        self.btnClear = QtWidgets.QToolButton(self.toolBar)
+        self.btnOpen.setIconSize(QtCore.QSize(22, 22))
+        self.btnOpen.setIcon(QIcon(":/port_off.png"))
+        
+        self.btnClear = QToolButton(self.toolBar)
         self.btnClear.setEnabled(True)
         self.btnClear.setText("Clear")
         #self.verticalLayout_1.removeWidget(self.btnClear)
@@ -715,7 +731,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         x,w = x+w+15,60
         self.btnClear.setGeometry(x,y,w,h)
 
-        self.btnSaveLog = QtWidgets.QToolButton(self.toolBar)
+        self.btnSaveLog = QToolButton(self.toolBar)
         self.btnSaveLog.setEnabled(True)
         self.btnSaveLog.setText("Save Log")
         #self.verticalLayout_1.removeWidget(self.btnSaveLog)
@@ -723,9 +739,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         x,w = x+w+15,80
         self.btnSaveLog.setGeometry(x,y,w,h)
 
-        self.btnTogglePortCfgBar = QtWidgets.QToolButton(self.toolBar)
+        self.btnTogglePortCfgBar = QToolButton(self.toolBar)
         self.btnTogglePortCfgBar.setEnabled(True)
-        #self.btnTogglePortCfgBar.setIcon(QtGui.QIcon(':/up.png'))
+        #self.btnTogglePortCfgBar.setIcon(QIcon(':/up.png'))
         self.btnTogglePortCfgBar.setStyleSheet("QToolButton {image: url(:/up.png);}")
         self.btnTogglePortCfgBar.setParent(self)
         x,w = x+w+15,23
@@ -1263,8 +1279,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             )
             self.cmbPort.setEnabled(False)
             self.cmbPort.setStyleSheet('QComboBox:editable {background: yellow;}')
-            self.btnOpen.setText('Close')
-            self.btnOpen.update()
+            #self.btnOpen.setText('Close')
+            self.btnOpen.setIcon(QIcon(":/port_on.png"))
 
     def closePort(self):
         if self.serialport.isOpen():
@@ -1275,14 +1291,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.setWindowTitle(appInfo.title)
             self.cmbPort.setEnabled(True)
             self.cmbPort.setStyleSheet('QComboBox:editable {background: white;}')
-            self.btnOpen.setText('Open')
-            self.btnOpen.update()
-
-    #def onTogglePrtCfgPnl(self):
-        #if self.actionPort_Config_Panel.isChecked():
-            #self.dockWidget_PortConfig.show()
-        #else:
-            #self.dockWidget_PortConfig.hide()
+            #self.btnOpen.setText('Open')
+            self.btnOpen.setIcon(QIcon(":/port_off.png"))
 
     def onToggleQckSndPnl(self):
         if self.actionQuick_Send_Panel.isChecked():

@@ -30,5 +30,7 @@
         <file>radiobutton_checked.png</file>
         <file>radiobutton_checked_hover.png</file>
         <file>radiobutton_checked_pressed.png</file>
+        <file>port_on.png</file>
+        <file>port_off.png</file>
     </qresource>
 </RCC>
