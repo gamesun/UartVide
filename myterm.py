@@ -78,6 +78,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._viewMode = None
         self._quickSendOptRow = 1
         self._is_loop_sending = False
+        self._is_timestamp = False
 
         self.setupUi(self)
         self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
@@ -744,6 +745,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnSaveLog.setIconSize(QtCore.QSize(24, 24))
         self.btnSaveLog.setIcon(QIcon(":/save.png"))
 
+        self.btnTimestamp = QPushButton(self.toolBar)
+        x,w = x+w+15,44
+        self.btnTimestamp.setGeometry(x,y,w,h)
+        self.btnTimestamp.setStyleSheet("""
+            QPushButton { background-color:transparent; border:none; }
+            QPushButton:hover { background-color:#51c0d1; }
+            QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
+        """)
+        self.btnTimestamp.setIconSize(QtCore.QSize(44, 22))
+        self.btnTimestamp.setIcon(QIcon(":/timestamp_off.png"))
+        self.btnTimestamp.clicked.connect(self.onTimestamp)
 
         self.btnTogglePortCfgBar = QPushButton(self.toolBar)
         #self.btnTogglePortCfgBar.setEnabled(True)
@@ -785,6 +797,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if maxlen < l:
                 maxlen = l
         widget.view().setFixedWidth(maxlen + 44)
+
+    def onTimestamp(self):
+        if self._is_timestamp:
+            self.btnTimestamp.setIcon(QIcon(":/timestamp_off.png"))
+            self._is_timestamp = False
+        else:
+            self.btnTimestamp.setIcon(QIcon(":/timestamp_on.png"))
+            self._is_timestamp = True
 
     def onTogglePortCfgBar(self):
         #self.pos_animation.start()
@@ -1206,11 +1226,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QMessageBox.critical(self.defaultStyleWidget, "Read failed", str(e), QMessageBox.Close)
 
     def timestamp(self):
-        ts = datetime.datetime.now().time()
-        if ts.microsecond:
-            return ts.isoformat()[:-3]
+        if _is_timestamp:
+            ts = datetime.datetime.now().time()
+            if ts.microsecond:
+                return ts.isoformat()[:-3]
+            else:
+                return ts.isoformat() + '.000'
         else:
-            return ts.isoformat() + '.000'
+            return ''
 
     def onReceive(self, data):
         self.appendOutputText("\n%s R<-:%s" % (self.timestamp(), data))
