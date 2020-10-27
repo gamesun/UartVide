@@ -689,7 +689,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.cmbPort = Combo(self.toolBar)
         self.cmbPort.setEditable(True)
         self.cmbPort.setCurrentText("")
-        self.cmbPort.setParent(self)
+        #self.cmbPort.setParent(self)
         if os.name == 'nt':
             x,w = x+w+15,90
             self.cmbPort.setGeometry(x,y,w,h)
@@ -699,7 +699,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.cmbPort.listShowEntered.connect(self.onEnumPorts)
         self.cmbPort.currentTextChanged.connect(self.onPortChanged)
     
-        self.btnOpen = QToolButton(self.toolBar)
+        self.btnOpen = QPushButton(self.toolBar)
         self.btnOpen.setEnabled(True)
         #self.btnOpen.setText("Open")
         #self.verticalLayout_1.removeWidget(self.btnOpen)
@@ -707,45 +707,56 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         x,w = x+w+15,23
         self.btnOpen.setGeometry(x,y,w,h)
         self.btnOpen.setStyleSheet("""
-            QToolButton, QPushButton {
-                background-color:transparent;
-                border:none;
-            }
-            /*QToolButton:hover, QPushButton:hover {
-                background-color:#51c0d1;
-            }*/
-            QToolButton:pressed, QPushButton:pressed {
-                /*background-color:#3a9ecc;*/
-                padding-top: 1px;
-            }
+            QPushButton { background-color:transparent; border:none; }
+            QPushButton:hover { background-color:#51c0d1; }
+            QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
         """)
-        
         self.btnOpen.setIconSize(QtCore.QSize(22, 22))
         self.btnOpen.setIcon(QIcon(":/port_off.png"))
-        
-        self.btnClear = QToolButton(self.toolBar)
-        self.btnClear.setEnabled(True)
-        self.btnClear.setText("Clear")
-        #self.verticalLayout_1.removeWidget(self.btnClear)
-        self.btnClear.setParent(self)
-        x,w = x+w+15,60
-        self.btnClear.setGeometry(x,y,w,h)
 
-        self.btnSaveLog = QToolButton(self.toolBar)
-        self.btnSaveLog.setEnabled(True)
-        self.btnSaveLog.setText("Save Log")
+        self.btnClear = QPushButton(self.toolBar)
+        #self.btnClear.setEnabled(True)
+        #self.btnClear.setText("Clear")
+        #self.verticalLayout_1.removeWidget(self.btnClear)
+        #self.btnClear.setParent(self)
+        x,w = x+w+15,24
+        self.btnClear.setGeometry(x,y,w,25)
+        self.btnClear.setStyleSheet("""
+            QPushButton { background-color:transparent; border:none; }
+            QPushButton:hover { background-color:#51c0d1; }
+            QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
+        """)
+        self.btnClear.setIconSize(QtCore.QSize(24, 24))
+        self.btnClear.setIcon(QIcon(":/broom.png"))
+
+        self.btnSaveLog = QPushButton(self.toolBar)
+        #self.btnSaveLog.setEnabled(True)
+        #self.btnSaveLog.setText("Save Log")
         #self.verticalLayout_1.removeWidget(self.btnSaveLog)
         self.btnSaveLog.setParent(self)
-        x,w = x+w+15,80
-        self.btnSaveLog.setGeometry(x,y,w,h)
+        x,w = x+w+15,24
+        self.btnSaveLog.setGeometry(x,y,w,25)
+        self.btnSaveLog.setStyleSheet("""
+            QPushButton { background-color:transparent; border:none; }
+            QPushButton:hover { background-color:#51c0d1; }
+            QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
+        """)
+        self.btnSaveLog.setIconSize(QtCore.QSize(24, 24))
+        self.btnSaveLog.setIcon(QIcon(":/save.png"))
 
-        self.btnTogglePortCfgBar = QToolButton(self.toolBar)
-        self.btnTogglePortCfgBar.setEnabled(True)
-        #self.btnTogglePortCfgBar.setIcon(QIcon(':/up.png'))
-        self.btnTogglePortCfgBar.setStyleSheet("QToolButton {image: url(:/up.png);}")
-        self.btnTogglePortCfgBar.setParent(self)
+
+        self.btnTogglePortCfgBar = QPushButton(self.toolBar)
+        #self.btnTogglePortCfgBar.setEnabled(True)
+        self.btnTogglePortCfgBar.setIconSize(QtCore.QSize(23, 23))
+        self.btnTogglePortCfgBar.setIcon(QIcon(':/up.png'))
+        #self.btnTogglePortCfgBar.setParent(self)
         x,w = x+w+15,23
         self.btnTogglePortCfgBar.setGeometry(x,y,w,h)
+        self.btnTogglePortCfgBar.setStyleSheet("""
+            QPushButton { background-color:transparent; border:none; }
+            QPushButton:hover { background-color:#51c0d1; }
+            QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
+        """)
         self.btnTogglePortCfgBar.clicked.connect(self.onTogglePortCfgBar)
         
         #self.pos_animation = QPropertyAnimation()
@@ -785,10 +796,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def setPortCfgBarVisible(self, visible):
         if visible:
             self.frame_PortCfg.show()
-            self.btnTogglePortCfgBar.setStyleSheet("QToolButton {image: url(:/up.png);}")
+            self.btnTogglePortCfgBar.setIcon(QIcon(':/up.png'))
         else:
             self.frame_PortCfg.hide()
-            self.btnTogglePortCfgBar.setStyleSheet("QToolButton {image: url(:/down.png);}")
+            self.btnTogglePortCfgBar.setIcon(QIcon(':/down.png'))
 
     def onPortChanged(self, text):
         pos = text.find(' ')
@@ -1278,7 +1289,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 )
             )
             self.cmbPort.setEnabled(False)
-            self.cmbPort.setStyleSheet('QComboBox:editable {background: yellow;}')
+            self.cmbPort.setStyleSheet('QComboBox:editable {background: #ffffcc;}')
             #self.btnOpen.setText('Close')
             self.btnOpen.setIcon(QIcon(":/port_on.png"))
 
@@ -1338,7 +1349,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.txtEdtOutput.clear()
 
     def onSaveLog(self):
-        fileName = QFileDialog.getSaveFileName(self.defaultStyleWidget, "Save as", os.getcwd(),
+        fileName = QFileDialog.getSaveFileName(self.defaultStyleWidget, "Save log as", os.getcwd(),
             "Log files (*.log);;Text files (*.txt);;All files (*.*)")[0]
         if fileName:
             import codecs
