@@ -3,7 +3,7 @@
 #
 #############################################################################
 ##
-## Copyright (c) 2013-2020, gamesun
+## Copyright (c) 2013-2021, gamesun
 ## All right reserved.
 ##
 ## This file is part of MyTerm.
@@ -36,7 +36,7 @@ aboutme = """
 <a href='https://github.com/gamesun/MyTerm'>Homepage on GitHub</a><br>
 <a href='http://sourceforge.net/projects/myterm/'>Download from SourceForge</a><br>
 <br>
-MyTerm is a flat-UI and straightforward and lightweight RS232 serial port communication utility that allows you to configure the connection parameters and communicate via the port.<br>
+MyTerm is a straightforward and lightweight RS232 serial port communication utility that allows you to configure the connection parameters and communicate via the port.<br>
 <br>
 Its features including
 <ul>
@@ -46,7 +46,7 @@ Its features including
   <li>display data either in hexadecimal or ASCII format</li>
   <li>custom resizable and floatable widgets</li>
 </ul>
-%(title)s is licensed on all supported platforms under the GNU GPL v3.<br>
+%(title)s is licensed under the GNU GPL v3 or later.<br>
 For detail see LICENSE.txt. <br>
 """ % dict(title=title, ver=version, copyright=copyright)
 
