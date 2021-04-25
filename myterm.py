@@ -29,7 +29,7 @@ import datetime
 import pickle
 import csv
 from lxml import etree as ET
-import defusedxml.cElementTree as safeET
+import defusedxml.ElementTree as safeET
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget, \
     QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget, QToolButton, \
@@ -660,7 +660,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         x,y,w,h = 6,4,100,23
         self.btnMenu = QToolButton(self)
         self.btnMenu.setFont(font)
-        self.btnMenu.setEnabled(True)
         self.btnMenu.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
         self.btnMenu.setIcon(QIcon(':/MyTerm.ico'))
         self.btnMenu.setText('MyTerm  ')
@@ -670,7 +669,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         #x,w = x+w+15,23
         #self.btnRefresh = QToolButton(self)
-        #self.btnRefresh.setEnabled(True)
         #self.btnRefresh.setIcon(QIcon(':/refresh.ico'))
         #self.btnRefresh.setGeometry(x,y,w,h)
         #self.btnRefresh.setStyleSheet("""
@@ -686,26 +684,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #""")
         #self.btnRefresh.clicked.connect(self.onEnumPorts)
         
-        #self.verticalLayout_1.removeWidget(self.cmbPort)
-        self.cmbPort = Combo(self.toolBar)
+        self.cmbPort = Combo(self)
         self.cmbPort.setEditable(True)
         self.cmbPort.setCurrentText("")
-        #self.cmbPort.setParent(self)
         if os.name == 'nt':
-            x,w = x+w+15,90
+            x,w = x+w+12,90
             self.cmbPort.setGeometry(x,y,w,h)
         elif os.name == 'posix':
-            x,w = x+w+15,120
+            x,w = x+w+12,120
             self.cmbPort.setGeometry(x,y,w,h)
         self.cmbPort.listShowEntered.connect(self.onEnumPorts)
         self.cmbPort.currentTextChanged.connect(self.onPortChanged)
     
-        self.btnOpen = QPushButton(self.toolBar)
+        self.btnOpen = QPushButton(self)
         self.btnOpen.setEnabled(True)
-        #self.btnOpen.setText("Open")
-        #self.verticalLayout_1.removeWidget(self.btnOpen)
-        self.btnOpen.setParent(self)
-        x,w = x+w+15,23
+        x,w = x+w+12,23
         self.btnOpen.setGeometry(x,y,w,h)
         self.btnOpen.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; }
@@ -715,12 +708,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnOpen.setIconSize(QtCore.QSize(22, 22))
         self.btnOpen.setIcon(QIcon(":/port_off.png"))
 
-        self.btnClear = QPushButton(self.toolBar)
-        #self.btnClear.setEnabled(True)
-        #self.btnClear.setText("Clear")
-        #self.verticalLayout_1.removeWidget(self.btnClear)
-        #self.btnClear.setParent(self)
-        x,w = x+w+15,24
+        self.btnClear = QPushButton(self)
+        x,w = x+w+12,24
         self.btnClear.setGeometry(x,y,w,25)
         self.btnClear.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; }
@@ -730,12 +719,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnClear.setIconSize(QtCore.QSize(24, 24))
         self.btnClear.setIcon(QIcon(":/broom.png"))
 
-        self.btnSaveLog = QPushButton(self.toolBar)
-        #self.btnSaveLog.setEnabled(True)
-        #self.btnSaveLog.setText("Save Log")
-        #self.verticalLayout_1.removeWidget(self.btnSaveLog)
+        self.btnSaveLog = QPushButton(self)
         self.btnSaveLog.setParent(self)
-        x,w = x+w+15,24
+        x,w = x+w+12,24
         self.btnSaveLog.setGeometry(x,y,w,25)
         self.btnSaveLog.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; }
@@ -745,8 +731,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnSaveLog.setIconSize(QtCore.QSize(24, 24))
         self.btnSaveLog.setIcon(QIcon(":/save.png"))
 
-        self.btnTimestamp = QPushButton(self.toolBar)
-        x,w = x+w+15,44
+        self.btnTimestamp = QPushButton(self)
+        x,w = x+w+12,44
         self.btnTimestamp.setGeometry(x,y,w,h)
         self.btnTimestamp.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; }
@@ -757,12 +743,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnTimestamp.setIcon(QIcon(":/timestamp_off.png"))
         self.btnTimestamp.clicked.connect(self.onTimestamp)
 
-        self.btnTogglePortCfgBar = QPushButton(self.toolBar)
-        #self.btnTogglePortCfgBar.setEnabled(True)
+        self.btnTogglePortCfgBar = QPushButton(self)
         self.btnTogglePortCfgBar.setIconSize(QtCore.QSize(23, 23))
         self.btnTogglePortCfgBar.setIcon(QIcon(':/up.png'))
-        #self.btnTogglePortCfgBar.setParent(self)
-        x,w = x+w+15,23
+        x,w = x+w+12,23
         self.btnTogglePortCfgBar.setGeometry(x,y,w,h)
         self.btnTogglePortCfgBar.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; }
@@ -771,13 +755,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """)
         self.btnTogglePortCfgBar.clicked.connect(self.onTogglePortCfgBar)
         
-        #self.pos_animation = QPropertyAnimation()
-        #self.pos_animation.setTargetObject(self.frame_PortCfg)
-        #self.pos_animation.setPropertyName("pos".encode())
-        #self.pos_animation.setDuration(200)
-        #self.pos_animation.setStartValue(QPoint(1,0))
-        #self.pos_animation.setEndValue(QPoint(1,-26))
-        ##self.pos_animation.setEasingCurve()
+        self.asbtn = AnimationSwitchButton(self)
+        x,w = x+w+12,60
+        self.asbtn.setGeometry(x,y,44,23)
+        self.asbtn.stateChanged.connect(self.onAsbtn)
         
         if os.name == 'posix':
             self.fixComboViewSize(self.cmbBaudRate)
@@ -785,6 +766,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.fixComboViewSize(self.cmbParity)
             self.fixComboViewSize(self.cmbStopBits)
 
+    def onAsbtn(self, state):
+        print(state)
+        
     def fixComboViewSize(self, widget):
         fm = QFontMetrics(widget.fontMetrics())
         maxlen = 0
@@ -1121,7 +1105,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def transmitFile(self, filepath, form):
         try:
             with open(filepath, 'rb' if 'BF' == form else 'rt') as f:
-                self.appendOutputText("\n%s sending %s [%s]" % (self.timestamp(), filepath, form), Qt.blue)
+                self.appendOutputText("\n%ssending %s [%s]" % (self.timestamp(), filepath, form), Qt.blue)
                 self.repaint()
                 
                 content = f.read()
@@ -1133,7 +1117,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 elif 'BF' == form:
                     sent_len = self.transmitBytearray(content)
                 
-                self.appendOutputText("\n%s %d bytes sent" % (self.timestamp(), sent_len), Qt.blue)
+                self.appendOutputText("\n%s%d bytes sent" % (self.timestamp(), sent_len), Qt.blue)
         except IOError as e:
             print("({})".format(e))
             QMessageBox.critical(self.defaultStyleWidget, "Open failed", str(e), QMessageBox.Close)
@@ -1189,14 +1173,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     return 0
             if echo:
                 text = ''.join('%02X ' % t for t in hexarray)
-                self.appendOutputText("\n%s Tx:%s" % (self.timestamp(), text), Qt.blue)
+                self.appendOutputText("\n%s%s" % (self.timestamp(), text), Qt.blue)
             return self.transmitBytearray(bytearray(hexarray))
 
     def transmitAsc(self, text, echo = True):
         if len(text) > 0:
             byteArray = [ord(char) for char in text]
             if echo:
-                self.appendOutputText("\n%s Tx:%s" % (self.timestamp(), text), Qt.blue)
+                self.appendOutputText("\n%s%s" % (self.timestamp(), text), Qt.blue)
             return self.transmitBytearray(bytearray(byteArray))
 
     def transmitAscS(self, text, echo = True):
@@ -1226,17 +1210,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QMessageBox.critical(self.defaultStyleWidget, "Read failed", str(e), QMessageBox.Close)
 
     def timestamp(self):
-        if _is_timestamp:
+        if self._is_timestamp:
             ts = datetime.datetime.now().time()
             if ts.microsecond:
-                return ts.isoformat()[:-3]
+                return ts.isoformat()[:-3]+':'
             else:
-                return ts.isoformat() + '.000'
+                return ts.isoformat() + '.000:'
         else:
             return ''
 
     def onReceive(self, data):
-        self.appendOutputText("\n%s R<-:%s" % (self.timestamp(), data))
+        self.appendOutputText("\n%s%s" % (self.timestamp(), data))
 
     def appendOutputText(self, data, color=Qt.black):
         # the qEditText's "append" methon will add a unnecessary newline.
