@@ -667,6 +667,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnMenu.setGeometry(x,y,w,h)
         self.btnMenu.setMenu(self.menuMenu)
         self.btnMenu.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+        self.btnMenu.setCursor(Qt.PointingHandCursor)
         
         #x,w = x+w+15,23
         #self.btnRefresh = QToolButton(self)
@@ -696,6 +697,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.cmbPort.setGeometry(x,y,w,h)
         self.cmbPort.listShowEntered.connect(self.onEnumPorts)
         self.cmbPort.currentTextChanged.connect(self.onPortChanged)
+        self.cmbPort.setToolTip("Select/Input Port")
+        self.cmbPort.setCursor(Qt.PointingHandCursor)
     
         self.asbtnOpen = AnimationSwitchButton(self)
         x,w = x+w+12,30
@@ -718,19 +721,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.btnClear = QPushButton(self)
         x,w = x+w+12,24
-        self.btnClear.setGeometry(x,y,w,25)
+        self.btnClear.setGeometry(x,y,w,24)
         self.btnClear.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; }
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
         """)
         self.btnClear.setIconSize(QtCore.QSize(24, 24))
-        self.btnClear.setIcon(QIcon(":/broom.png"))
+        #self.btnClear.setIcon(QIcon(":/broom.png"))
+        self.btnClear.setIcon(QIcon(":/clear_log.png"))
+        self.btnClear.setToolTip("Clear Log")
+        self.btnClear.setCursor(Qt.PointingHandCursor)
 
         self.btnSaveLog = QPushButton(self)
         self.btnSaveLog.setParent(self)
         x,w = x+w+12,24
-        self.btnSaveLog.setGeometry(x,y,w,25)
+        self.btnSaveLog.setGeometry(x,y,w,24)
         self.btnSaveLog.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; }
             QPushButton:hover { background-color:#51c0d1; }
@@ -738,18 +744,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """)
         self.btnSaveLog.setIconSize(QtCore.QSize(24, 24))
         self.btnSaveLog.setIcon(QIcon(":/save.png"))
+        self.btnSaveLog.setToolTip("Save Log As")
+        self.btnSaveLog.setCursor(Qt.PointingHandCursor)
 
         self.btnTimestamp = QPushButton(self)
-        x,w = x+w+12,44
-        self.btnTimestamp.setGeometry(x,y,w,h)
+        x,w = x+w+12,24
+        self.btnTimestamp.setGeometry(x,y,w,24)
         self.btnTimestamp.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; }
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
         """)
-        self.btnTimestamp.setIconSize(QtCore.QSize(44, 22))
+        self.btnTimestamp.setIconSize(QtCore.QSize(24, 24))
         self.btnTimestamp.setIcon(QIcon(":/timestamp_off.png"))
         self.btnTimestamp.clicked.connect(self.onTimestamp)
+        self.btnTimestamp.setToolTip("Select Timestamp")
+        self.btnTimestamp.setCursor(Qt.PointingHandCursor)
 
         self.btnTogglePortCfgBar = QPushButton(self)
         self.btnTogglePortCfgBar.setIconSize(QtCore.QSize(23, 23))
@@ -762,11 +772,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
         """)
         self.btnTogglePortCfgBar.clicked.connect(self.onTogglePortCfgBar)
-        
-        self.asbtn = AnimationSwitchButton(self)
-        x,w = x+w+12,60
-        self.asbtn.setGeometry(x,y,44,23)
-        self.asbtn.stateChanged.connect(self.onAsbtn)
+        self.btnTogglePortCfgBar.setToolTip("Toggle Port Config Bar")
+        self.btnTogglePortCfgBar.setCursor(Qt.PointingHandCursor)
         
         if os.name == 'posix':
             self.fixComboViewSize(self.cmbBaudRate)
@@ -791,9 +798,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self._is_timestamp:
             self.btnTimestamp.setIcon(QIcon(":/timestamp_off.png"))
             self._is_timestamp = False
+            self.btnTimestamp.setStyleSheet("""
+                QPushButton { background-color:transparent; border:none; }
+            """)
         else:
             self.btnTimestamp.setIcon(QIcon(":/timestamp_on.png"))
             self._is_timestamp = True
+            self.btnTimestamp.setStyleSheet("""
+                QPushButton { background-color:#b400c8; border:none; }
+            """)
 
     def onTogglePortCfgBar(self):
         #self.pos_animation.start()
@@ -1226,7 +1239,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def onReaderExcept(self, e):
         self.closePort()
-        QMessageBox.critical(self.defaultStyleWidget, "Read failed", str(e), QMessageBox.Close)
+        #QMessageBox.critical(self.defaultStyleWidget, "Read failed", str(e), QMessageBox.Close)
+        QToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), str(e))
 
     def timestamp(self):
         if self._is_timestamp:
@@ -1299,8 +1313,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         try:
             self.serialport.open()
         except Exception as e:
-            QMessageBox.critical(self.defaultStyleWidget, 
-                "Could not open serial port", str(e), QMessageBox.Close)
+            #QMessageBox.critical(self.defaultStyleWidget, "Could not open serial port", str(e), QMessageBox.Close)
+            QToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), str(e))
+            self.asbtnOpen.setChecked(False)
+            print(str(e))
         else:
             self.readerThread.start()
             self.setWindowTitle("%s on %s [%s, %s%s%s%s%s]" % (

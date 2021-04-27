@@ -30,11 +30,9 @@
         <file>radiobutton_checked.png</file>
         <file>radiobutton_checked_hover.png</file>
         <file>radiobutton_checked_pressed.png</file>
-        <file>port_on.png</file>
-        <file>port_off.png</file>
         <file>timestamp_on.png</file>
         <file>timestamp_off.png</file>
-        <file>broom.png</file>
         <file>save.png</file>
+        <file>clear_log.png</file>
     </qresource>
 </RCC>
