@@ -46,6 +46,7 @@ from res import resources_pyqt5
 import serial
 from serial.tools.list_ports import comports
 from time import sleep
+from animationswitchbutton import AnimationSwitchButton
 
 extension = os.path.splitext(sys.argv[0])[1]
 if extension != '.py':
@@ -141,7 +142,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.chkLoop.stateChanged.connect(self.onLoopChanged)
         
-        self.btnOpen.clicked.connect(self.onOpen)
+        #self.btnOpen.clicked.connect(self.onOpen)
         self.btnClear.clicked.connect(self.onClear)
         self.btnSaveLog.clicked.connect(self.onSaveLog)
         #self.btnEnumPorts.clicked.connect(self.onEnumPorts)
@@ -696,17 +697,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.cmbPort.listShowEntered.connect(self.onEnumPorts)
         self.cmbPort.currentTextChanged.connect(self.onPortChanged)
     
-        self.btnOpen = QPushButton(self)
-        self.btnOpen.setEnabled(True)
-        x,w = x+w+12,23
-        self.btnOpen.setGeometry(x,y,w,h)
-        self.btnOpen.setStyleSheet("""
-            QPushButton { background-color:transparent; border:none; }
-            QPushButton:hover { background-color:#51c0d1; }
-            QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
-        """)
-        self.btnOpen.setIconSize(QtCore.QSize(22, 22))
-        self.btnOpen.setIcon(QIcon(":/port_off.png"))
+        self.asbtnOpen = AnimationSwitchButton(self)
+        x,w = x+w+12,30
+        self.asbtnOpen.setGeometry(x,y+3,w,17)
+        self.asbtnOpen.stateChanged.connect(self.onOpen)
+        self.asbtnOpen.setToolTip("Open Port")
+        self.asbtnOpen.setCursor(Qt.PointingHandCursor)
+
+        # self.btnOpen = QPushButton(self)
+        # self.btnOpen.setEnabled(True)
+        # x,w = x+w+12,23
+        # self.btnOpen.setGeometry(x,y,w,h)
+        # self.btnOpen.setStyleSheet("""
+        #     QPushButton { background-color:transparent; border:none; }
+        #     QPushButton:hover { background-color:#51c0d1; }
+        #     QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
+        # """)
+        # self.btnOpen.setIconSize(QtCore.QSize(22, 22))
+        # self.btnOpen.setIcon(QIcon(":/port_off.png"))
 
         self.btnClear = QPushButton(self)
         x,w = x+w+12,24
@@ -766,9 +774,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.fixComboViewSize(self.cmbParity)
             self.fixComboViewSize(self.cmbStopBits)
 
-    def onAsbtn(self, state):
-        print(state)
-        
     def fixComboViewSize(self, widget):
         fm = QFontMetrics(widget.fontMetrics())
         maxlen = 0
@@ -1308,9 +1313,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.serialport.close()
             self.setWindowTitle(appInfo.title)
             self.cmbPort.setEnabled(True)
-            self.cmbPort.setStyleSheet('QComboBox:editable {background: white;}')
+            #self.cmbPort.setStyleSheet('QComboBox:editable {background: white;}')
             #self.btnOpen.setText('Open')
-            self.btnOpen.setIcon(QIcon(":/port_off.png"))
+            #self.btnOpen.setIcon(QIcon(":/port_off.png"))
 
     def onToggleQckSndPnl(self):
         if self.actionQuick_Send_Panel.isChecked():
@@ -1346,11 +1351,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.setWindowFlags(style & ~Qt.WindowStaysOnTopHint)
             self.show()
 
-    def onOpen(self):
+    def onOpen(self, state):
+        if state:
+            if not self.serialport.isOpen():
+                self.openPort()
+        else:
         if self.serialport.isOpen():
             self.closePort()
-        else:
-            self.openPort()
+
+    # def onOpen(self):
+    #     if self.serialport.isOpen():
+    #         self.closePort()
+    #     else:
+    #         self.openPort()
 
     def onClear(self):
         self.txtEdtOutput.clear()
