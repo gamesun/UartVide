@@ -908,15 +908,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ET.SubElement(View, "LocalEcho").text = self.actionLocal_Echo.isChecked() and "on" or "off"
         ET.SubElement(View, "ReceiveView").text = self._viewGroup.checkedAction().text()
 
+        try:
         with open(get_config_path(appInfo.title+'.xml'), 'w') as f:
             f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             f.write(ET.tostring(root, encoding='utf-8', pretty_print=True).decode("utf-8"))
+        except Exception as e:
+            print("{}".format(e))
 
     def loadSettings(self):
         if os.path.isfile(get_config_path(appInfo.title+".xml")):
+            try:
             with open(get_config_path(appInfo.title+".xml"), 'r') as f:
                 tree = safeET.parse(f)
-
+            except Exception as e:
+                print("{}".format(e))
+            else:
             port = tree.findtext('GUISettings/PortConfig/port', default='')
             if port != '':
                 self.cmbPort.setCurrentText(port)
@@ -1064,19 +1070,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #pprint.pprint(save_data, width=120, compact=True)
 
         # write to file
+        try:
         with open(get_config_path('QuickSend.csv'), 'w') as csvfile:
             csvwriter = csv.writer(csvfile, delimiter=',', lineterminator='\n')
             csvwriter.writerows(save_data)
+        except Exception as e:
+            print("{}".format(e))
 
     def loadQuickSend(self, path, notifyExcept = False):
         try:
             with open(path) as csvfile:
                 csvData = csv.reader(csvfile)
                 data = [row for row in csvData]
-        except IOError as e:
-            print("({})".format(e))
+        except Exception as e:
+            print("{}".format(e))
             if notifyExcept:
-                QMessageBox.critical(self.defaultStyleWidget, "Open failed",
+                QMessageBox.critical(self.defaultStyleWidget, "Load failed",
                     str(e), QMessageBox.Close)
         else:
             rows = self.quickSendTable.rowCount()
@@ -1094,6 +1103,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             #self.quickSendTable.resizeRowsToContents()
 
     def onQuickSend(self, row):
+        try:
         if self.serialport.isOpen():
             if self.quickSendTable.item(row, 2) is not None:
                 tablestring = self.quickSendTable.item(row, 2).text()
@@ -1106,14 +1116,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.transmitAscS(tablestring)
                 else:
                     self.transmitFile(tablestring, form)
+        except Exception as e:
+            print("{}".format(e))
+            QToolTip.showText(self.quickSendTable.cellWidget(row, 0).mapToGlobal(QPoint(0, 0)), str(e))
 
     def transmitFile(self, filepath, form):
         try:
             with open(filepath, 'rb' if 'BF' == form else 'rt') as f:
+                content = f.read()
+        except Exception as e:
+            #QMessageBox.critical(self.defaultStyleWidget, "Open failed", str(e), QMessageBox.Close)
+            raise e
+        else:
                 self.appendOutputText("\n%ssending %s [%s]" % (self.timestamp(), filepath, form), Qt.blue)
                 self.repaint()
                 
-                content = f.read()
                 sent_len = 0
                 if 'HF' == form:
                     sent_len = self.transmitHex(content, echo = False)
@@ -1123,9 +1140,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     sent_len = self.transmitBytearray(content)
                 
                 self.appendOutputText("\n%s%d bytes sent" % (self.timestamp(), sent_len), Qt.blue)
-        except IOError as e:
-            print("({})".format(e))
-            QMessageBox.critical(self.defaultStyleWidget, "Open failed", str(e), QMessageBox.Close)
 
     def onLoopChanged(self, state):
         self.spnPeriod.setEnabled(state)
@@ -1301,9 +1315,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 )
             )
             self.cmbPort.setEnabled(False)
-            self.cmbPort.setStyleSheet('QComboBox:editable {background: #ffffcc;}')
+            #self.cmbPort.setStyleSheet('QComboBox:editable {background: #ffffcc;}')
             #self.btnOpen.setText('Close')
-            self.btnOpen.setIcon(QIcon(":/port_on.png"))
+            #self.btnOpen.setIcon(QIcon(":/port_on.png"))
 
     def closePort(self):
         if self.serialport.isOpen():
@@ -1373,8 +1387,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             "Log files (*.log);;Text files (*.txt);;All files (*.*)")[0]
         if fileName:
             import codecs
+            try:
             with codecs.open(fileName, 'w', 'utf-8') as f:
                 f.write(self.txtEdtOutput.toPlainText())
+            except Exception as e:
+                print("{}".format(e))
 
     def moveScreenCenter(self):
         w = self.frameGeometry().width()
@@ -1382,11 +1399,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         desktop = QDesktopWidget()
         screenW = desktop.screen().width()
         screenH = desktop.screen().height()
-        self.setGeometry((screenW-w)/2, (screenH-h)/2, w, h)
+        self.setGeometry((screenW-w)//2, (screenH-h)//2, w, h)
 
         w = self.defaultStyleWidget.frameGeometry().width()
         h = self.defaultStyleWidget.frameGeometry().height()
-        self.defaultStyleWidget.setGeometry((screenW-w)/2, (screenH-h)/2, w, h)
+        self.defaultStyleWidget.setGeometry((screenW-w)//2, (screenH-h)//2, w, h)
 
     def onEnumPorts(self):
         sel = self.cmbPort.currentText()
@@ -1430,8 +1447,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 print("Exception on restoreLayout, {}".format(e))
 
     def saveLayout(self):
+        try:
         with open(get_config_path("UILayout.dat"), 'wb') as f:
             pickle.dump((self.saveGeometry(), self.saveState()), f)
+        except Exception as e:
+            print("{}".format(e))
 
     def syncMenu(self):
         #self.actionPort_Config_Panel.setChecked(not self.dockWidget_PortConfig.isHidden())
