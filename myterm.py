@@ -33,7 +33,7 @@ import defusedxml.ElementTree as safeET
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget, \
     QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget, QToolButton, \
-    QFileDialog
+    QFileDialog, QToolTip
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper, QFile, QIODevice, \
     QPoint, QPropertyAnimation
 from PyQt5.QtGui import QFontMetrics, QFont, QIcon
@@ -922,74 +922,74 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ET.SubElement(View, "ReceiveView").text = self._viewGroup.checkedAction().text()
 
         try:
-        with open(get_config_path(appInfo.title+'.xml'), 'w') as f:
-            f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-            f.write(ET.tostring(root, encoding='utf-8', pretty_print=True).decode("utf-8"))
+            with open(get_config_path(appInfo.title+'.xml'), 'w') as f:
+                f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+                f.write(ET.tostring(root, encoding='utf-8', pretty_print=True).decode("utf-8"))
         except Exception as e:
             print("{}".format(e))
 
     def loadSettings(self):
         if os.path.isfile(get_config_path(appInfo.title+".xml")):
             try:
-            with open(get_config_path(appInfo.title+".xml"), 'r') as f:
-                tree = safeET.parse(f)
+                with open(get_config_path(appInfo.title+".xml"), 'r') as f:
+                    tree = safeET.parse(f)
             except Exception as e:
                 print("{}".format(e))
             else:
-            port = tree.findtext('GUISettings/PortConfig/port', default='')
-            if port != '':
-                self.cmbPort.setCurrentText(port)
+                port = tree.findtext('GUISettings/PortConfig/port', default='')
+                if port != '':
+                    self.cmbPort.setCurrentText(port)
 
-            baudrate = tree.findtext('GUISettings/PortConfig/baudrate', default='38400')
-            if baudrate != '':
-                self.cmbBaudRate.setCurrentText(baudrate)
+                baudrate = tree.findtext('GUISettings/PortConfig/baudrate', default='38400')
+                if baudrate != '':
+                    self.cmbBaudRate.setCurrentText(baudrate)
 
-            databits = tree.findtext('GUISettings/PortConfig/databits', default='8')
-            id = self.cmbDataBits.findText(databits)
-            if id >= 0:
-                self.cmbDataBits.setCurrentIndex(id)
+                databits = tree.findtext('GUISettings/PortConfig/databits', default='8')
+                id = self.cmbDataBits.findText(databits)
+                if id >= 0:
+                    self.cmbDataBits.setCurrentIndex(id)
 
-            parity = tree.findtext('GUISettings/PortConfig/parity', default='None')
-            id = self.cmbParity.findText(parity)
-            if id >= 0:
-                self.cmbParity.setCurrentIndex(id)
+                parity = tree.findtext('GUISettings/PortConfig/parity', default='None')
+                id = self.cmbParity.findText(parity)
+                if id >= 0:
+                    self.cmbParity.setCurrentIndex(id)
 
-            stopbits = tree.findtext('GUISettings/PortConfig/stopbits', default='1')
-            id = self.cmbStopBits.findText(stopbits)
-            if id >= 0:
-                self.cmbStopBits.setCurrentIndex(id)
+                stopbits = tree.findtext('GUISettings/PortConfig/stopbits', default='1')
+                id = self.cmbStopBits.findText(stopbits)
+                if id >= 0:
+                    self.cmbStopBits.setCurrentIndex(id)
 
-            rtscts = tree.findtext('GUISettings/PortConfig/rtscts', default='off')
-            if 'on' == rtscts:
-                self.chkRTSCTS.setChecked(True)
-            else:
-                self.chkRTSCTS.setChecked(False)
+                rtscts = tree.findtext('GUISettings/PortConfig/rtscts', default='off')
+                if 'on' == rtscts:
+                    self.chkRTSCTS.setChecked(True)
+                else:
+                    self.chkRTSCTS.setChecked(False)
 
-            xonxoff = tree.findtext('GUISettings/PortConfig/xonxoff', default='off')
-            if 'on' == xonxoff:
-                self.chkXonXoff.setChecked(True)
-            else:
-                self.chkXonXoff.setChecked(False)
+                xonxoff = tree.findtext('GUISettings/PortConfig/xonxoff', default='off')
+                if 'on' == xonxoff:
+                    self.chkXonXoff.setChecked(True)
+                else:
+                    self.chkXonXoff.setChecked(False)
 
-            LocalEcho = tree.findtext('GUISettings/View/LocalEcho', default='off')
-            if 'on' == LocalEcho:
-                self.actionLocal_Echo.setChecked(True)
-                self._localEcho = True
-            else:
-                self.actionLocal_Echo.setChecked(False)
-                self._localEcho = False
+                LocalEcho = tree.findtext('GUISettings/View/LocalEcho', default='off')
+                if 'on' == LocalEcho:
+                    self.actionLocal_Echo.setChecked(True)
+                    self._localEcho = True
+                else:
+                    self.actionLocal_Echo.setChecked(False)
+                    self._localEcho = False
 
-            ReceiveView = tree.findtext('GUISettings/View/ReceiveView', default='HEX(UPPERCASE)')
-            if 'Ascii' in ReceiveView:
-                self.actionAscii.setChecked(True)
-                self._viewMode = VIEWMODE_ASCII
-            elif 'lowercase' in ReceiveView:
-                self.actionHex_lowercase.setChecked(True)
-                self._viewMode = VIEWMODE_HEX_LOWERCASE
-            elif 'UPPERCASE' in ReceiveView:
-                self.actionHEX_UPPERCASE.setChecked(True)
-                self._viewMode = VIEWMODE_HEX_UPPERCASE
-            self.readerThread.setViewMode(self._viewMode)
+                ReceiveView = tree.findtext('GUISettings/View/ReceiveView', default='HEX(UPPERCASE)')
+                if 'Ascii' in ReceiveView:
+                    self.actionAscii.setChecked(True)
+                    self._viewMode = VIEWMODE_ASCII
+                elif 'lowercase' in ReceiveView:
+                    self.actionHex_lowercase.setChecked(True)
+                    self._viewMode = VIEWMODE_HEX_LOWERCASE
+                elif 'UPPERCASE' in ReceiveView:
+                    self.actionHEX_UPPERCASE.setChecked(True)
+                    self._viewMode = VIEWMODE_HEX_UPPERCASE
+                self.readerThread.setViewMode(self._viewMode)
 
     def closeEvent(self, event):
         if self.serialport.isOpen():
@@ -1084,9 +1084,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # write to file
         try:
-        with open(get_config_path('QuickSend.csv'), 'w') as csvfile:
-            csvwriter = csv.writer(csvfile, delimiter=',', lineterminator='\n')
-            csvwriter.writerows(save_data)
+            with open(get_config_path('QuickSend.csv'), 'w') as csvfile:
+                csvwriter = csv.writer(csvfile, delimiter=',', lineterminator='\n')
+                csvwriter.writerows(save_data)
         except Exception as e:
             print("{}".format(e))
 
@@ -1117,18 +1117,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def onQuickSend(self, row):
         try:
-        if self.serialport.isOpen():
-            if self.quickSendTable.item(row, 2) is not None:
-                tablestring = self.quickSendTable.item(row, 2).text()
-                form = self.quickSendTable.cellWidget(row, 1).text()
-                if 'H' == form:
-                    self.transmitHex(tablestring)
-                elif 'A' == form:
-                    self.transmitAsc(tablestring)
-                elif 'AS' == form:
-                    self.transmitAscS(tablestring)
-                else:
-                    self.transmitFile(tablestring, form)
+            if self.serialport.isOpen():
+                if self.quickSendTable.item(row, 2) is not None:
+                    tablestring = self.quickSendTable.item(row, 2).text()
+                    form = self.quickSendTable.cellWidget(row, 1).text()
+                    if 'H' == form:
+                        self.transmitHex(tablestring)
+                    elif 'A' == form:
+                        self.transmitAsc(tablestring)
+                    elif 'AS' == form:
+                        self.transmitAscS(tablestring)
+                    else:
+                        self.transmitFile(tablestring, form)
         except Exception as e:
             print("{}".format(e))
             QToolTip.showText(self.quickSendTable.cellWidget(row, 0).mapToGlobal(QPoint(0, 0)), str(e))
@@ -1386,8 +1386,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if not self.serialport.isOpen():
                 self.openPort()
         else:
-        if self.serialport.isOpen():
-            self.closePort()
+            if self.serialport.isOpen():
+                self.closePort()
 
     # def onOpen(self):
     #     if self.serialport.isOpen():
@@ -1404,8 +1404,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if fileName:
             import codecs
             try:
-            with codecs.open(fileName, 'w', 'utf-8') as f:
-                f.write(self.txtEdtOutput.toPlainText())
+                with codecs.open(fileName, 'w', 'utf-8') as f:
+                    f.write(self.txtEdtOutput.toPlainText())
             except Exception as e:
                 print("{}".format(e))
 
@@ -1464,8 +1464,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def saveLayout(self):
         try:
-        with open(get_config_path("UILayout.dat"), 'wb') as f:
-            pickle.dump((self.saveGeometry(), self.saveState()), f)
+            with open(get_config_path("UILayout.dat"), 'wb') as f:
+                pickle.dump((self.saveGeometry(), self.saveState()), f)
         except Exception as e:
             print("{}".format(e))
 
