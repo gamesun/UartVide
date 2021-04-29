@@ -1,0 +1,6 @@
+package: myterm
+version: 2.3.0
+architecture: amd64
+Priority: optional
+maintainer: gamesun
+description: RS232 serial port communication utility

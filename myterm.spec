@@ -1,4 +1,5 @@
-# -*- mode: python -*-
+# -*- mode: python ; coding: utf-8 -*-
+
 
 block_cipher = None
 
@@ -21,7 +22,7 @@ exe = EXE(pyz,
           a.scripts,
           [],
           exclude_binaries=True,
-          name='MyTerm',
+          name='myterm',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
@@ -33,4 +34,5 @@ coll = COLLECT(exe,
                a.datas,
                strip=False,
                upx=True,
-               name='MyTerm')
+               upx_exclude=[],
+               name='myterm')

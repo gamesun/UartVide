@@ -1,0 +1,11 @@
+[Desktop Entry] 
+Name=myterm
+Comment=RS232 serial port communication utility
+Exec=/usr/bin/myterm
+Icon=/usr/share/icons/myterm.png
+Terminal=false
+Type=Application
+X-Ubuntu-Touch=true
+Categories=Development
+Name[en]=MyTerm
+
