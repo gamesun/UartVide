@@ -201,7 +201,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.serialport.bytesize = self.getDataBits()
         
     def onStopBitsChanged(self, text):
-        old = self.serialport.stopbits
         try:
             self.serialport.stopbits = self.getStopBits()
         except ValueError:
@@ -926,7 +925,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
                 f.write(ET.tostring(root, encoding='utf-8', pretty_print=True).decode("utf-8"))
         except Exception as e:
-            print("{}".format(e))
+            #print("{}".format(e))
+            print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
 
     def loadSettings(self):
         if os.path.isfile(get_config_path(appInfo.title+".xml")):
@@ -934,7 +934,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 with open(get_config_path(appInfo.title+".xml"), 'r') as f:
                     tree = safeET.parse(f)
             except Exception as e:
-                print("{}".format(e))
+                #print("{}".format(e))
+                print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
             else:
                 port = tree.findtext('GUISettings/PortConfig/port', default='')
                 if port != '':
@@ -1088,7 +1089,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 csvwriter = csv.writer(csvfile, delimiter=',', lineterminator='\n')
                 csvwriter.writerows(save_data)
         except Exception as e:
-            print("{}".format(e))
+            #print("{}".format(e))
+            print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
 
     def loadQuickSend(self, path, notifyExcept = False):
         try:
@@ -1096,7 +1098,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 csvData = csv.reader(csvfile)
                 data = [row for row in csvData]
         except Exception as e:
-            print("{}".format(e))
+            #print("{}".format(e))
+            print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
             if notifyExcept:
                 QMessageBox.critical(self.defaultStyleWidget, "Load failed",
                     str(e), QMessageBox.Close)
@@ -1130,7 +1133,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     else:
                         self.transmitFile(tablestring, form)
         except Exception as e:
-            print("{}".format(e))
+            #print("{}".format(e))
+            print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
             QToolTip.showText(self.quickSendTable.cellWidget(row, 0).mapToGlobal(QPoint(0, 0)), str(e))
 
     def transmitFile(self, filepath, form):
@@ -1316,7 +1320,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             #QMessageBox.critical(self.defaultStyleWidget, "Could not open serial port", str(e), QMessageBox.Close)
             QToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), str(e))
             self.asbtnOpen.setChecked(False)
-            print(str(e))
+            #print(str(e))
+            print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
         else:
             self.readerThread.start()
             self.setWindowTitle("%s on %s [%s, %s%s%s%s%s]" % (
@@ -1407,7 +1412,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 with codecs.open(fileName, 'w', 'utf-8') as f:
                     f.write(self.txtEdtOutput.toPlainText())
             except Exception as e:
-                print("{}".format(e))
+                #print("{}".format(e))
+                print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
 
     def moveScreenCenter(self):
         w = self.frameGeometry().width()
@@ -1467,7 +1473,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             with open(get_config_path("UILayout.dat"), 'wb') as f:
                 pickle.dump((self.saveGeometry(), self.saveState()), f)
         except Exception as e:
-            print("{}".format(e))
+            #print("{}".format(e))
+            print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
 
     def syncMenu(self):
         #self.actionPort_Config_Panel.setChecked(not self.dockWidget_PortConfig.isHidden())
