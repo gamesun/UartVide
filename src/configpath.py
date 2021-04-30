@@ -26,8 +26,10 @@
 
 import os
 
-#setting_root = os.path.join(os.path.expanduser('~'), 'MyTerm')
-setting_root = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Settings')
+if os.name == 'nt':
+    setting_root = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Settings')
+elif os.name == 'posix':
+    setting_root = os.path.join(os.path.expanduser('~'), 'MyTerm')
 
 def ensure_root():
     if not os.path.isdir(setting_root):
