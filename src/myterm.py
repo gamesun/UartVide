@@ -24,29 +24,51 @@
 #############################################################################
 
 
+# PySide2
+from PySide2 import QtCore, QtGui, QtWidgets
+from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget, \
+    QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget, QToolButton, \
+    QFileDialog, QToolTip
+from PySide2.QtCore import Qt, QThread, Signal, QSignalMapper, QFile, QPoint, \
+    QIODevice
+from PySide2.QtGui import QFontMetrics, QFont, QIcon
+signal = Signal
+import resources_pyside2
+from ui_mainwindow_pyside2 import Ui_MainWindow
+
+# PyQt5
+# from PyQt5 import QtCore, QtGui, QtWidgets
+# from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget, \
+#     QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget, QToolButton, \
+#     QFileDialog, QToolTip
+# from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper, QFile, QPoint, \
+#     QIODevice
+# from PyQt5.QtGui import QFontMetrics, QFont, QIcon
+# signal = pyqtSignal
+# try:
+#   from PyQt5 import sip
+# except ImportError:
+#   import sip
+# import resources_pyqt5
+# from ui_mainwindow_pyqt5 import Ui_MainWindow
+
+from combo import Combo
+from animationswitchbutton import AnimationSwitchButton
+
+
 import sys, os
 import datetime
 import pickle
 import csv
 from lxml import etree as ET
 import defusedxml.ElementTree as safeET
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget, \
-    QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget, QToolButton, \
-    QFileDialog, QToolTip
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper, QFile, QIODevice, \
-    QPoint, QPropertyAnimation
-from PyQt5.QtGui import QFontMetrics, QFont, QIcon
-from combo import Combo
-import sip
 import appInfo
 from configpath import get_config_path
-from ui.ui_mainwindow import Ui_MainWindow
-from res import resources_pyqt5
+
 import serial
 from serial.tools.list_ports import comports
 from time import sleep
-from animationswitchbutton import AnimationSwitchButton
+
 
 extension = os.path.splitext(sys.argv[0])[1]
 if extension != '.py':
@@ -1418,9 +1440,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def moveScreenCenter(self):
         w = self.frameGeometry().width()
         h = self.frameGeometry().height()
-        desktop = QDesktopWidget()
-        screenW = desktop.screen().width()
-        screenH = desktop.screen().height()
+        screen = app.primaryScreen().geometry()
+        screenW = screen.width()
+        screenH = screen.height()
         self.setGeometry((screenW-w)//2, (screenH-h)//2, w, h)
 
         w = self.defaultStyleWidget.frameGeometry().width()
@@ -1507,8 +1529,8 @@ def is_hex(s):
 
 class ReaderThread(QThread):
     """loop and copy serial->GUI"""
-    read = pyqtSignal(str)
-    exception = pyqtSignal(str)
+    read = signal(str)
+    exception = signal(str)
 
     def __init__(self, parent=None):
         super(ReaderThread, self).__init__(parent)
@@ -1571,8 +1593,8 @@ class ReaderThread(QThread):
         self._stopped = True
 
 class PortMonitorThread(QThread):
-    portPlugOut = pyqtSignal()
-    exception = pyqtSignal(str)
+    portPlugOut = signal()
+    exception = signal(str)
     
     def __init__(self, parent=None):
         super(PortMonitorThread, self).__init__(parent)
@@ -1609,8 +1631,8 @@ class PortMonitorThread(QThread):
         self._stopped = True
 
 class LoopSendThread(QThread):
-    trigger = pyqtSignal()
-    exception = pyqtSignal(str)
+    trigger = signal()
+    exception = signal(str)
     
     def __init__(self, parent=None):
         super(LoopSendThread, self).__init__(parent)

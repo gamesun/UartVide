@@ -23,21 +23,24 @@
 ##
 #############################################################################
 
+# PySide2
+from PySide2 import QtCore, QtGui, QtWidgets
+from PySide2.QtCore import Qt, Signal, QPoint, QVariantAnimation, QRect
+from PySide2.QtGui import QIcon, QPainter, QColor, QPen, QPainterPath, QRadialGradient
+signal = Signal
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget, \
-    QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget, QToolButton, \
-    QFileDialog
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper, QFile, QIODevice, \
-    QPoint, QPropertyAnimation, QVariantAnimation, QRect
-from PyQt5.QtGui import QFontMetrics, QFont, QIcon, QPainter, QColor, QPen, QPainterPath, QRadialGradient
+# PyQt5
+# from PyQt5 import QtCore, QtGui, QtWidgets
+# from PyQt5.QtCore import Qt, pyqtSignal, QPoint, QVariantAnimation, QRect
+# from PyQt5.QtGui import QIcon, QPainter, QColor, QPen, QPainterPath, QRadialGradient
+# signal = pyqtSignal
 
 buttonStyle_Rect = 0
 buttonStyle_CircleIn = 1
 buttonStyle_CircleOut = 2
         
-class AnimationSwitchButton(QToolButton):
-    stateChanged = pyqtSignal(bool)
+class AnimationSwitchButton(QtWidgets.QToolButton):
+    stateChanged = signal(bool)
     
     def __init__(self, parent = None):
         super(AnimationSwitchButton, self).__init__(parent)

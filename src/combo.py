@@ -24,25 +24,17 @@
 #############################################################################
 
 
-# PySide
-#from PySide import QtCore, QtGui
-#from PySide.QtCore import Signal
-#base = QtGui.QComboBox
-#signal = Signal
-
 # PySide2
-#from PySide2 import QtCore, QtWidgets
-#from PySide2.QtCore import Signal
-#base = QtWidgets.QComboBox
-#signal = Signal
+from PySide2 import QtCore, QtWidgets
+from PySide2.QtCore import Signal
+signal = Signal
 
 # PyQt5
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtCore import pyqtSignal
-base = QtWidgets.QComboBox
-signal = pyqtSignal
+# from PyQt5 import QtCore, QtWidgets
+# from PyQt5.QtCore import pyqtSignal
+# signal = pyqtSignal
 
-class Combo(base):
+class Combo(QtWidgets.QComboBox):
     listShowEntered = signal()
     
     def __init__(self, *args, **kwargs):
