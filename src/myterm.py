@@ -23,6 +23,25 @@
 ##
 #############################################################################
 
+import sys, os
+extension = os.path.splitext(sys.argv[0])[1]
+if extension != '.py':
+    import except_logger
+    sys.excepthook = except_logger.exceptHook
+    
+    if os.name == 'nt':
+        app_path = os.path.dirname(os.path.abspath(__file__))
+        try:os.mkdir(app_path+"\\DLLs\\")
+        except: pass
+        
+        os.add_dll_directory(app_path+"\\DLLs\\")
+        sys.path.append(app_path+"\\DLLs\\")
+
+        #import ctypes
+        #dll_lst = [f for f in os.listdir(app_path+"\\DLLs\\") if f.endswith(".dll")]
+        #for d in dll_lst:
+            #try:ctypes.WinDLL(app_path+"\\DLLs\\"+d)
+            #except:pass
 
 # PySide2
 from PySide2 import QtCore, QtGui, QtWidgets
@@ -56,12 +75,11 @@ from combo import Combo
 from animationswitchbutton import AnimationSwitchButton
 
 
-import sys, os
 import datetime
 import pickle
 import csv
 from lxml import etree as ET
-import defusedxml.ElementTree as safeET
+import defusedxml.ElementTree as safeET 
 import appInfo
 from configpath import get_config_path
 
@@ -69,11 +87,6 @@ import serial
 from serial.tools.list_ports import comports
 from time import sleep
 
-
-extension = os.path.splitext(sys.argv[0])[1]
-if extension != '.py':
-    import except_logger
-    sys.excepthook = except_logger.exceptHook
 
 if os.name == 'nt':
     EDITOR_FONT = "Consolas"
@@ -1258,7 +1271,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             except Exception as e:
                 QMessageBox.critical(self.defaultStyleWidget,
                     "Exception in transmit", str(e), QMessageBox.Close)
-                print("Exception in transmitBytearray(%s)" % text)
+                print("Exception in transmitBytearray(%s)" % byteArray)
                 return 0
             else:
                 return len(byteArray)
@@ -1452,7 +1465,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def onEnumPorts(self):
         sel = self.cmbPort.currentText()
         self.cmbPort.clear()
-        for port, desc, hwid in sorted(comports()):
+        for port, desc, _ in sorted(comports()):
             self.cmbPort.addItem(port + '  ' + desc)
         self.fixComboViewSize(self.cmbPort)
         
