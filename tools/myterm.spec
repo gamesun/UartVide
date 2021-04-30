@@ -4,7 +4,7 @@
 block_cipher = None
 
 
-a = Analysis(['myterm.py'],
+a = Analysis(['..\\src\\myterm.py'],
              pathex=[],
              binaries=[],
              datas=[],
@@ -27,7 +27,7 @@ exe = EXE(pyz,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
-          console=False , icon='res\\MyTerm.ico')
+          console=False , icon='..\\res\\MyTerm.ico')
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,

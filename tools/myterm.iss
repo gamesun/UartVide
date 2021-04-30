@@ -2,7 +2,7 @@
 ; 
 
 #define AppName "MyTerm"
-#define AppVersion "2.3.0"
+#define AppVersion "2.4"
 
 [Setup]
 AppName={#AppName} {#AppVersion}
@@ -16,11 +16,11 @@ VersionInfoVersion={#AppVersion}
 AppPublisher=gamesun
 AppPublisherURL=http://sourceforge.net/projects/myterm/
 AppCopyright=Copyright (C) 2013-2021 gamesun
-OutputBaseFilename={#AppName}-{#AppVersion}-win32
+OutputBaseFilename={#AppName}-{#AppVersion}-win64
 OutputDir=Release
 DisableDirPage=no
 DisableProgramGroupPage=no
-LicenseFile=LICENSE.txt
+LicenseFile=..\LICENSE.txt
 ShowTasksTreeLines=yes
 AppMutex={#AppName}Mutex
 SetupMutex={#AppName}Mutex
@@ -30,9 +30,9 @@ DisableWelcomePage=no
 CloseApplicationsFilter=*.*
 
 [Files]
-Source: "dist\{#AppName}\*"; DestDir: "{app}"; Flags: recursesubdirs
-Source: "LICENSE.txt"; DestDir: "{app}"
-Source: "whatsnew.htm"; DestDir: "{app}"
+Source: "dist\myterm\*"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "..\LICENSE.txt"; DestDir: "{app}"
+Source: "..\whatsnew.htm"; DestDir: "{app}"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\Settings"
