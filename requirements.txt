@@ -1,0 +1,5 @@
+lxml==4.6.3
+defusedxml==0.7.1
+PyQt5==5.15.4
+pyserial==3.5
+PySide2==5.15.2
