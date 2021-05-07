@@ -1,4 +1,4 @@
-package: myterm
+package: uartvide
 version: 2.3.0
 architecture: amd64
 Priority: optional

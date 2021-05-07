@@ -6,20 +6,20 @@
 ## Copyright (c) 2013-2021, gamesun
 ## All right reserved.
 ##
-## This file is part of MyTerm.
+## This file is part of UartVide(MyTerm).
 ##
-## MyTerm is free software: you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation, either version 3 of the License, or
-## (at your option) any later version.
+## UartVide(MyTerm) is free software: you can redistribute it and/or
+## modify it under the terms of the GNU General Public License as
+## published by the Free Software Foundation, either version 3 of the
+## License, or (at your option) any later version.
 ##
-## MyTerm is distributed in the hope that it will be useful, but
-## WITHOUT ANY WARRANTY; without even the implied warranty of
+## UartVide(MyTerm) is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
 ##
-## You should have received a copy of the GNU General Public License
-## along with MyTerm.  If not, see <http://www.gnu.org/licenses/>.
+## You should have received a copy of the GNU General Public License along
+## with UartVide(MyTerm).  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
 
@@ -128,7 +128,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupMenu()
         self.setupFlatUi()
         
-        icon = QIcon(":/MyTerm.ico")
+        icon = QIcon(":/UartVide.ico")
         self.setWindowIcon(icon)
         self.actionAbout.setIcon(icon)
 
@@ -696,8 +696,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnMenu = QToolButton(self)
         self.btnMenu.setFont(font)
         self.btnMenu.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-        self.btnMenu.setIcon(QIcon(':/MyTerm.ico'))
-        self.btnMenu.setText('MyTerm  ')
+        self.btnMenu.setIcon(QIcon(':/UartVide.ico'))
+        self.btnMenu.setText('UartVide  ')
         self.btnMenu.setGeometry(x,y,w,h)
         self.btnMenu.setMenu(self.menuMenu)
         self.btnMenu.setPopupMode(QtWidgets.QToolButton.InstantPopup)
@@ -1474,7 +1474,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.cmbPort.setCurrentIndex(idx)
 
     def onAbout(self):
-        QMessageBox.about(self.defaultStyleWidget, "About MyTerm", appInfo.aboutme)
+        QMessageBox.about(self.defaultStyleWidget, "About UartVide", appInfo.aboutme)
 
     def onAboutQt(self):
         QMessageBox.aboutQt(self.defaultStyleWidget)

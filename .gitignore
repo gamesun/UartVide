@@ -5,6 +5,7 @@ settings.xml
 Settings/
 core
 .vscode/
+wheels/
 
 #################
 ## Eclipse

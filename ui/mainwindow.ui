@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string notr="true">MyTerm</string>
+   <string notr="true">UartVide</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -1112,16 +1112,16 @@
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string notr="true">About MyTerm</string>
+    <string notr="true">About UartVide</string>
    </property>
    <property name="iconText">
-    <string notr="true">About MyTerm</string>
+    <string notr="true">About UartVide</string>
    </property>
    <property name="toolTip">
-    <string notr="true">About MyTerm</string>
+    <string notr="true">About UartVide</string>
    </property>
    <property name="statusTip">
-    <string notr="true">About MyTerm</string>
+    <string notr="true">About UartVide</string>
    </property>
   </action>
   <action name="actionAbout_Qt">

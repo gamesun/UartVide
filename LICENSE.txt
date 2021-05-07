@@ -1,7 +1,7 @@
 
- MyTerm is Copyright (C) 2013-2021 gamesun
+ UartVide(MyTerm) is Copyright (C) 2013-2021 gamesun
 
- You may use, distribute and copy MyTerm under the terms of GNU
+ You may use, distribute and copy UartVide(MyTerm) under the terms of GNU
  General Public License version 3, which is displayed below.
 
 -------------------------------------------------------------------------

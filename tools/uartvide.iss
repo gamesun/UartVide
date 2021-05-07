@@ -1,7 +1,7 @@
 ; Inno setup Script
 ; 
 
-#define AppName "MyTerm"
+#define AppName "UartVide"
 #define AppVersion "2.4"
 
 [Setup]
@@ -30,7 +30,7 @@ DisableWelcomePage=no
 CloseApplicationsFilter=*.*
 
 [Files]
-Source: "dist\myterm\*"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "dist\uartvide\*"; DestDir: "{app}"; Flags: recursesubdirs
 Source: "..\LICENSE.txt"; DestDir: "{app}"
 Source: "..\whatsnew.htm"; DestDir: "{app}"
 
