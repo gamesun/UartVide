@@ -128,7 +128,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupMenu()
         self.setupFlatUi()
         
-        icon = QIcon(":/UartVide.ico")
+        icon = QIcon(":/uartvide-icon/uartvide.ico")
         self.setWindowIcon(icon)
         self.actionAbout.setIcon(icon)
 
@@ -696,7 +696,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnMenu = QToolButton(self)
         self.btnMenu.setFont(font)
         self.btnMenu.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-        self.btnMenu.setIcon(QIcon(':/UartVide.ico'))
+        self.btnMenu.setIcon(QIcon(':/uartvide-icon/uartvide.ico'))
         self.btnMenu.setText('UartVide  ')
         self.btnMenu.setGeometry(x,y,w,h)
         self.btnMenu.setMenu(self.menuMenu)
