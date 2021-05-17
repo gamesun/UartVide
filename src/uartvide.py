@@ -757,7 +757,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         x,w = x+w+12,24
         self.btnClear.setGeometry(x,y,w,24)
         self.btnClear.setStyleSheet("""
-            QPushButton { background-color:transparent; border:none; }
+            QPushButton { background-color:transparent; border:none; border-radius: 6px; }
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
         """)
@@ -772,7 +772,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         x,w = x+w+12,24
         self.btnSaveLog.setGeometry(x,y,w,24)
         self.btnSaveLog.setStyleSheet("""
-            QPushButton { background-color:transparent; border:none; }
+            QPushButton { background-color:transparent; border:none; border-radius: 6px; }
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
         """)
@@ -784,11 +784,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnTimestamp = QPushButton(self)
         x,w = x+w+12,24
         self.btnTimestamp.setGeometry(x,y,w,24)
-        self.btnTimestamp.setStyleSheet("""
-            QPushButton { background-color:transparent; border:none; }
+        self.btnTimestamp_stylesheetTemplate = """
+            QPushButton { background-color:%(BackgroundColor)s; border:none; border-radius: 6px; }
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
-        """)
+        """
+        self.btnTimestamp.setStyleSheet(self.btnTimestamp_stylesheetTemplate % {'BackgroundColor':'transparent'})
         self.btnTimestamp.setIconSize(QtCore.QSize(24, 24))
         self.btnTimestamp.setIcon(QIcon(":/timestamp_off.png"))
         self.btnTimestamp.clicked.connect(self.onTimestamp)
@@ -801,7 +802,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         x,w = x+w+12,23
         self.btnTogglePortCfgBar.setGeometry(x,y,w,h)
         self.btnTogglePortCfgBar.setStyleSheet("""
-            QPushButton { background-color:transparent; border:none; }
+            QPushButton { background-color:transparent; border:none; border-radius: 6px; }
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
         """)
@@ -832,15 +833,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self._is_timestamp:
             self.btnTimestamp.setIcon(QIcon(":/timestamp_off.png"))
             self._is_timestamp = False
-            self.btnTimestamp.setStyleSheet("""
-                QPushButton { background-color:transparent; border:none; }
-            """)
+            self.btnTimestamp.setStyleSheet(self.btnTimestamp_stylesheetTemplate % {'BackgroundColor':'transparent'})
         else:
             self.btnTimestamp.setIcon(QIcon(":/timestamp_on.png"))
             self._is_timestamp = True
-            self.btnTimestamp.setStyleSheet("""
-                QPushButton { background-color:#b400c8; border:none; }
-            """)
+            self.btnTimestamp.setStyleSheet(self.btnTimestamp_stylesheetTemplate % {'BackgroundColor':'#b400c8'})
 
     def onTogglePortCfgBar(self):
         #self.pos_animation.start()
