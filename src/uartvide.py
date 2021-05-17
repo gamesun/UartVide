@@ -1329,12 +1329,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         _port = self.getPort()
         if '' == _port:
-            QMessageBox.information(self.defaultStyleWidget, "Invalid parameters", "Port is empty.")
+            #QMessageBox.information(self.defaultStyleWidget, "Invalid parameters", "Port is empty.")
+            QToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), "Port is empty")
+            self.asbtnOpen.setChecked(False)
             return
 
         _baudrate = self.cmbBaudRate.currentText()
         if '' == _baudrate:
-            QMessageBox.information(self.defaultStyleWidget, "Invalid parameters", "Baudrate is empty.")
+            #QMessageBox.information(self.defaultStyleWidget, "Invalid parameters", "Baudrate is empty.")
+            QToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), "Baudrate is empty")
+            self.asbtnOpen.setChecked(False)
             return
 
         self.serialport.port     = _port
