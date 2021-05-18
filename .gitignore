@@ -6,6 +6,7 @@ Settings/
 core
 .vscode/
 wheels/
+workspace.code-workspace
 
 #################
 ## Eclipse
