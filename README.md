@@ -1,4 +1,6 @@
-# UartVide(MyTerm) ![logo](res/UartVide/48.png)   
+# UartVide ![logo](res/uartvide-icon/uartvide_48.png)   
+
+MyTerm was renamed to UartVide.
 
 Mainly designed for embedded & software engineers, UartVide is a flat-UI and straightforward and lightweight RS232 serial port communication utility that allows you to configure the connection parameters and communicate via the port.   
 UartVide runs on all platforms supported by PyQt including Windows, Linux.
@@ -31,3 +33,5 @@ The package for Linux is being prepared.
 ## Entirely new UI
 ![main window](doc/main_window.png "main window")
 
+The program icon made by <a href="https://www.flaticon.com/authors/flat-icons" title="Flat Icons">
+Flat Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
