@@ -48,5 +48,9 @@ Its features including
 </ul>
 %(title)s is licensed under the GNU GPL v3 or later.<br>
 For detail see LICENSE.txt. <br>
+
+<div>The program icon made by <a href="https://www.flaticon.com/authors/flat-icons" title="Flat Icons">
+Flat Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
 """ % dict(title=title, ver=version, copyright=copyright)
 
