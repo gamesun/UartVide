@@ -49,7 +49,7 @@ from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget, \
     QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget, QToolButton, \
     QFileDialog, QToolTip
 from PySide2.QtCore import Qt, QThread, Signal, QSignalMapper, QFile, QPoint, \
-    QIODevice
+    QIODevice, QSize
 from PySide2.QtGui import QFontMetrics, QFont, QIcon
 signal = Signal
 import resources_pyside2
@@ -71,6 +71,7 @@ from ui_mainwindow_pyside2 import Ui_MainWindow
 # import resources_pyqt5
 # from ui_mainwindow_pyqt5 import Ui_MainWindow
 
+from balloontip import BalloonTip
 from combo import Combo
 from animationswitchbutton import AnimationSwitchButton
 
@@ -239,10 +240,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         try:
             self.serialport.stopbits = self.getStopBits()
         except ValueError:
-            QMessageBox.critical(self.defaultStyleWidget, "Exception", "Wrong setting", QMessageBox.Close)
+            #QMessageBox.critical(self.defaultStyleWidget, "Exception", "Wrong setting", QMessageBox.Close)
+            pos = self.mapToGlobal(self.cmbStopBits.pos() + QPoint(20, 20))
+            BalloonTip.showBalloon(None, 'Invalid Parameter', '', pos, 5000)
             self.cmbStopBits.setCurrentText('1')
         except Exception as e:
-            QMessageBox.critical(self.defaultStyleWidget, "Exception", str(e), QMessageBox.Close)
+            #QMessageBox.critical(self.defaultStyleWidget, "Exception", str(e), QMessageBox.Close)
+            pos = self.mapToGlobal(self.cmbStopBits.pos() + QPoint(20, 20))
+            BalloonTip.showBalloon(None, 'Invalid Parameter', str(e), pos, 5000)
             self.cmbStopBits.setCurrentText('1')
     
     def onParityChanged(self, text):
@@ -951,6 +956,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         View = ET.SubElement(GUISettings, "View")
         ET.SubElement(View, "LocalEcho").text = self.actionLocal_Echo.isChecked() and "on" or "off"
         ET.SubElement(View, "ReceiveView").text = self._viewGroup.checkedAction().text()
+        
+        Contents = ET.SubElement(root, "Contents")
+        Send = ET.SubElement(Contents, "Send")
+        ET.SubElement(Send, "Value").text = self.txtEdtInput.toPlainText()
 
         try:
             with open(get_config_path(appInfo.title+'.xml'), 'w') as f:
@@ -1023,6 +1032,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.actionHEX_UPPERCASE.setChecked(True)
                     self._viewMode = VIEWMODE_HEX_UPPERCASE
                 self.readerThread.setViewMode(self._viewMode)
+
+                send_text = tree.findtext('Contents/Send/Value', default='')
+                self.txtEdtInput.setText(send_text)
 
     def closeEvent(self, event):
         if self.serialport.isOpen():
@@ -1167,7 +1179,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except Exception as e:
             #print("{}".format(e))
             print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
-            QToolTip.showText(self.quickSendTable.cellWidget(row, 0).mapToGlobal(QPoint(0, 0)), str(e))
+            pos = self.quickSendTable.cellWidget(row, 1).mapToGlobal(QPoint(30, 10))
+            BalloonTip.showBalloon(None, 'Send Failed', str(e), pos, 5000)
 
     def transmitFile(self, filepath, form):
         try:
@@ -1218,12 +1231,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.send()
 
     def send(self):
-        if self.serialport.isOpen():
-            sendstring = self.txtEdtInput.toPlainText()
-            if self.rdoHEX.isChecked():
-                self.transmitHex(sendstring)
-            else:
-                self.transmitAsc(sendstring)
+        try:
+            if self.serialport.isOpen():
+                sendstring = self.txtEdtInput.toPlainText()
+                if self.rdoHEX.isChecked():
+                    self.transmitHex(sendstring)
+                else:
+                    self.transmitAsc(sendstring)
+        except Exception as e:
+            if self._is_loop_sending:
+                self.stopLoopSend()
+            pos = self.txtEdtInput.mapToGlobal(QPoint(20, 20))
+            BalloonTip.showBalloon(None, 'Send Failed', str(e), pos, 5000)
 
     def transmitHex(self, hexstring, echo = True):
         if len(hexstring) > 0:
@@ -1236,9 +1255,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if is_hex(word):
                     hexarray.append(int(word, 16))
                 else:
-                    QMessageBox.critical(self.defaultStyleWidget, "Error",
-                        "'%s' is not hexadecimal." % (word), QMessageBox.Close)
-                    return 0
+                    raise Exception("'%s' is not hexadecimal." % (word))
             if echo:
                 text = ''.join('%02X ' % t for t in hexarray)
                 self.appendOutputText("\n%s%s" % (self.timestamp(), text), Qt.blue)
@@ -1266,17 +1283,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             try:
                 self.serialport.write(byteArray)
             except Exception as e:
-                QMessageBox.critical(self.defaultStyleWidget,
-                    "Exception in transmit", str(e), QMessageBox.Close)
-                print("Exception in transmitBytearray(%s)" % byteArray)
-                return 0
+                #QMessageBox.critical(self.defaultStyleWidget,
+                #    "Exception in transmit", str(e), QMessageBox.Close)
+                #print("Exception in transmitBytearray(%s)" % byteArray)
+                #return 0
+                raise e
             else:
                 return len(byteArray)
 
     def onReaderExcept(self, e):
         self.closePort()
         #QMessageBox.critical(self.defaultStyleWidget, "Read failed", str(e), QMessageBox.Close)
-        QToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), str(e))
+        #QToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), str(e))
+        pos = self.mapToGlobal(self.cmbPort.pos() + QPoint(20, 20))
+        BalloonTip.showBalloon(None, 'Read Failed', str(e), pos, 5000)
 
     def timestamp(self):
         if self._is_timestamp:
@@ -1330,14 +1350,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         _port = self.getPort()
         if '' == _port:
             #QMessageBox.information(self.defaultStyleWidget, "Invalid parameters", "Port is empty.")
-            QToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), "Port is empty")
+            #QToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), "Port is empty")
+            #ToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), "Port is empty")
+            #_, _, w, h = self.cmbPort.rect()
+            pos = self.mapToGlobal(self.cmbPort.pos()) + QPoint(20, 20)
+            BalloonTip.showBalloon(None, 'Invalid parameters', 'Port is empty', pos, 5000, True)
             self.asbtnOpen.setChecked(False)
             return
 
         _baudrate = self.cmbBaudRate.currentText()
         if '' == _baudrate:
             #QMessageBox.information(self.defaultStyleWidget, "Invalid parameters", "Baudrate is empty.")
-            QToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), "Baudrate is empty")
+            #QToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), "Baudrate is empty")
+            pos = self.mapToGlobal(self.cmbPort.pos() + QPoint(20, 20))
+            BalloonTip.showBalloon(None, 'Invalid parameters', 'Baudrate is empty', pos, 5000)
             self.asbtnOpen.setChecked(False)
             return
 
@@ -1354,7 +1380,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.serialport.open()
         except Exception as e:
             #QMessageBox.critical(self.defaultStyleWidget, "Could not open serial port", str(e), QMessageBox.Close)
-            QToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), str(e))
+            #QToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), str(e))
+            pos = self.mapToGlobal(self.cmbPort.pos() + QPoint(20, 20))
+            msg = str(e)
+            if 'Permission denied' in msg:
+                msg = msg + '\n\n Try "sudo chmod 777 {}"'.format(_port)
+            BalloonTip.showBalloon(None, 'Open port failed', msg, pos, 5000)
             self.asbtnOpen.setChecked(False)
             #print(str(e))
             print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
@@ -1481,6 +1512,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QMessageBox.aboutQt(self.defaultStyleWidget)
 
     def onExit(self):
+        if BalloonTip.isBalloonVisible():
+            BalloonTip.hideBalloon()
         if self.serialport.isOpen():
             self.closePort()
         self.close()
