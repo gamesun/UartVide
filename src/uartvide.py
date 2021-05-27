@@ -647,7 +647,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         w = self.frameGeometry().width()
         self._minBtn = QPushButton(self)
-        self._minBtn.setGeometry(w-112,0,31,31)
+        self._minBtn.setGeometry(w-112,0,31,34)
         self._minBtn.clicked.connect(self.onMinimize)
         self._minBtn.setStyleSheet("""
             QPushButton {
@@ -667,12 +667,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """)
         
         self._maxBtn = QPushButton(self)
-        self._maxBtn.setGeometry(w-81,0,31,31)
+        self._maxBtn.setGeometry(w-81,0,31,34)
         self._maxBtn.clicked.connect(self.onMaximize)
         self.setMaximizeButton("maximize")
         
         self._closeBtn = QPushButton(self)
-        self._closeBtn.setGeometry(w-50,0,40,31)
+        self._closeBtn.setGeometry(w-50,0,40,34)
         self._closeBtn.clicked.connect(self.onExit)
         self._closeBtn.setStyleSheet("""
             QPushButton {
@@ -697,7 +697,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         font.setFamily(UI_FONT)
         font.setPointSize(9)
         
-        x,y,w,h = 6,4,100,23
+        x,y,w,h = 6,5,100,24
         self.btnMenu = QToolButton(self)
         self.btnMenu.setFont(font)
         self.btnMenu.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
@@ -741,7 +741,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
         self.asbtnOpen = AnimationSwitchButton(self)
         x,w = x+w+12,30
-        self.asbtnOpen.setGeometry(x,y+3,w,17)
+        self.asbtnOpen.setGeometry(x,8,w,18)
         self.asbtnOpen.stateChanged.connect(self.onOpen)
         self.asbtnOpen.setToolTip("Open Port")
         self.asbtnOpen.setCursor(Qt.PointingHandCursor)
@@ -759,8 +759,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.btnOpen.setIcon(QIcon(":/port_off.png"))
 
         self.btnClear = QPushButton(self)
-        x,w = x+w+12,24
-        self.btnClear.setGeometry(x,y,w,24)
+        x,w = x+w+10,28
+        self.btnClear.setGeometry(x,3,w,w)
         self.btnClear.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; border-radius: 6px; }
             QPushButton:hover { background-color:#51c0d1; }
@@ -774,8 +774,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.btnSaveLog = QPushButton(self)
         self.btnSaveLog.setParent(self)
-        x,w = x+w+12,24
-        self.btnSaveLog.setGeometry(x,y,w,24)
+        x,w = x+w+10,28
+        self.btnSaveLog.setGeometry(x,3,w,w)
         self.btnSaveLog.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; border-radius: 6px; }
             QPushButton:hover { background-color:#51c0d1; }
@@ -787,8 +787,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnSaveLog.setCursor(Qt.PointingHandCursor)
 
         self.btnTimestamp = QPushButton(self)
-        x,w = x+w+12,24
-        self.btnTimestamp.setGeometry(x,y,w,24)
+        x,w = x+w+10,28
+        self.btnTimestamp.setGeometry(x,3,w,w)
         self.btnTimestamp_stylesheetTemplate = """
             QPushButton { background-color:%(BackgroundColor)s; border:none; border-radius: 6px; }
             QPushButton:hover { background-color:#51c0d1; }
