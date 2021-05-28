@@ -215,6 +215,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.loadSettings()
         self.onEnumPorts()
 
+    def onRefreshPorts(self):
+        ports_cnt, ports_info = self.onEnumPorts()
+        pos = self.mapToGlobal(self.cmbPort.pos() + QPoint(20, 20))
+        BalloonTip.showBalloon(None, '{} Port(s) Found'.format(ports_cnt), ports_info, pos, 5000)
+
     def setTabWidth(self, n):
         fm = QFontMetrics(self.txtEdtOutput.fontMetrics())
         if hasattr(fm, 'horizontalAdvance'):
@@ -645,9 +650,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }
         """)
 
-        w = self.frameGeometry().width()
+        # self.btnMenu = QToolButton(self)
+        # self.btnMenu.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
+        # self.btnMenu.setGeometry(x,y,w,h)
+        # self.btnMenu.setMenu(self.menuMenu)
+        # self.btnMenu.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+        # self.btnMenu.setCursor(Qt.PointingHandCursor)
+        
+        frame_w = self.frameGeometry().width()
+
+        self.btnMenu = QPushButton(self)
+        self.btnMenu.setGeometry(frame_w-143,3,28,28)
+        self.btnMenu.setStyleSheet("""
+            QPushButton { background-color:transparent; border:none; border-radius: 6px; }
+            QPushButton:hover { background-color:#51c0d1; }
+            QPushButton:pressed { background-color:#b8e5f1; }
+        """)
+        self.btnMenu.setIconSize(QtCore.QSize(24, 24))
+        self.btnMenu.setIcon(QIcon(":/menu.png"))
+        self.btnMenu.setToolTip("Clear Log")
+        self.btnMenu.setCursor(Qt.PointingHandCursor)
+        self.btnMenu.setMenu(self.menuMenu)
+        #self.btnMenu.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+
         self._minBtn = QPushButton(self)
-        self._minBtn.setGeometry(w-112,0,31,34)
+        self._minBtn.setGeometry(frame_w-112,0,31,34)
         self._minBtn.clicked.connect(self.onMinimize)
         self._minBtn.setStyleSheet("""
             QPushButton {
@@ -667,12 +694,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """)
         
         self._maxBtn = QPushButton(self)
-        self._maxBtn.setGeometry(w-81,0,31,34)
+        self._maxBtn.setGeometry(frame_w-81,0,31,34)
         self._maxBtn.clicked.connect(self.onMaximize)
         self.setMaximizeButton("maximize")
         
         self._closeBtn = QPushButton(self)
-        self._closeBtn.setGeometry(w-50,0,40,34)
+        self._closeBtn.setGeometry(frame_w-50,0,40,34)
         self._closeBtn.clicked.connect(self.onExit)
         self._closeBtn.setStyleSheet("""
             QPushButton {
@@ -693,47 +720,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         #self.toolBar.setFixedHeight(28)
         
-        font = QFont()
-        font.setFamily(UI_FONT)
-        font.setPointSize(9)
+        # font = QFont()
+        # font.setFamily(UI_FONT)
+        # font.setPointSize(9)
         
-        x,y,w,h = 6,5,100,24
-        self.btnMenu = QToolButton(self)
-        self.btnMenu.setFont(font)
-        self.btnMenu.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-        self.btnMenu.setIcon(QIcon(':/uartvide-icon/uartvide.ico'))
-        self.btnMenu.setText('UartVide  ')
-        self.btnMenu.setGeometry(x,y,w,h)
-        self.btnMenu.setMenu(self.menuMenu)
-        self.btnMenu.setPopupMode(QtWidgets.QToolButton.InstantPopup)
-        self.btnMenu.setCursor(Qt.PointingHandCursor)
-        
-        #x,w = x+w+15,23
-        #self.btnRefresh = QToolButton(self)
-        #self.btnRefresh.setIcon(QIcon(':/refresh.ico'))
-        #self.btnRefresh.setGeometry(x,y,w,h)
-        #self.btnRefresh.setStyleSheet("""
-            #QToolButton {
-                #background-color:#6eccda;
-            #}
-            #QToolButton:hover {
-                #background-color:#51c0d1;
-            #}
-            #QToolButton:pressed {
-                #background-color:#3a9ecc;
-            #}
-        #""")
-        #self.btnRefresh.clicked.connect(self.onEnumPorts)
+        x,y = 12,5
+        w = 24
+        self.btnRefresh = QPushButton(self)
+        self.btnRefresh.setGeometry(x,y,w,w)
+        self.btnRefresh.setStyleSheet("""
+            QPushButton { background-color:transparent; border:none; 
+                          border-top-left-radius:6px;
+                          border-bottom-left-radius:6px; }
+            QPushButton:hover { background-color:#51c0d1; }
+            QPushButton:pressed { background-color:#b8e5f1; }
+        """)
+        self.btnRefresh.setIconSize(QtCore.QSize(20, 20))
+        self.btnRefresh.setIcon(QIcon(":/refresh.png"))
+        self.btnRefresh.setToolTip("Refresh Ports")
+        self.btnRefresh.setCursor(Qt.PointingHandCursor)
+        self.btnRefresh.clicked.connect(self.onRefreshPorts)
         
         self.cmbPort = Combo(self)
         self.cmbPort.setEditable(True)
         self.cmbPort.setCurrentText("")
         if os.name == 'nt':
-            x,w = x+w+12,90
-            self.cmbPort.setGeometry(x,y,w,h)
+            x,w = x+w,90
         elif os.name == 'posix':
-            x,w = x+w+12,120
-            self.cmbPort.setGeometry(x,y,w,h)
+            x,w = x+w,120
+        self.cmbPort.setGeometry(x,y,w,24)
         self.cmbPort.listShowEntered.connect(self.onEnumPorts)
         self.cmbPort.currentTextChanged.connect(self.onPortChanged)
         self.cmbPort.setToolTip("Select/Input Port")
@@ -764,10 +779,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnClear.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; border-radius: 6px; }
             QPushButton:hover { background-color:#51c0d1; }
-            QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
+            QPushButton:pressed { background-color:#b8e5f1; }
         """)
         self.btnClear.setIconSize(QtCore.QSize(24, 24))
-        #self.btnClear.setIcon(QIcon(":/broom.png"))
         self.btnClear.setIcon(QIcon(":/clear_log.png"))
         self.btnClear.setToolTip("Clear Log")
         self.btnClear.setCursor(Qt.PointingHandCursor)
@@ -779,7 +793,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnSaveLog.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; border-radius: 6px; }
             QPushButton:hover { background-color:#51c0d1; }
-            QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
+            QPushButton:pressed { background-color:#b8e5f1; }
         """)
         self.btnSaveLog.setIconSize(QtCore.QSize(24, 24))
         self.btnSaveLog.setIcon(QIcon(":/save.png"))
@@ -792,7 +806,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnTimestamp_stylesheetTemplate = """
             QPushButton { background-color:%(BackgroundColor)s; border:none; border-radius: 6px; }
             QPushButton:hover { background-color:#51c0d1; }
-            QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
+            QPushButton:pressed { background-color:#b8e5f1; }
         """
         self.btnTimestamp.setStyleSheet(self.btnTimestamp_stylesheetTemplate % {'BackgroundColor':'transparent'})
         self.btnTimestamp.setIconSize(QtCore.QSize(24, 24))
@@ -805,11 +819,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnTogglePortCfgBar.setIconSize(QtCore.QSize(23, 23))
         self.btnTogglePortCfgBar.setIcon(QIcon(':/up.png'))
         x,w = x+w+12,23
-        self.btnTogglePortCfgBar.setGeometry(x,y,w,h)
+        self.btnTogglePortCfgBar.setGeometry(x,y,w,24)
         self.btnTogglePortCfgBar.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; border-radius: 6px; }
             QPushButton:hover { background-color:#51c0d1; }
-            QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
+            QPushButton:pressed { background-color:#b8e5f1; }
         """)
         self.btnTogglePortCfgBar.clicked.connect(self.onTogglePortCfgBar)
         self.btnTogglePortCfgBar.setToolTip("Toggle Port Config Bar")
@@ -1497,13 +1511,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def onEnumPorts(self):
         sel = self.cmbPort.currentText()
         self.cmbPort.clear()
+        ports_cnt = 0
+        ports_info = ''
         for port, desc, _ in sorted(comports()):
             self.cmbPort.addItem(port + '  ' + desc)
+            ports_info = ports_info + port + '  ' + desc + '\n'
+            ports_cnt = ports_cnt + 1
         self.fixComboViewSize(self.cmbPort)
         
         idx = self.cmbPort.findText(sel)
         if idx != -1:
             self.cmbPort.setCurrentIndex(idx)
+        
+        return ports_cnt, ports_info
 
     def onAbout(self):
         QMessageBox.about(self.defaultStyleWidget, "About UartVide", appInfo.aboutme)
