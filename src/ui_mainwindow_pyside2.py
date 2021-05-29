@@ -17,7 +17,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(865, 612)
+        MainWindow.resize(903, 612)
         MainWindow.setWindowTitle(u"UartVide")
         self.actionSave_Log = QAction(MainWindow)
         self.actionSave_Log.setObjectName(u"actionSave_Log")
@@ -454,13 +454,9 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.rdoHEX)
 
-        self.chkLoop = QCheckBox(self.dockWidgetContents_2)
-        self.chkLoop.setObjectName(u"chkLoop")
-        self.chkLoop.setMinimumSize(QSize(0, 22))
-        self.chkLoop.setMaximumSize(QSize(16777215, 22))
-        self.chkLoop.setText(u"Loop")
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.horizontalLayout.addWidget(self.chkLoop)
+        self.horizontalLayout.addItem(self.horizontalSpacer)
 
         self.spnPeriod = QSpinBox(self.dockWidgetContents_2)
         self.spnPeriod.setObjectName(u"spnPeriod")
@@ -479,22 +475,20 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.spnPeriod)
 
+        self.btnLoop = QToolButton(self.dockWidgetContents_2)
+        self.btnLoop.setObjectName(u"btnLoop")
+        self.btnLoop.setMinimumSize(QSize(26, 22))
+        self.btnLoop.setMaximumSize(QSize(26, 22))
+
+        self.horizontalLayout.addWidget(self.btnLoop)
+
         self.btnSend = QToolButton(self.dockWidgetContents_2)
         self.btnSend.setObjectName(u"btnSend")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.btnSend.sizePolicy().hasHeightForWidth())
-        self.btnSend.setSizePolicy(sizePolicy3)
         self.btnSend.setMinimumSize(QSize(0, 22))
         self.btnSend.setMaximumSize(QSize(16777215, 22))
         self.btnSend.setText(u" Send ")
 
         self.horizontalLayout.addWidget(self.btnSend)
-
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout.addItem(self.horizontalSpacer)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout)

@@ -111,7 +111,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.portMonitorThread = PortMonitorThread(self)
         self.portMonitorThread.setPort(self.serialport)
         self.loopSendThread = LoopSendThread(self)
-        self._localEcho = None
+        # self._localEcho = None
         self._viewMode = None
         self._quickSendOptRow = 1
         self._is_loop_sending = False
@@ -159,7 +159,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #self.dockWidget_PortConfig.visibilityChanged.connect(self.onVisiblePrtCfgPnl)
         self.dockWidget_QuickSend.visibilityChanged.connect(self.onVisibleQckSndPnl)
         self.dockWidget_SendHex.visibilityChanged.connect(self.onVisibleHexPnl)
-        self.actionLocal_Echo.triggered.connect(self.onLocalEcho)
+        # self.actionLocal_Echo.triggered.connect(self.onLocalEcho)
         self.actionAlways_On_Top.triggered.connect(self.onAlwaysOnTop)
 
         self.actionAscii.triggered.connect(self.onViewChanged)
@@ -175,8 +175,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.cmbParity.currentTextChanged.connect(self.onParityChanged)
         self.chkRTSCTS.stateChanged.connect(self.onRTSCTSChanged)
         self.chkXonXoff.stateChanged.connect(self.onXonXoffChanged)
-        
-        self.chkLoop.stateChanged.connect(self.onLoopChanged)
         
         #self.btnOpen.clicked.connect(self.onOpen)
         self.btnClear.clicked.connect(self.onClear)
@@ -204,7 +202,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setPortCfgBarVisible(False)
         
         self.rdoHEX.setChecked(True)
-        self.chkLoop.setChecked(False)
+        self._is_loop_mode = False
         self.spnPeriod.setEnabled(False)
 
         if self.isMaximized():
@@ -282,7 +280,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.menuMenu.addAction(self.actionQuick_Send_Panel)
         self.menuMenu.addAction(self.actionSend_Hex_Panel)
         self.menuMenu.addAction(self.menuView.menuAction())
-        self.menuMenu.addAction(self.actionLocal_Echo)
+        # self.menuMenu.addAction(self.actionLocal_Echo)
         self.menuMenu.addAction(self.actionAlways_On_Top)
         self.menuMenu.addSeparator()
         self.menuMenu.addAction(self.actionAbout)
@@ -659,20 +657,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         frame_w = self.frameGeometry().width()
 
-        self.btnMenu = QPushButton(self)
-        self.btnMenu.setGeometry(frame_w-143,3,28,28)
-        self.btnMenu.setStyleSheet("""
-            QPushButton { background-color:transparent; border:none; border-radius: 6px; }
-            QPushButton:hover { background-color:#51c0d1; }
-            QPushButton:pressed { background-color:#b8e5f1; }
-        """)
-        self.btnMenu.setIconSize(QtCore.QSize(24, 24))
-        self.btnMenu.setIcon(QIcon(":/menu.png"))
-        self.btnMenu.setToolTip("Clear Log")
-        self.btnMenu.setCursor(Qt.PointingHandCursor)
-        self.btnMenu.setMenu(self.menuMenu)
-        #self.btnMenu.setPopupMode(QtWidgets.QToolButton.InstantPopup)
-
         self._minBtn = QPushButton(self)
         self._minBtn.setGeometry(frame_w-112,0,31,34)
         self._minBtn.clicked.connect(self.onMinimize)
@@ -781,8 +765,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { background-color:#b8e5f1; }
         """)
-        self.btnClear.setIconSize(QtCore.QSize(24, 24))
-        self.btnClear.setIcon(QIcon(":/clear_log.png"))
+        self.btnClear.setIconSize(QtCore.QSize(20, 20))
+        self.btnClear.setIcon(QIcon(":/eraser.png"))
         self.btnClear.setToolTip("Clear Log")
         self.btnClear.setCursor(Qt.PointingHandCursor)
 
@@ -795,7 +779,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { background-color:#b8e5f1; }
         """)
-        self.btnSaveLog.setIconSize(QtCore.QSize(24, 24))
+        self.btnSaveLog.setIconSize(QtCore.QSize(20, 20))
         self.btnSaveLog.setIcon(QIcon(":/save.png"))
         self.btnSaveLog.setToolTip("Save Log As")
         self.btnSaveLog.setCursor(Qt.PointingHandCursor)
@@ -803,17 +787,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnTimestamp = QPushButton(self)
         x,w = x+w+10,28
         self.btnTimestamp.setGeometry(x,3,w,w)
-        self.btnTimestamp_stylesheetTemplate = """
-            QPushButton { background-color:%(BackgroundColor)s; border:none; border-radius: 6px; }
-            QPushButton:hover { background-color:#51c0d1; }
-            QPushButton:pressed { background-color:#b8e5f1; }
+        self.chkbtn_SSTemplate = """
+            QPushButton, QToolButton { background-color:%(BG)s; border:none; border-radius: 6px; }
+            QPushButton:hover, QToolButton:hover { background-color:%(HBG)s; }
+            QPushButton:pressed, QToolButton:pressed { background-color:#b8e5f1; }
         """
-        self.btnTimestamp.setStyleSheet(self.btnTimestamp_stylesheetTemplate % {'BackgroundColor':'transparent'})
-        self.btnTimestamp.setIconSize(QtCore.QSize(24, 24))
-        self.btnTimestamp.setIcon(QIcon(":/timestamp_off.png"))
+        self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
+        self.btnTimestamp.setIconSize(QtCore.QSize(20, 20))
+        self.btnTimestamp.setIcon(QIcon(":/timestamp.png"))
         self.btnTimestamp.clicked.connect(self.onTimestamp)
         self.btnTimestamp.setToolTip("Select Timestamp")
         self.btnTimestamp.setCursor(Qt.PointingHandCursor)
+
+        self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
+        self.btnLoop.setIconSize(QtCore.QSize(20, 20))
+        self.btnLoop.setIcon(QIcon(":/loop.png"))
+        self.btnLoop.clicked.connect(self.onLoopChanged)
+        self.btnLoop.setToolTip("Loop Send")
+        self.btnLoop.setCursor(Qt.PointingHandCursor)
 
         self.btnTogglePortCfgBar = QPushButton(self)
         self.btnTogglePortCfgBar.setIconSize(QtCore.QSize(23, 23))
@@ -829,6 +820,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnTogglePortCfgBar.setToolTip("Toggle Port Config Bar")
         self.btnTogglePortCfgBar.setCursor(Qt.PointingHandCursor)
         
+        x,w = x+w+12,28
+        self.btnMenu = QPushButton(self)
+        self.btnMenu.setGeometry(x,3,w,w)
+        self.btnMenu.setStyleSheet("""
+            QPushButton { background-color:transparent; border:none; border-radius: 6px; }
+            QPushButton:hover { background-color:#51c0d1; }
+            QPushButton:pressed { background-color:#b8e5f1; }
+            QPushButton:menu-indicator { image:none; }
+        """)
+        self.btnMenu.setIconSize(QtCore.QSize(24, 24))
+        self.btnMenu.setIcon(QIcon(":/menu.png"))
+        self.btnMenu.setToolTip("More Settings...")
+        self.btnMenu.setCursor(Qt.PointingHandCursor)
+        self.btnMenu.setMenu(self.menuMenu)
+
         if os.name == 'posix':
             self.fixComboViewSize(self.cmbBaudRate)
             self.fixComboViewSize(self.cmbDataBits)
@@ -850,13 +856,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def onTimestamp(self):
         if self._is_timestamp:
-            self.btnTimestamp.setIcon(QIcon(":/timestamp_off.png"))
             self._is_timestamp = False
-            self.btnTimestamp.setStyleSheet(self.btnTimestamp_stylesheetTemplate % {'BackgroundColor':'transparent'})
+            self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
         else:
-            self.btnTimestamp.setIcon(QIcon(":/timestamp_on.png"))
             self._is_timestamp = True
-            self.btnTimestamp.setStyleSheet(self.btnTimestamp_stylesheetTemplate % {'BackgroundColor':'#b400c8'})
+            self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'#b400c8', 'HBG':'#E200FC'})
 
     def onTogglePortCfgBar(self):
         #self.pos_animation.start()
@@ -968,7 +972,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ET.SubElement(PortCfg, "xonxoff").text = self.chkXonXoff.isChecked() and "on" or "off"
 
         View = ET.SubElement(GUISettings, "View")
-        ET.SubElement(View, "LocalEcho").text = self.actionLocal_Echo.isChecked() and "on" or "off"
+        # ET.SubElement(View, "LocalEcho").text = self.actionLocal_Echo.isChecked() and "on" or "off"
         ET.SubElement(View, "ReceiveView").text = self._viewGroup.checkedAction().text()
         
         Contents = ET.SubElement(root, "Contents")
@@ -1027,13 +1031,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 else:
                     self.chkXonXoff.setChecked(False)
 
-                LocalEcho = tree.findtext('GUISettings/View/LocalEcho', default='off')
-                if 'on' == LocalEcho:
-                    self.actionLocal_Echo.setChecked(True)
-                    self._localEcho = True
-                else:
-                    self.actionLocal_Echo.setChecked(False)
-                    self._localEcho = False
+                # LocalEcho = tree.findtext('GUISettings/View/LocalEcho', default='off')
+                # if 'on' == LocalEcho:
+                #     self.actionLocal_Echo.setChecked(True)
+                #     self._localEcho = True
+                # else:
+                #     self.actionLocal_Echo.setChecked(False)
+                #     self._localEcho = False
 
                 ReceiveView = tree.findtext('GUISettings/View/ReceiveView', default='HEX(UPPERCASE)')
                 if 'Ascii' in ReceiveView:
@@ -1217,8 +1221,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 
                 self.appendOutputText("\n%s%d bytes sent" % (self.timestamp(), sent_len), Qt.blue)
 
-    def onLoopChanged(self, state):
-        self.spnPeriod.setEnabled(state)
+    def onLoopChanged(self):
+        if self._is_loop_mode:
+            self._is_loop_mode = False
+            self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
+        else:
+            self._is_loop_mode = True
+            self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'#b400c8', 'HBG':'#E200FC'})
+        self.spnPeriod.setEnabled(self._is_loop_mode)
 
     def startLoopSend(self):
         period_spacing = int(self.spnPeriod.text()[:-2]) / 1000.0
@@ -1236,7 +1246,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def onSend(self):
         if self.serialport.isOpen():
-            if self.chkLoop.isChecked():
+            if self._is_loop_mode:
                 if self._is_loop_sending:
                     self.stopLoopSend()
                 else:
@@ -1454,8 +1464,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def onVisibleHexPnl(self, visible):
         self.actionSend_Hex_Panel.setChecked(visible)
 
-    def onLocalEcho(self):
-        self._localEcho = self.actionLocal_Echo.isChecked()
+    # def onLocalEcho(self):
+    #     self._localEcho = self.actionLocal_Echo.isChecked()
 
     def onAlwaysOnTop(self):
         if self.actionAlways_On_Top.isChecked():
@@ -1522,7 +1532,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         idx = self.cmbPort.findText(sel)
         if idx != -1:
             self.cmbPort.setCurrentIndex(idx)
-        
+        else:
+            self.cmbPort.setCurrentText('')
+
         return ports_cnt, ports_info
 
     def onAbout(self):
