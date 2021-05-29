@@ -30,8 +30,10 @@ The source code is executable in Linux.
 The package for Linux is being prepared.  
 
 
-## Entirely new UI
+## Screenshot
 ![main window](doc/main_window.png "main window")
 
-The program icon made by <a href="https://www.flaticon.com/authors/flat-icons" title="Flat Icons">
-Flat Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
+<p><div>The program icon made by <a href="https://www.flaticon.com/authors/flat-icons" title="Flat Icons">
+Flat Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+<div>Clear icon made by <a href="https://smashicons.com/" title="Smashicons">Smashicons</a>
+from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div></p>

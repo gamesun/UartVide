@@ -30,13 +30,13 @@ url = 'http://sourceforge.net/projects/myterm/'
 author = 'gamesun'
 copyright = 'Copyright (C) 2013-2021, gamesun'
 aboutme = """
-%(title)s %(ver)s<br>
-%(copyright)s<br>
-<br>
-<a href='https://github.com/gamesun/UartVide'>Homepage on GitHub</a><br>
-<a href='http://sourceforge.net/projects/myterm/'>Download from SourceForge</a><br>
-<br>
-%(title)s is licensed under the GNU GPL v3 or later.<br>
-For detail see LICENSE.txt. <br>
+<p><div>%(title)s %(ver)s</div>
+<div>%(copyright)s</div></p>
+
+<p><div><a href='https://github.com/gamesun/UartVide'>Homepage on GitHub</a></div>
+<div><a href='http://sourceforge.net/projects/myterm/'>Download from SourceForge</a></div></p>
+
+<p><div>%(title)s is licensed under the GNU GPL v3 or later.
+For detail see LICENSE.txt. </div></p>
 """ % dict(title=title, ver=version, copyright=copyright)
 
