@@ -23,6 +23,8 @@
         <file>default_layout.dat</file>
         <file>refresh.png</file>
         <file>menu.png</file>
+        <file>eraser.png</file>
+        <file>loop.png</file>
         <file>up.png</file>
         <file>down.png</file>
         <file>radiobutton_unchecked.png</file>
@@ -31,9 +33,7 @@
         <file>radiobutton_checked.png</file>
         <file>radiobutton_checked_hover.png</file>
         <file>radiobutton_checked_pressed.png</file>
-        <file>timestamp_on.png</file>
-        <file>timestamp_off.png</file>
+        <file>timestamp.png</file>
         <file>save.png</file>
-        <file>clear_log.png</file>
     </qresource>
 </RCC>
