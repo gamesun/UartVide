@@ -36,21 +36,7 @@ aboutme = """
 <a href='https://github.com/gamesun/UartVide'>Homepage on GitHub</a><br>
 <a href='http://sourceforge.net/projects/myterm/'>Download from SourceForge</a><br>
 <br>
-UartVide is a straightforward and lightweight RS232 serial port communication utility that allows you to configure the connection parameters and communicate via the port.<br>
-<br>
-Its features including
-<ul>
-  <li>quick send custom commands</li>
-  <li>supported send formats: HEX, ASCII, ASCII(\\r \\n \\t ...), Hex text file, ASCII text file, BIN/HEX file</li>
-  <li>detect the valid serial ports</li>
-  <li>display data either in hexadecimal or ASCII format</li>
-  <li>custom resizable and floatable widgets</li>
-</ul>
 %(title)s is licensed under the GNU GPL v3 or later.<br>
 For detail see LICENSE.txt. <br>
-
-<div>The program icon made by <a href="https://www.flaticon.com/authors/flat-icons" title="Flat Icons">
-Flat Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
-
 """ % dict(title=title, ver=version, copyright=copyright)
 
