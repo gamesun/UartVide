@@ -1,19 +1,9 @@
 # UartVide ![logo](res/uartvide-icon/uartvide_48.png)   
 
-MyTerm was renamed to UartVide.
+MyTerm was renamed to UartVide from version 2.4  
 
-Mainly designed for embedded & software engineers, UartVide is a flat-UI and straightforward and lightweight RS232 serial port communication utility that allows you to configure the connection parameters and communicate via the port.   
-UartVide runs on all platforms supported by PyQt including Windows, Linux.
-
-Its features including  
-* quick send custom commands  
-* supported send formats: HEX, ASCII, ASCII(\r \n \t ...), Hex text file, ASCII text file, BIN/HEX file  
-* detect the valid serial ports  
-* display receive data either in hexadecimal or ASCII format  
-* custom resizable and floatable windows  
-  
-UartVide is licensed on all supported platforms under the GNU GPL v3.  
-For detail see LICENSE.txt. 
+UartVide is licensed under the GNU GPL v3.  
+For detail see <a href="http://www.gnu.org/licenses/" title="GNU Licenses">http://www.gnu.org/licenses/</a>  
 
 ## Download
 ### Windows Version  
@@ -27,8 +17,6 @@ For detail see LICENSE.txt.
 
 ### Linux Version
 The source code is executable in Linux.  
-The package for Linux is being prepared.  
-
 
 ## Screenshot
 ![main window](doc/main_window.png "main window")
