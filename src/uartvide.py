@@ -658,47 +658,47 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         frame_w = self.frameGeometry().width()
 
         self._minBtn = QPushButton(self)
-        self._minBtn.setGeometry(frame_w-112,0,31,34)
+        self._minBtn.setGeometry(frame_w-120,0,40,34)
         self._minBtn.clicked.connect(self.onMinimize)
         self._minBtn.setStyleSheet("""
             QPushButton {
                 background-color:transparent;
                 border:none;
                 outline: none;
-                image: url(:/minimize_inactive.png);
+                image: url(:/minimize2_inactive.png);
             }
             QPushButton:hover {
                 background-color:#227582;
-                image: url(:/minimize_active.png);
+                image: url(:/minimize2_active.png);
             }
             QPushButton:pressed {
                 background-color:#14464e;
-                image: url(:/minimize_active.png);
+                image: url(:/minimize2_active.png);
             }
         """)
         
         self._maxBtn = QPushButton(self)
-        self._maxBtn.setGeometry(frame_w-81,0,31,34)
+        self._maxBtn.setGeometry(frame_w-80,0,40,34)
         self._maxBtn.clicked.connect(self.onMaximize)
         self.setMaximizeButton("maximize")
         
         self._closeBtn = QPushButton(self)
-        self._closeBtn.setGeometry(frame_w-50,0,40,34)
+        self._closeBtn.setGeometry(frame_w-40,0,40,34)
         self._closeBtn.clicked.connect(self.onExit)
         self._closeBtn.setStyleSheet("""
             QPushButton {
                 background-color:transparent;
                 border:none;
                 outline: none;
-                image: url(:/close_inactive.png);
+                image: url(:/close2_inactive.png);
             }
             QPushButton:hover {
                 background-color:#ea5e00;
-                image: url(:/close_active.png);
+                image: url(:/close2_active.png);
             }
             QPushButton:pressed {
                 background-color:#994005;
-                image: url(:/close_active.png);
+                image: url(:/close2_active.png);
             }
         """)
         
@@ -886,9 +886,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def resizeEvent(self, event):
         if hasattr(self, '_maxBtn'):
             w = event.size().width()
-            self._minBtn.move(w-112,0)
-            self._maxBtn.move(w-81,0)
-            self._closeBtn.move(w-50,0)
+            self._minBtn.move(w-120, 0)
+            self._maxBtn.move(w-80, 0)
+            self._closeBtn.move(w-40, 0)
 
     def onMinimize(self):
         self.showMinimized()
@@ -914,15 +914,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     background-color:transparent;
                     border:none;
                     outline: none;
-                    image: url(:/maximize_inactive.png);
+                    image: url(:/maximize2_inactive.png);
                 }
                 QPushButton:hover {
                     background-color:#227582;
-                    image: url(:/maximize_active.png);
+                    image: url(:/maximize2_active.png);
                 }
                 QPushButton:pressed {
                     background-color:#14464e;
-                    image: url(:/maximize_active.png);
+                    image: url(:/maximize2_active.png);
                 }
             """)
         elif "restore" == style:
@@ -931,15 +931,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     background-color:transparent;
                     border:none;
                     outline: none;
-                    image: url(:/restore_inactive.png);
+                    image: url(:/restore2_inactive.png);
                 }
                 QPushButton:hover {
                     background-color:#227582;
-                    image: url(:/restore_active.png);
+                    image: url(:/restore2_active.png);
                 }
                 QPushButton:pressed {
                     background-color:#14464e;
-                    image: url(:/restore_active.png);
+                    image: url(:/restore2_active.png);
                 }
             """)
     
@@ -1469,12 +1469,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def onAlwaysOnTop(self):
         if self.actionAlways_On_Top.isChecked():
-            style = self.windowFlags()
-            self.setWindowFlags(style|Qt.WindowStaysOnTopHint)
+            self.setWindowFlag(Qt.WindowStaysOnTopHint)
             self.show()
         else:
-            style = self.windowFlags()
-            self.setWindowFlags(style & ~Qt.WindowStaysOnTopHint)
+            self.setWindowFlag(Qt.WindowStaysOnTopHint, False)
             self.show()
 
     def onOpen(self, state):

@@ -14,6 +14,14 @@
         <file>maximize_inactive.png</file>
         <file>restore_active.png</file>
         <file>restore_inactive.png</file>
+        <file>close2_active.png</file>
+        <file>close2_inactive.png</file>
+        <file>minimize2_active.png</file>
+        <file>minimize2_inactive.png</file>
+        <file>maximize2_active.png</file>
+        <file>maximize2_inactive.png</file>
+        <file>restore2_active.png</file>
+        <file>restore2_inactive.png</file>
         <file>checkbox_unchecked.png</file>
         <file>checkbox_unchecked_hover.png</file>
         <file>checkbox_unchecked_pressed.png</file>
