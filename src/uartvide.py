@@ -659,8 +659,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { background-color:#b8e5f1; }
         """)
-        self.btnPin.setIconSize(QtCore.QSize(12, 12))
         self.btnPin.setIcon(QIcon(":/pin.png"))
+        self.btnPin.setIconSize(QtCore.QSize(24, 24))
         self.btnPin.setToolTip("Always On Top")
         self.btnPin.setCursor(Qt.PointingHandCursor)
 
@@ -721,8 +721,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { background-color:#b8e5f1; }
         """)
-        self.btnRefresh.setIconSize(QtCore.QSize(20, 20))
         self.btnRefresh.setIcon(QIcon(":/refresh.png"))
+        self.btnRefresh.setIconSize(QtCore.QSize(24, 24))
         self.btnRefresh.setToolTip("Refresh Ports")
         self.btnRefresh.setCursor(Qt.PointingHandCursor)
         self.btnRefresh.clicked.connect(self.onRefreshPorts)
@@ -767,8 +767,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { background-color:#b8e5f1; }
         """)
-        self.btnClear.setIconSize(QtCore.QSize(20, 20))
         self.btnClear.setIcon(QIcon(":/eraser.png"))
+        self.btnClear.setIconSize(QtCore.QSize(20, 20))
         self.btnClear.setToolTip("Clear Log")
         self.btnClear.setCursor(Qt.PointingHandCursor)
 
@@ -781,8 +781,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { background-color:#b8e5f1; }
         """)
-        self.btnSaveLog.setIconSize(QtCore.QSize(20, 20))
         self.btnSaveLog.setIcon(QIcon(":/save.png"))
+        self.btnSaveLog.setIconSize(QtCore.QSize(20, 20))
         self.btnSaveLog.setToolTip("Save Log As")
         self.btnSaveLog.setCursor(Qt.PointingHandCursor)
 
@@ -795,22 +795,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QPushButton:pressed, QToolButton:pressed { background-color:#b8e5f1; }
         """
         self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
-        self.btnTimestamp.setIconSize(QtCore.QSize(20, 20))
         self.btnTimestamp.setIcon(QIcon(":/timestamp.png"))
+        self.btnTimestamp.setIconSize(QtCore.QSize(20, 20))
         self.btnTimestamp.clicked.connect(self.onTimestamp)
         self.btnTimestamp.setToolTip("Select Timestamp")
         self.btnTimestamp.setCursor(Qt.PointingHandCursor)
 
         self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
-        self.btnLoop.setIconSize(QtCore.QSize(20, 20))
         self.btnLoop.setIcon(QIcon(":/loop.png"))
+        self.btnLoop.setIconSize(QtCore.QSize(20, 20))
         self.btnLoop.clicked.connect(self.onLoopChanged)
         self.btnLoop.setToolTip("Loop Send")
         self.btnLoop.setCursor(Qt.PointingHandCursor)
 
         self.btnTogglePortCfgBar = QPushButton(self)
-        self.btnTogglePortCfgBar.setIconSize(QtCore.QSize(23, 23))
         self.btnTogglePortCfgBar.setIcon(QIcon(':/up.png'))
+        self.btnTogglePortCfgBar.setIconSize(QtCore.QSize(23, 23))
         x,w = x+w+12,23
         self.btnTogglePortCfgBar.setGeometry(x,y,w,24)
         self.btnTogglePortCfgBar.setStyleSheet("""
@@ -831,8 +831,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QPushButton:pressed { background-color:#b8e5f1; }
             QPushButton:menu-indicator { image:none; }
         """)
-        self.btnMenu.setIconSize(QtCore.QSize(24, 24))
         self.btnMenu.setIcon(QIcon(":/menu.png"))
+        self.btnMenu.setIconSize(QtCore.QSize(24, 24))
         self.btnMenu.setToolTip("More Settings...")
         self.btnMenu.setCursor(Qt.PointingHandCursor)
         self.btnMenu.setMenu(self.menuMenu)
@@ -1499,6 +1499,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def onAlwaysOnTop(self):
         self._is_always_on_top = not self._is_always_on_top
         self.setWindowFlag(Qt.WindowStaysOnTopHint, self._is_always_on_top)
+        if self._is_always_on_top:
+            self.btnPin.setIcon(QIcon(":/pin_active.png"))
+        else:
+            self.btnPin.setIcon(QIcon(":/pin.png"))
         if os.name == 'posix':
             self.destroy()
             self.create()
