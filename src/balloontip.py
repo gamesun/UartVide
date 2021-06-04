@@ -23,7 +23,7 @@
 ##
 #############################################################################
 
-
+import os
 from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget, \
     QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget, QToolButton, \
@@ -34,6 +34,10 @@ from PySide2.QtGui import QFontMetrics, QFont, QIcon, QPalette, QColor, \
     QPainterPath, QBitmap, QPainter, QPen, QBrush, QPixmap, QScreen
 import shiboken2
 
+if os.name == 'nt':
+    UI_FONT = "Microsoft YaHei UI"
+elif os.name == 'posix':
+    UI_FONT = None
 
 theSolitaryBalloonTip = None
 
@@ -47,6 +51,7 @@ class BalloonTip(QWidget):
         self.__timerId = -1
         self.__showArrow = True
     
+        # self.setWindowOpacity(0.9)
         self.setMouseTracking(True)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Popup)
         self.setAttribute(Qt.WA_DeleteOnClose)
@@ -55,9 +60,15 @@ class BalloonTip(QWidget):
         titleLabel = QLabel(self)
         titleLabel.installEventFilter(self)
         titleLabel.setText(title)
-        f = titleLabel.font()
-        f.setBold(True)
-        titleLabel.setFont(f)
+        
+        if UI_FONT:
+            font = QFont()
+            font.setFamily(UI_FONT)
+            font.setPointSize(9)
+        else:
+            font = titleLabel.font()
+        font.setBold(True)
+        titleLabel.setFont(font)
         titleLabel.setTextFormat(Qt.PlainText) # to maintain compat with windows
     
         iconSize = 18
@@ -70,6 +81,8 @@ class BalloonTip(QWidget):
         # closeButton.clicked.connect(self.close)
     
         msgLabel = QLabel(self)
+        font.setBold(False)
+        msgLabel.setFont(font)
         msgLabel.installEventFilter(self)
         msgLabel.setText(msg)
         msgLabel.setTextFormat(Qt.PlainText)
@@ -106,8 +119,8 @@ class BalloonTip(QWidget):
         layout.setContentsMargins(3, 3, 3, 3)
         self.setLayout(layout)
         pal = self.palette()
-        pal.setColor(QPalette.Window, QColor(0xff, 0xff, 0xe1))
-        pal.setColor(QPalette.WindowText, Qt.black)
+        pal.setColor(QPalette.Window, QColor('#b8e5f1'))
+        pal.setColor(QPalette.WindowText, QColor('#202020'))
         self.setPalette(pal)
 
     def mousePressEvent(self, event):
@@ -160,7 +173,7 @@ class BalloonTip(QWidget):
         ah = 18
         ao = 18
         aw = 18
-        rc = 7
+        rc = 0
         arrowAtTop = (pos.y() + sh.height() + ah < scr.height())
         arrowAtLeft = (pos.x() + sh.width() - ao < scr.width())
         self.setContentsMargins(border + 3,  border + (ah if arrowAtTop else 0) + 2, 
