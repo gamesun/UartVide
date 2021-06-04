@@ -1220,6 +1220,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def onLoopChanged(self):
         if self._is_loop_mode:
+            if self._is_loop_sending:
+                self.stopLoopSend()
             self._is_loop_mode = False
             self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
             self.btnSend.setText('Send')
