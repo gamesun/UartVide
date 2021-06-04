@@ -484,9 +484,9 @@ class Ui_MainWindow(object):
 
         self.btnSend = QToolButton(self.dockWidgetContents_2)
         self.btnSend.setObjectName(u"btnSend")
-        self.btnSend.setMinimumSize(QSize(0, 22))
-        self.btnSend.setMaximumSize(QSize(16777215, 22))
-        self.btnSend.setText(u" Send ")
+        self.btnSend.setMinimumSize(QSize(50, 22))
+        self.btnSend.setMaximumSize(QSize(50, 22))
+        self.btnSend.setText(u"Send")
 
         self.horizontalLayout.addWidget(self.btnSend)
 

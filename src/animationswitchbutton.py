@@ -53,7 +53,7 @@ class AnimationSwitchButton(QtWidgets.QToolButton):
         self.buttonStyle = buttonStyle_CircleIn
 
         self.bgColorOff = QColor('#6F7A7E')
-        self.bgColorOn = QColor('#b400c8') #QColor('#22A3A9')
+        self.bgColorOn = QColor('#0072BB') #QColor('#22A3A9')
         self.sliderColorOff = QColor('#FEFEFE')
         self.sliderColorOn = QColor('#FEFEFE') #QColor('#22A3A9') 
         self.textColorOff = QColor('#f0f')

@@ -768,18 +768,18 @@
         <widget class="QToolButton" name="btnSend">
          <property name="minimumSize">
           <size>
-           <width>0</width>
+           <width>50</width>
            <height>22</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>16777215</width>
+           <width>50</width>
            <height>22</height>
           </size>
          </property>
          <property name="text">
-          <string notr="true"> Send </string>
+          <string notr="true">Send</string>
          </property>
         </widget>
        </item>

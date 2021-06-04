@@ -862,7 +862,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
         else:
             self._is_timestamp = True
-            self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'#b400c8', 'HBG':'#E200FC'})
+            self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'#0072BB', 'HBG':'#51c0d1'})
 
     def onTogglePortCfgBar(self):
         #self.pos_animation.start()
@@ -1076,6 +1076,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.quickSendTable.cellWidget(row, 0) is None:
             item = QToolButton(self)
             item.setText(cmd)
+            item.setCursor(Qt.PointingHandCursor)
             item.clicked.connect(self._signalMapQuickSend.map)
             self._signalMapQuickSend.setMapping(item, row)
             self.quickSendTable.setCellWidget(row, 0, item)
@@ -1085,6 +1086,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.quickSendTable.cellWidget(row, 1) is None:
             item = QToolButton(self)
             item.setText(opt)
+            item.setCursor(Qt.PointingHandCursor)
             #item.setMaximumSize(QtCore.QSize(16, 16))
             item.clicked.connect(self._signalMapQuickSendOpt.map)
             self._signalMapQuickSendOpt.setMapping(item, row)
@@ -1220,20 +1222,50 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self._is_loop_mode:
             self._is_loop_mode = False
             self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
+            self.btnSend.setText('Send')
         else:
             self._is_loop_mode = True
-            self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'#b400c8', 'HBG':'#E200FC'})
+            self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'#0072BB', 'HBG':'#51c0d1'})
+            self.btnSend.setText('Start')
         self.spnPeriod.setEnabled(self._is_loop_mode)
 
     def startLoopSend(self):
         period_spacing = int(self.spnPeriod.text()[:-2]) / 1000.0
         self.loopSendThread.start(period_spacing)
-        self.btnSend.setStyleSheet("QWidget {background-color:#b400c8}")
+        self.btnSend.setStyleSheet('''
+            QToolButton, QPushButton {
+                background-color:#0072BB;
+                border:none;
+                color:#ffffff;
+                font-size:9pt;
+                font-family:%(UIFont)s;
+            }
+            QToolButton:hover, QPushButton:hover {
+                background-color:#0088e0;
+            }
+            QToolButton:pressed, QPushButton:pressed {
+                background-color:#015f9b;
+            }''' % dict(UIFont = 'Microsoft YaHei UI'))
+        self.btnSend.setText('Stop')
         self._is_loop_sending = True
 
     def stopLoopSend(self):
         self.loopSendThread.join()
-        self.btnSend.setStyleSheet("QWidget {}")
+        self.btnSend.setStyleSheet('''
+            QToolButton, QPushButton {
+                background-color:#30a7b8;
+                border:none;
+                color:#ffffff;
+                font-size:9pt;
+                font-family:%(UIFont)s;
+            }
+            QToolButton:hover, QPushButton:hover {
+                background-color:#51c0d1;
+            }
+            QToolButton:pressed, QPushButton:pressed {
+                background-color:#3a9ecc;
+            }''' % dict(UIFont = 'Microsoft YaHei UI'))
+        self.btnSend.setText('Start')
         self._is_loop_sending = False
 
     def onPeriodTrigger(self):
