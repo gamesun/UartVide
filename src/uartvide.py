@@ -112,6 +112,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.portMonitorThread.setPort(self.serialport)
         self.loopSendThread = LoopSendThread(self)
         # self._localEcho = None
+        self._is_always_on_top = False
         self._viewMode = None
         self._quickSendOptRow = 1
         self._is_loop_sending = False
@@ -160,7 +161,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.dockWidget_QuickSend.visibilityChanged.connect(self.onVisibleQckSndPnl)
         self.dockWidget_SendHex.visibilityChanged.connect(self.onVisibleHexPnl)
         # self.actionLocal_Echo.triggered.connect(self.onLocalEcho)
-        self.actionAlways_On_Top.triggered.connect(self.onAlwaysOnTop)
+        # self.actionAlways_On_Top.triggered.connect(self.onAlwaysOnTop)
 
         self.actionAscii.triggered.connect(self.onViewChanged)
         self.actionHex_lowercase.triggered.connect(self.onViewChanged)
@@ -281,7 +282,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.menuMenu.addAction(self.actionSend_Hex_Panel)
         self.menuMenu.addAction(self.menuView.menuAction())
         # self.menuMenu.addAction(self.actionLocal_Echo)
-        self.menuMenu.addAction(self.actionAlways_On_Top)
+        # self.menuMenu.addAction(self.actionAlways_On_Top)
         self.menuMenu.addSeparator()
         self.menuMenu.addAction(self.actionAbout)
         self.menuMenu.addAction(self.actionAbout_Qt)
@@ -648,57 +649,58 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }
         """)
 
-        # self.btnMenu = QToolButton(self)
-        # self.btnMenu.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-        # self.btnMenu.setGeometry(x,y,w,h)
-        # self.btnMenu.setMenu(self.menuMenu)
-        # self.btnMenu.setPopupMode(QtWidgets.QToolButton.InstantPopup)
-        # self.btnMenu.setCursor(Qt.PointingHandCursor)
-        
         frame_w = self.frameGeometry().width()
 
-        self._minBtn = QPushButton(self)
-        self._minBtn.setGeometry(frame_w-120,0,40,34)
-        self._minBtn.clicked.connect(self.onMinimize)
-        self._minBtn.setStyleSheet("""
+        self.btnPin = QPushButton(self)
+        self.btnPin.setGeometry(frame_w-160,0,40,34)
+        self.btnPin.clicked.connect(self.onAlwaysOnTop)
+        self.btnPin.setStyleSheet("""
+            QPushButton { background-color:transparent;border:none; }
+            QPushButton:hover { background-color:#51c0d1; }
+            QPushButton:pressed { background-color:#b8e5f1; }
+        """)
+        self.btnPin.setIconSize(QtCore.QSize(12, 12))
+        self.btnPin.setIcon(QIcon(":/pin.png"))
+        self.btnPin.setToolTip("Always On Top")
+        self.btnPin.setCursor(Qt.PointingHandCursor)
+
+        self.btnMin = QPushButton(self)
+        self.btnMin.setGeometry(frame_w-120,0,40,34)
+        self.btnMin.clicked.connect(self.onMinimize)
+        self.btnMin.setCursor(Qt.PointingHandCursor)
+        self.btnMin.setStyleSheet("""
             QPushButton {
-                background-color:transparent;
-                border:none;
-                outline: none;
+                background-color:transparent; border:none;
                 image: url(:/minimize2_inactive.png);
             }
             QPushButton:hover {
-                background-color:#227582;
-                image: url(:/minimize2_active.png);
+                background-color:#51c0d1; image: url(:/minimize2_active.png);
             }
             QPushButton:pressed {
-                background-color:#14464e;
-                image: url(:/minimize2_active.png);
+                background-color:#b8e5f1; image: url(:/minimize2_active.png);
             }
         """)
         
-        self._maxBtn = QPushButton(self)
-        self._maxBtn.setGeometry(frame_w-80,0,40,34)
-        self._maxBtn.clicked.connect(self.onMaximize)
+        self.btnMax = QPushButton(self)
+        self.btnMax.setGeometry(frame_w-80,0,40,34)
+        self.btnMax.clicked.connect(self.onMaximize)
+        self.btnMax.setCursor(Qt.PointingHandCursor)
         self.setMaximizeButton("maximize")
         
-        self._closeBtn = QPushButton(self)
-        self._closeBtn.setGeometry(frame_w-40,0,40,34)
-        self._closeBtn.clicked.connect(self.onExit)
-        self._closeBtn.setStyleSheet("""
+        self.btnExit = QPushButton(self)
+        self.btnExit.setGeometry(frame_w-40,0,40,34)
+        self.btnExit.clicked.connect(self.onExit)
+        self.btnExit.setCursor(Qt.PointingHandCursor)
+        self.btnExit.setStyleSheet("""
             QPushButton {
-                background-color:transparent;
-                border:none;
-                outline: none;
+                background-color:transparent;border:none;
                 image: url(:/close2_inactive.png);
             }
             QPushButton:hover {
-                background-color:#ea5e00;
-                image: url(:/close2_active.png);
+                background-color:#ea5e00; image: url(:/close2_active.png);
             }
             QPushButton:pressed {
-                background-color:#994005;
-                image: url(:/close2_active.png);
+                background-color:#994005; image: url(:/close2_active.png);
             }
         """)
         
@@ -884,11 +886,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.cmbPort.setCurrentText(port_name)
 
     def resizeEvent(self, event):
-        if hasattr(self, '_maxBtn'):
+        if hasattr(self, 'btnMax'):
             w = event.size().width()
-            self._minBtn.move(w-120, 0)
-            self._maxBtn.move(w-80, 0)
-            self._closeBtn.move(w-40, 0)
+            self.btnPin.move(w-160, 0)
+            self.btnMin.move(w-120, 0)
+            self.btnMax.move(w-80, 0)
+            self.btnExit.move(w-40, 0)
 
     def onMinimize(self):
         self.showMinimized()
@@ -905,41 +908,33 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.setMaximizeButton("restore")
     
     def setMaximizeButton(self, style):
-        if not hasattr(self, '_maxBtn'):
+        if not hasattr(self, 'btnMax'):
             return
 
         if "maximize" == style:
-            self._maxBtn.setStyleSheet("""
+            self.btnMax.setStyleSheet("""
                 QPushButton {
-                    background-color:transparent;
-                    border:none;
-                    outline: none;
+                    background-color:transparent; border:none;
                     image: url(:/maximize2_inactive.png);
                 }
                 QPushButton:hover {
-                    background-color:#227582;
-                    image: url(:/maximize2_active.png);
+                    background-color:#51c0d1; image: url(:/maximize2_active.png);
                 }
                 QPushButton:pressed {
-                    background-color:#14464e;
-                    image: url(:/maximize2_active.png);
+                    background-color:#b8e5f1; image: url(:/maximize2_active.png);
                 }
             """)
         elif "restore" == style:
-            self._maxBtn.setStyleSheet("""
+            self.btnMax.setStyleSheet("""
                 QPushButton {
-                    background-color:transparent;
-                    border:none;
-                    outline: none;
+                    background-color:transparent; border:none;
                     image: url(:/restore2_inactive.png);
                 }
                 QPushButton:hover {
-                    background-color:#227582;
-                    image: url(:/restore2_active.png);
+                    background-color:#51c0d1; image: url(:/restore2_active.png);
                 }
                 QPushButton:pressed {
-                    background-color:#14464e;
-                    image: url(:/restore2_active.png);
+                    background-color:#b8e5f1; image: url(:/restore2_active.png);
                 }
             """)
     
@@ -1468,12 +1463,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     #     self._localEcho = self.actionLocal_Echo.isChecked()
 
     def onAlwaysOnTop(self):
-        if self.actionAlways_On_Top.isChecked():
-            self.setWindowFlag(Qt.WindowStaysOnTopHint)
-            self.show()
-        else:
-            self.setWindowFlag(Qt.WindowStaysOnTopHint, False)
-            self.show()
+        self._is_always_on_top = not self._is_always_on_top
+        self.setWindowFlag(Qt.WindowStaysOnTopHint, self._is_always_on_top)
+        if os.name == 'posix':
+            self.destroy()
+            self.create()
+        self.show()
 
     def onOpen(self, state):
         if state:
