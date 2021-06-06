@@ -32,7 +32,7 @@ CloseApplicationsFilter=*.*
 [Files]
 Source: "dist\uartvide\*"; DestDir: "{app}"; Flags: recursesubdirs
 Source: "..\LICENSE.txt"; DestDir: "{app}"
-Source: "..\whatsnew.htm"; DestDir: "{app}"
+Source: "..\readme.htm"; DestDir: "{app}"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\Settings"
@@ -48,5 +48,3 @@ Name: "{userprograms}\{#AppName} {#AppVersion}\Uninstall {#AppName} {#AppVersion
 [Run]
 Filename: "{app}\{#AppName}.exe"; Description: "Launch application"; \
     Flags: postinstall nowait skipifsilent
-Filename: "{app}\whatsnew.htm"; Description: "See what's new"; \
-    Flags: postinstall nowait skipifsilent shellexec
