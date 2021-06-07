@@ -6,17 +6,15 @@ UartVide is licensed under the GNU GPL v3.
 For detail see <a href="http://www.gnu.org/licenses/" title="GNU Licenses">http://www.gnu.org/licenses/</a>  
 
 ## Download
-### Windows Version  
 ![](https://img.shields.io/badge/platform-win--7%20|%20win--8%20|%20win--10-lightgrey)  
-![](https://img.shields.io/badge/platform-win--32%20|%20win--64-lightgrey)  
+![](https://img.shields.io/badge/platform-win--64-lightgrey)  
+![](https://img.shields.io/badge/platform-linux--64-lightgrey)  
 
+### Windows/Linux Version  
 [![Download UartVide(MyTerm)](https://a.fsdn.com/con/app/sf-download-button)](https://sourceforge.net/projects/myterm/files/latest/download)  
 
 [Download UartVide(MyTerm) from Softpedia](http://www.softpedia.com/get/Network-Tools/Misc-Networking-Tools/MyTerm.shtml)  
 [![ ](doc/softpedia_free_award_f.gif "")](http://www.softpedia.com/progClean/MyTerm-Clean-242031.html)  
-
-### Linux Version
-The source code is executable in Linux.  
 
 ## Screenshot
 ![main window](doc/main_window.png "main window")
