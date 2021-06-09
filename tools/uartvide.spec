@@ -4,7 +4,7 @@
 block_cipher = None
 
 
-a = Analysis(['..\\src\\uartvide.py'],
+a = Analysis(['../src/uartvide.py'],
              pathex=[],
              binaries=[],
              datas=[],
@@ -27,7 +27,8 @@ exe = EXE(pyz,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
-          console=False , icon='..\\res\\uartvide-icon\\uartvide.ico')
+          console=False,
+          icon='../res/uartvide-icon/uartvide_32.png')
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,

@@ -1,11 +1,11 @@
 [Desktop Entry] 
 Name=uartvide
 Comment=RS232 serial port communication utility
-Exec=/usr/bin/uartvide
-Icon=/usr/share/icons/uartvide.png
+Exec=/usr/share/uartvide/uartvide
+Icon=/usr/share/icons/uartvide_256.png
 Terminal=false
 Type=Application
 X-Ubuntu-Touch=true
-Categories=Development
+Categories=Utility;TextEditor;Development;
 Name[en]=UartVide
 

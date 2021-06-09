@@ -1,6 +1,7 @@
 package: uartvide
-version: 2.3.0
+version: 2.4
 architecture: amd64
 Priority: optional
 maintainer: gamesun
+homepage: https://github.com/gamesun/UartVide
 description: RS232 serial port communication utility
