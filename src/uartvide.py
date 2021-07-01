@@ -1468,6 +1468,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.serialport.close()
             self.setWindowTitle(appInfo.title)
             self.cmbPort.setEnabled(True)
+            self.asbtnOpen.setChecked(False)
             #self.cmbPort.setStyleSheet('QComboBox:editable {background: white;}')
             #self.btnOpen.setText('Open')
             #self.btnOpen.setIcon(QIcon(":/port_off.png"))
