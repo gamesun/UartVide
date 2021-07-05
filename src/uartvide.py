@@ -45,7 +45,7 @@ if extension != '.py':
 
 # PySide2
 from PySide2 import QtCore, QtGui, QtWidgets
-from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget, \
+from PySide2.QtWidgets import QLineEdit, QMainWindow, QApplication, QMessageBox, QWidget, \
     QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget, QToolButton, \
     QFileDialog, QToolTip
 from PySide2.QtCore import Qt, QThread, Signal, QSignalMapper, QFile, QPoint, \
@@ -549,26 +549,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QMenuBar::item:pressed {
                 
             }
-            /*
-            QMenu {
-                color: %(TextColor)s;
-                background: #ffffff;
-            }
-            QMenu {
-                margin: 2px;
-            }
-            QMenu::item {
-                padding: 2px 25px 2px 21px;
-                border: 1px solid transparent;
-            }
-            QMenu::item:selected {
-                background: #51c0d1;
-            }
-            QMenu::icon {
-                background: transparent;
-                border: 2px inset transparent;
-            }*/
-
+            
+            QMenu {margin: 2px;color: #202020;background: #eeeeee;}
+            QMenu::item {padding: 2px 25px 2px 21px;border: 1px solid transparent;}
+            QMenu::item:selected {background: #51c0d1;}
+            QMenu::icon {background: transparent;border: 2px inset transparent;}
+            QMenu::item:disabled {color: #808080;background: #eeeeee;}
+            
             QDockWidget {
                 font-size:9pt;
                 font-family:%(UIFont)s;
@@ -1095,9 +1082,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.quickSendTable.cellWidget(row, 1).setText(opt)
 
         if self.quickSendTable.item(row, 2) is None:
-            self.quickSendTable.setItem(row, 2, QTableWidgetItem(dat))
+            item = QLineEdit(dat)
+            item.setStyleSheet('''
+                QLineEdit {border: none;font-size:9pt;font-family:Consolas;}
+                QMenu {margin: 2px;color: #202020;background: #eeeeee;}
+                QMenu::item {padding: 2px 25px 2px 21px;border: 1px solid transparent;}
+                QMenu::item:selected {background: #51c0d1;}
+                QMenu::icon {background: transparent;border: 2px inset transparent;}
+                QMenu::item:disabled {color: #808080;background: #eeeeee;}''')
+            self.quickSendTable.setCellWidget(row, 2, item)
         else:
-            self.quickSendTable.item(row, 2).setText(dat)
+            self.quickSendTable.cellWidget(row, 2).setText(dat)
 
         self.quickSendTable.setRowHeight(row, 20)
 
