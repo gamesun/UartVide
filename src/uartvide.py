@@ -264,32 +264,34 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.serialport.xonxoff = self.chkXonXoff.isChecked()
 
     def setupMenu(self):
-        self.menuMenu = QtWidgets.QMenu()
-        self.menuMenu.setTitle("&File")
-        self.menuMenu.setObjectName("menuMenu")
-        self.menuView = QtWidgets.QMenu(self.menuMenu)
+        self.menuMoreSettings = QtWidgets.QMenu()
+        # self.menuMoreSettings.setTitle("&More")
+        self.menuView = QtWidgets.QMenu(self.menuMoreSettings)
         self.menuView.setTitle("&View")
-        self.menuView.setObjectName("menuView")
-
         self.menuView.addAction(self.actionAscii)
         self.menuView.addAction(self.actionHex_lowercase)
         self.menuView.addAction(self.actionHEX_UPPERCASE)
-        self.menuMenu.addAction(self.actionOpen_Cmd_File)
-        self.menuMenu.addAction(self.actionSave_Log)
-        self.menuMenu.addSeparator()
+        self.menuMoreSettings.addAction(self.actionOpen_Cmd_File)
+        self.menuMoreSettings.addAction(self.actionSave_Log)
+        self.menuMoreSettings.addSeparator()
         #self.menuMenu.addAction(self.actionPort_Config_Panel)
-        self.menuMenu.addAction(self.actionQuick_Send_Panel)
-        self.menuMenu.addAction(self.actionSend_Hex_Panel)
-        self.menuMenu.addAction(self.menuView.menuAction())
+        self.menuMoreSettings.addAction(self.actionQuick_Send_Panel)
+        self.menuMoreSettings.addAction(self.actionSend_Hex_Panel)
+        self.menuMoreSettings.addAction(self.menuView.menuAction())
         # self.menuMenu.addAction(self.actionLocal_Echo)
         # self.menuMenu.addAction(self.actionAlways_On_Top)
-        self.menuMenu.addSeparator()
-        self.menuMenu.addAction(self.actionAbout)
-        self.menuMenu.addAction(self.actionAbout_Qt)
-        self.menuMenu.addSeparator()
-        self.menuMenu.addAction(self.actionExit)
+        self.menuMoreSettings.addSeparator()
+        self.menuMoreSettings.addAction(self.actionAbout)
+        self.menuMoreSettings.addAction(self.actionAbout_Qt)
+        self.menuMoreSettings.addSeparator()
+        self.menuMoreSettings.addAction(self.actionExit)
+        self.menuMoreSettings.setStyleSheet('''
+            QMenu {margin: 2px;color: #202020;background: #eeeeee;}
+            /*QMenu::item {padding: 2px 22px 2px 2px;border: 1px solid transparent;}*/
+            QMenu::item:selected {background: #51c0d1;}
+            QMenu::icon {background: transparent;border: 2px inset transparent;}
+            QMenu::item:disabled {color: #808080;background: #eeeeee;}''')
 
-        self.sendOptMenu = QtWidgets.QMenu()
         self.actionSend_Hex = QtWidgets.QAction(self)
         self.actionSend_Hex.setText("HEX")
         self.actionSend_Hex.setStatusTip("Send Hex (e.g. 31 32 FF)")
@@ -314,12 +316,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionSend_BF.setText("Bin/HEX file")
         self.actionSend_BF.setStatusTip("Send a Bin/HEX file")
 
-        self.sendOptMenu.addAction(self.actionSend_Hex)
-        self.sendOptMenu.addAction(self.actionSend_Asc)
-        self.sendOptMenu.addAction(self.actionSend_AscS)
-        self.sendOptMenu.addAction(self.actionSend_HF)
-        self.sendOptMenu.addAction(self.actionSend_AF)
-        self.sendOptMenu.addAction(self.actionSend_BF)
+        self.menuSendOpt = QtWidgets.QMenu()
+        self.menuSendOpt.addAction(self.actionSend_Hex)
+        self.menuSendOpt.addAction(self.actionSend_Asc)
+        self.menuSendOpt.addAction(self.actionSend_AscS)
+        self.menuSendOpt.addAction(self.actionSend_HF)
+        self.menuSendOpt.addAction(self.actionSend_AF)
+        self.menuSendOpt.addAction(self.actionSend_BF)
+        self.menuSendOpt.setStyleSheet('''
+            QMenu {margin: 2px;color: #202020;background: #eeeeee;}
+            QMenu::item {padding: 2px 12px 2px 12px;border: 1px solid transparent;}
+            QMenu::item:selected {background: #51c0d1;}
+            QMenu::icon {background: transparent;border: 2px inset transparent;}
+            QMenu::item:disabled {color: #808080;background: #eeeeee;}''')
 
         self.actionSend_Hex.triggered.connect(self.onSetSendHex)
         self.actionSend_Asc.triggered.connect(self.onSetSendAsc)
@@ -551,7 +560,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }
             
             QMenu {margin: 2px;color: #202020;background: #eeeeee;}
-            QMenu::item {padding: 2px 25px 2px 21px;border: 1px solid transparent;}
+            QMenu::item {padding: 2px 12px 2px 12px;border: 1px solid transparent;}
             QMenu::item:selected {background: #51c0d1;}
             QMenu::icon {background: transparent;border: 2px inset transparent;}
             QMenu::item:disabled {color: #808080;background: #eeeeee;}
@@ -822,7 +831,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnMenu.setIconSize(QtCore.QSize(24, 24))
         self.btnMenu.setToolTip("More Settings...")
         self.btnMenu.setCursor(Qt.PointingHandCursor)
-        self.btnMenu.setMenu(self.menuMenu)
+        self.btnMenu.setMenu(self.menuMoreSettings)
 
         if os.name == 'posix':
             self.fixComboViewSize(self.cmbBaudRate)
@@ -1086,7 +1095,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             item.setStyleSheet('''
                 QLineEdit {border: none;font-size:9pt;font-family:Consolas;}
                 QMenu {margin: 2px;color: #202020;background: #eeeeee;}
-                QMenu::item {padding: 2px 25px 2px 21px;border: 1px solid transparent;}
+                QMenu::item {padding: 2px 12px 2px 12px;border: 1px solid transparent;}
                 QMenu::item:selected {background: #51c0d1;}
                 QMenu::icon {background: transparent;border: 2px inset transparent;}
                 QMenu::item:disabled {color: #808080;background: #eeeeee;}''')
@@ -1117,7 +1126,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def onQuickSendOptions(self, row):
         self._quickSendOptRow = row
         item = self.quickSendTable.cellWidget(row, 1)
-        self.sendOptMenu.popup(item.mapToGlobal(QPoint(item.size().width(), item.size().height())))
+        self.menuSendOpt.popup(item.mapToGlobal(QPoint(item.size().width(), item.size().height())))
 
     def openQuickSend(self):
         fileName = QFileDialog.getOpenFileName(self.defaultStyleWidget, "Select a file",
