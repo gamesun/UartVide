@@ -1466,7 +1466,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def closePort(self):
         if self.serialport.isOpen():
-            self.stopLoopSend()
+            if self._is_loop_sending:
+                self.stopLoopSend()
             self.readerThread.join()
             self.portMonitorThread.join()
             self.serialport.close()
