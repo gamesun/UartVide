@@ -4,8 +4,6 @@
 ![](https://img.shields.io/badge/platform-win--64%20|%20linux--64-lightgrey)  
 
 UartVide is a flat-UI and lightweight RS232 serial port communication utility.  
-UartVide runs on Windows and Linux supported by [PySide2](https://pypi.org/project/PySide2/).  
-
 Its features including
 	
   * resizable and floatable windows
@@ -13,7 +11,12 @@ Its features including
   * supported send formats: HEX, ASCII, ASCII(\r \n \t ...), Hex text file, ASCII text file, BIN/HEX file
   * detect the valid serial ports
   * display receive data either in hexadecimal or ASCII format
-    
+
+UartVide runs on Windows and Linux supported by [PySide2](https://pypi.org/project/PySide2/).  
+<p><div>The program icon made by <a href="https://www.flaticon.com/authors/flat-icons" title="Flat Icons">
+Flat Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+<div>Clear icon made by <a href="https://smashicons.com/" title="Smashicons">Smashicons</a>
+from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div></p>
 (MyTerm was renamed to UartVide from version 2.4)  
 
 ## License
@@ -28,8 +31,3 @@ For detail see <a href="http://www.gnu.org/licenses/" title="GNU Licenses">http:
 
 ## Screenshot
 ![main window](doc/main_window.png "main window")
-
-<p><div>The program icon made by <a href="https://www.flaticon.com/authors/flat-icons" title="Flat Icons">
-Flat Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
-<div>Clear icon made by <a href="https://smashicons.com/" title="Smashicons">Smashicons</a>
-from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div></p>
