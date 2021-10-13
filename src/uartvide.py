@@ -45,12 +45,9 @@ if extension != '.py':
 
 # PySide2
 from PySide2 import QtCore, QtGui, QtWidgets
-from PySide2.QtWidgets import QLineEdit, QMainWindow, QApplication, QMessageBox, QWidget, \
-    QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget, QToolButton, \
-    QFileDialog, QToolTip
-from PySide2.QtCore import Qt, QThread, Signal, QSignalMapper, QFile, QPoint, \
-    QIODevice, QSize
-from PySide2.QtGui import QFontMetrics, QFont, QIcon
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
 signal = Signal
 import resources_pyside2
 from ui_mainwindow_pyside2 import Ui_MainWindow
@@ -74,7 +71,7 @@ from ui_mainwindow_pyside2 import Ui_MainWindow
 from balloontip import BalloonTip
 from combo import Combo
 from animationswitchbutton import AnimationSwitchButton
-
+from parse_table_header import ParseTableHorizontalHeader, ParseTableVerticalHeader
 
 import datetime
 import pickle
@@ -87,14 +84,15 @@ from configpath import get_config_path
 import serial
 from serial.tools.list_ports import comports
 from time import sleep
+import re
 
 
 if os.name == 'nt':
-    EDITOR_FONT = "Consolas"
-    UI_FONT = "Meiryo UI"
+    CODE_FONT = "MS Gothic"
+    UI_FONT = "Segoe UI"
 elif os.name == 'posix':
-    EDITOR_FONT = "Monospace"
-    UI_FONT = None
+    CODE_FONT = "Monospace"
+    UI_FONT = "Ubuntu"
 
 VIEWMODE_ASCII           = 0
 VIEWMODE_HEX_LOWERCASE   = 1
@@ -121,12 +119,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
         self.setCorner(Qt.BottomLeftCorner, Qt.LeftDockWidgetArea)
-        font = QFont()
-        font.setFamily(EDITOR_FONT)
-        font.setPointSize(9)
-        self.txtEdtOutput.setFont(font)
-        self.txtEdtInput.setFont(font)
-        #self.quickSendTable.setFont(font)
+
+        font1 = QFont()
+        font1.setFamily(UI_FONT)
+        font1.setKerning(True)
+        font1.setStyleStrategy(QFont.PreferAntialias)
+        self.setFont(font1)
+
+        font2 = QFont()
+        font2.setFamily(CODE_FONT)
+        font2.setPointSize(9)
+        self.txtEdtOutput.setFont(font2)
+        self.txtEdtInput.setFont(font2)
+        #self.quickSendTable.setFont(font2)
         self.setupMenu()
         self.setupFlatUi()
         
@@ -156,12 +161,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         #self.actionPort_Config_Panel.triggered.connect(self.onTogglePrtCfgPnl)
         self.actionQuick_Send_Panel.triggered.connect(self.onToggleQckSndPnl)
-        self.actionSend_Hex_Panel.triggered.connect(self.onToggleHexPnl)
+        self.actionSend_Panel.triggered.connect(self.onToggleSndPnl)
+        self.actionParse_Panel.triggered.connect(self.onToggleParsePnl)
         #self.dockWidget_PortConfig.visibilityChanged.connect(self.onVisiblePrtCfgPnl)
         self.dockWidget_QuickSend.visibilityChanged.connect(self.onVisibleQckSndPnl)
-        self.dockWidget_SendHex.visibilityChanged.connect(self.onVisibleHexPnl)
+        self.dockWidget_Send.visibilityChanged.connect(self.onVisibleSndPnl)
+        self.dockWidget_Parse.visibilityChanged.connect(self.onVisibleParsePnl)
         # self.actionLocal_Echo.triggered.connect(self.onLocalEcho)
         # self.actionAlways_On_Top.triggered.connect(self.onAlwaysOnTop)
+
+        # self.dockWidget_QuickSend.dockLocationChanged.connect(self.onDockLocationChanged)
 
         self.actionAscii.triggered.connect(self.onViewChanged)
         self.actionHex_lowercase.triggered.connect(self.onViewChanged)
@@ -187,16 +196,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.readerThread.read.connect(self.onReceive)
         self.readerThread.exception.connect(self.onReaderExcept)
-        self._signalMapQuickSendOpt = QSignalMapper(self)
-        self._signalMapQuickSendOpt.mapped[int].connect(self.onQuickSendOptions)
-        self._signalMapQuickSend = QSignalMapper(self)
-        self._signalMapQuickSend.mapped[int].connect(self.onQuickSend)
 
         # initial action
         self.setTabWidth(4)
         self.actionHEX_UPPERCASE.setChecked(True)
         self.readerThread.setViewMode(VIEWMODE_HEX_UPPERCASE)
         self.initQuickSend()
+        self.initParseTable()
         self.restoreLayout()
         self.moveScreenCenter()
         self.syncMenu()
@@ -276,7 +282,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.menuMoreSettings.addSeparator()
         #self.menuMenu.addAction(self.actionPort_Config_Panel)
         self.menuMoreSettings.addAction(self.actionQuick_Send_Panel)
-        self.menuMoreSettings.addAction(self.actionSend_Hex_Panel)
+        self.menuMoreSettings.addAction(self.actionParse_Panel)
+        self.menuMoreSettings.addAction(self.actionSend_Panel)
         self.menuMoreSettings.addAction(self.menuView.menuAction())
         # self.menuMenu.addAction(self.actionLocal_Echo)
         # self.menuMenu.addAction(self.actionAlways_On_Top)
@@ -343,19 +350,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setMouseTracking(True)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setStyleSheet("""
-            QWidget {
-                background-color: %(BackgroundColor)s;
-                /*background-image: url(:/background.png);*/
-                outline: none;
-            }
-            QToolBar {
-                border: none;
-            }
-            QLabel {
-                color:%(TextColor)s;
-                font-size:9pt;
-                font-family:%(UIFont)s;
-            }
+            QWidget { background-color: %(BackgroundColor)s; outline: none; }
+            QToolBar { border: none; }
+            QLabel { color:%(TextColor)s; font-size:9pt; font-family:%(UIFont)s; }
 
             QComboBox {
                 color:%(TextColor)s;
@@ -364,23 +361,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 border: none;
                 padding: 1px 1px 1px 3px;
             }
-            QComboBox:editable {
-                background: white;
-            }
+            QComboBox:editable { background: white; }
             QComboBox:!editable, QComboBox::drop-down:editable { background: #62c7e0; }
             QComboBox:!editable:hover, QComboBox::drop-down:editable:hover { background: #c7eaf3; }
             QComboBox:!editable:pressed, QComboBox::drop-down:editable:pressed { background: #35b6d7; }
             QComboBox:!editable:disabled, QComboBox::drop-down:editable:disabled { background: #c0c0c0; }
-            QComboBox:on {
-                padding-top: 3px;
-                padding-left: 4px;
-            }
-            QComboBox::drop-down {
-                subcontrol-origin: padding;
-                subcontrol-position: top right;
-                width: 16px;
-                border: none;
-            }
+            QComboBox:on { padding-top: 3px; padding-left: 4px; }
+            QComboBox::drop-down { subcontrol-origin: padding; subcontrol-position: top right; width: 16px; border: none; }
             QComboBox::down-arrow { image: url(:/downarrow.png); }
             QComboBox::down-arrow:on { image: url(:/uparrow.png); }
             QComboBox QAbstractItemView { background: white; }
@@ -514,7 +501,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 border-bottom: 1px solid %(TableView_Border)s;
                 padding-left: 2px;
                 padding-right: 2px;
-                color: #444444;
+                color: %(TextColor)s;
                 background-color: %(TableView_Header)s;
             }
             QTextEdit {
@@ -579,7 +566,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 subcontrol-position: right top;
                 text-align: left;
                 background: #67baed;
-                
             }
             QDockWidget::float-button {
                 max-width: 12px;
@@ -614,6 +600,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 padding: 0;
             }
             
+            QTabBar { qproperty-drawBase: 0; }  /* remove the mysterious unstyled horizontal line */
+            
+            QTabBar::tab {
+                font-size:9pt;
+                font-family:%(UIFont)s;
+                color: #202020;
+                background-color: #6fcae1;
+                /*border: 2px solid #99d9ea;*/
+                /*min-width: 22ex;*/
+                padding: 4px 12px 4px 12px;
+                margin: 2px;
+            }
+            QTabBar::tab:selected, QTabBar::tab:hover { background-color:#f8f8f8;color: #202020; }
+            
         """ % dict(
             BackgroundColor =  '#99d9ea',
             TextColor =        '#202020',
@@ -622,7 +622,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             TableView_Corner = '#8ae6d2',
             TableView_Header = '#8ae6d2',
             TableView_Border = '#eeeeee',
-            UIFont = 'Microsoft YaHei UI',
+            UIFont = UI_FONT,
         ))
         self.dockWidget_QuickSend.setStyleSheet("""
             QToolButton, QPushButton {
@@ -839,6 +839,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.fixComboViewSize(self.cmbParity)
             self.fixComboViewSize(self.cmbStopBits)
 
+    # def onDockLocationChanged(self, area):
+    #     # print('onDockLocationChanged', area)
+    #     self.dockWidget_QuickSend.adjustSize()
+    #     self.dockWidget.adjustSize()
+
     def fixComboViewSize(self, widget):
         fm = QFontMetrics(widget.fontMetrics())
         maxlen = 0
@@ -858,7 +863,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
         else:
             self._is_timestamp = True
-            self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'#0072BB', 'HBG':'#51c0d1'})
+            self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'#3a9ecc', 'HBG':'#51c0d1'})
 
     def onTogglePortCfgBar(self):
         #self.pos_animation.start()
@@ -1045,20 +1050,119 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 send_text = tree.findtext('Contents/Send/Value', default='')
                 self.txtEdtInput.setText(send_text)
 
-    def closeEvent(self, event):
-        if self.serialport.isOpen():
-            self.closePort()
-        self.saveLayout()
-        self.saveQuickSend()
-        self.saveSettings()
-        event.accept()
+    def initParseTable(self):
+        self.parseSelLst = [False] * 50
+        self.parseHdrLst = [None] * 50
+        self.parseFmtLst = [None] * 50
+
+        self.parseTable.setRowCount(50)
+        self.parseTable.setColumnCount(3)
+        
+        for row in range(50):
+            self.setParseTable(row)
+        
+        title0 = QTableWidgetItem('En')
+        title1 = QTableWidgetItem('Header')
+        title2 = QTableWidgetItem('')
+        title0.setFont(QFont(UI_FONT, 9))
+        title1.setFont(QFont(UI_FONT, 9))
+        self.parseTable.setHorizontalHeaderItem(0, title0)
+        self.parseTable.setHorizontalHeaderItem(1, title1)
+        self.parseTable.setHorizontalHeaderItem(2, title2)
+        
+        self.parseTable.verticalHeader().setVisible(False)
+        # self.parseTable.horizontalHeader().model().setHeaderData(0, Qt.Horizontal, QFont(UI_FONT), Qt.FontRole)
+        # self.parseTable.horizontalHeader().model().setHeaderData(1, Qt.Horizontal, QFont(UI_FONT), Qt.FontRole)
+
+        pthh = ParseTableHorizontalHeader(self)
+        pthh.setMinimumSectionSize(16)
+        self.parseTable.setHorizontalHeader(pthh)
+
+        # ptvh = ParseTableVerticalHeader(self)
+        # self.parseTable.setVerticalHeader(ptvh)
+
+        self.parseTable.resizeColumnsToContents()
+        self.parseTable.setColumnWidth(0, 19)
+
+    def setParseTable(self, row, checked = False, header = '', format = ''):
+        if self.parseTable.cellWidget(row, 0) is None:
+            chkbox = QCheckBox(self)
+            chkbox.setText('')
+            chkbox.setChecked(checked)
+            chkbox.setCursor(Qt.PointingHandCursor)
+            chkbox.setStyleSheet("padding-left:2px;")
+            chkbox.stateChanged.connect(lambda newState: self.onParseSelect(row, newState))
+            self.parseTable.setCellWidget(row, 0, chkbox)
+        else:
+            self.parseTable.cellWidget(row, 0).setChecked(checked)
+
+        if self.parseTable.cellWidget(row, 1) is None:
+            item = QLineEdit(header)
+            item.setStyleSheet('''
+                QLineEdit {border: none;font-size:9pt;font-family:%(Code_Font)s;}
+                QMenu {margin: 2px;color: #202020;background: #eeeeee;}
+                QMenu::item {padding: 2px 12px 2px 12px;border: 1px solid transparent;}
+                QMenu::item:selected {background: #51c0d1;}
+                QMenu::icon {background: transparent;border: 2px inset transparent;}
+                QMenu::item:disabled {color: #808080;background: #eeeeee;}''' % dict(Code_Font = CODE_FONT))
+            item.textChanged.connect(lambda newText: self.onParseTextEdited(row, 1, newText))
+            self.parseTable.setCellWidget(row, 1, item)
+        else:
+            self.parseTable.cellWidget(row, 1).setText(header)
+
+        if self.parseTable.cellWidget(row, 2) is None:
+            item = QLineEdit(format)
+            item.setStyleSheet('''
+                QLineEdit {border: none;font-size:9pt;font-family:%(Code_Font)s;}
+                QMenu {margin: 2px;color: #202020;background: #eeeeee;}
+                QMenu::item {padding: 2px 12px 2px 12px;border: 1px solid transparent;}
+                QMenu::item:selected {background: #51c0d1;}
+                QMenu::icon {background: transparent;border: 2px inset transparent;}
+                QMenu::item:disabled {color: #808080;background: #eeeeee;}''' % dict(Code_Font = CODE_FONT))
+            item.textChanged.connect(lambda newText: self.onParseTextEdited(row, 2, newText))
+            self.parseTable.setCellWidget(row, 2, item)
+        else:
+            self.parseTable.cellWidget(row, 2).setText(format)
+
+        self.parseTable.setRowHeight(row, 20)
+
+    def onParseSelect(self, row, state):
+        self.parseSelLst[row] = (state == Qt.Checked)
+    
+    def onParseTextEdited(self, row, column, text):
+        if column == 1:
+            textColor = '#202020'
+            try:
+                hexarray = string_to_hex(text)
+            except Exception as e:
+                # print(str(e))
+                textColor = 'red'
+            else:
+                self.parseHdrLst[row] = hexarray
+
+            edt = self.parseTable.cellWidget(row, 1)
+            p = edt.palette()
+            p.setColor(QPalette.Text, QColor(textColor))
+            edt.setPalette(p)
+
+        elif column == 2:
+            textColor = '#202020'
+            if chkParseFmtValid(text):
+                self.parseFmtLst[row] = splitParseFmt(text)
+            else:
+                textColor = 'red'
+
+            edt = self.parseTable.cellWidget(row, 2)
+            p = edt.palette()
+            p.setColor(QPalette.Text, QColor(textColor))
+            edt.setPalette(p)
 
     def initQuickSend(self):
         #self.quickSendTable.horizontalHeader().setDefaultSectionSize(40)
         #self.quickSendTable.horizontalHeader().setMinimumSectionSize(25)
         self.quickSendTable.setRowCount(50)
         self.quickSendTable.setColumnCount(3)
-        self.quickSendTable.verticalHeader().setSectionsClickable(True)
+        # self.quickSendTable.verticalHeader().setSectionsClickable(True)
 
         for row in range(50):
             self.initQuickSendButton(row, cmd = '%d' % (row+1))
@@ -1073,8 +1177,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             item = QToolButton(self)
             item.setText(cmd)
             item.setCursor(Qt.PointingHandCursor)
-            item.clicked.connect(self._signalMapQuickSend.map)
-            self._signalMapQuickSend.setMapping(item, row)
+            item.clicked.connect(lambda x : self.onQuickSend(row))
             self.quickSendTable.setCellWidget(row, 0, item)
         else:
             self.quickSendTable.cellWidget(row, 0).setText(cmd)
@@ -1084,21 +1187,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             item.setText(opt)
             item.setCursor(Qt.PointingHandCursor)
             #item.setMaximumSize(QtCore.QSize(16, 16))
-            item.clicked.connect(self._signalMapQuickSendOpt.map)
-            self._signalMapQuickSendOpt.setMapping(item, row)
+            item.clicked.connect(lambda x : self.onQuickSendOptions(row))
             self.quickSendTable.setCellWidget(row, 1, item)
         else:
             self.quickSendTable.cellWidget(row, 1).setText(opt)
 
-        if self.quickSendTable.item(row, 2) is None:
+        if self.quickSendTable.cellWidget(row, 2) is None:
             item = QLineEdit(dat)
             item.setStyleSheet('''
-                QLineEdit {border: none;font-size:9pt;font-family:Consolas;}
+                QLineEdit {border: none;font-size:9pt;font-family:%(Code_Font)s;}
                 QMenu {margin: 2px;color: #202020;background: #eeeeee;}
                 QMenu::item {padding: 2px 12px 2px 12px;border: 1px solid transparent;}
                 QMenu::item:selected {background: #51c0d1;}
                 QMenu::icon {background: transparent;border: 2px inset transparent;}
-                QMenu::item:disabled {color: #808080;background: #eeeeee;}''')
+                QMenu::item:disabled {color: #808080;background: #eeeeee;}''' % dict(Code_Font = CODE_FONT))
             self.quickSendTable.setCellWidget(row, 2, item)
         else:
             self.quickSendTable.cellWidget(row, 2).setText(dat)
@@ -1140,8 +1242,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         save_data = [[self.quickSendTable.cellWidget(row, 0).text(),
                       self.quickSendTable.cellWidget(row, 1).text(),
-                      self.quickSendTable.item(row, 2) is not None
-                      and self.quickSendTable.item(row, 2).text() or ''] for row in range(rows)]
+                      self.quickSendTable.cellWidget(row, 2).text()] for row in range(rows)]
 
         #import pprint
         #pprint.pprint(save_data, width=120, compact=True)
@@ -1184,8 +1285,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def onQuickSend(self, row):
         try:
             if self.serialport.isOpen():
-                if self.quickSendTable.item(row, 2) is not None:
-                    tablestring = self.quickSendTable.item(row, 2).text()
+                if self.quickSendTable.cellWidget(row, 2) != None:
+                    tablestring = self.quickSendTable.cellWidget(row, 2).text()
                     form = self.quickSendTable.cellWidget(row, 1).text()
                     if 'H' == form:
                         self.transmitHex(tablestring)
@@ -1303,16 +1404,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def transmitHex(self, hexstring, echo = True):
         if len(hexstring) > 0:
-            hexarray = []
-            _hexstring = hexstring.replace(' ', '')
-            _hexstring = _hexstring.replace('\r', '')
-            _hexstring = _hexstring.replace('\n', '')
-            for i in range(0, len(_hexstring), 2):
-                word = _hexstring[i:i+2]
-                if is_hex(word):
-                    hexarray.append(int(word, 16))
-                else:
-                    raise Exception("'%s' is not hexadecimal." % (word))
+            hexarray = string_to_hex(hexstring)
             if echo:
                 text = ''.join('%02X ' % t for t in hexarray)
                 self.appendOutputText("\n%s%s" % (self.timestamp(), text), Qt.blue)
@@ -1470,10 +1562,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.stopLoopSend()
             self.readerThread.join()
             self.portMonitorThread.join()
+            self.serialport.cancel_write()
+            self.serialport.cancel_read()
             self.serialport.close()
+            
             self.setWindowTitle(appInfo.title)
             self.cmbPort.setEnabled(True)
             self.asbtnOpen.setChecked(False)
+            
             #self.cmbPort.setStyleSheet('QComboBox:editable {background: white;}')
             #self.btnOpen.setText('Open')
             #self.btnOpen.setIcon(QIcon(":/port_off.png"))
@@ -1484,11 +1580,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.dockWidget_QuickSend.hide()
 
-    def onToggleHexPnl(self):
-        if self.actionSend_Hex_Panel.isChecked():
-            self.dockWidget_SendHex.show()
+    def onToggleSndPnl(self):
+        if self.actionSend_Panel.isChecked():
+            self.dockWidget_Send.show()
         else:
-            self.dockWidget_SendHex.hide()
+            self.dockWidget_Send.hide()
+    
+    def onToggleParsePnl(self):
+        if self.actionParse_Panel.isChecked():
+            self.dockWidget_Parse.show()
+        else:
+            self.dockWidget_Parse.hide()
 
     def onVisiblePrtCfgPnl(self, visible):
         self.actionPort_Config_Panel.setChecked(visible)
@@ -1496,8 +1598,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def onVisibleQckSndPnl(self, visible):
         self.actionQuick_Send_Panel.setChecked(visible)
 
-    def onVisibleHexPnl(self, visible):
-        self.actionSend_Hex_Panel.setChecked(visible)
+    def onVisibleSndPnl(self, visible):
+        self.actionSend_Panel.setChecked(visible)
+
+    def onVisibleParsePnl(self, visible):
+        self.actionParse_Panel.setChecked(visible)
 
     # def onLocalEcho(self):
     #     self._localEcho = self.actionLocal_Echo.isChecked()
@@ -1587,6 +1692,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.closePort()
         self.close()
 
+    def closeEvent(self, event):
+        if self.serialport.isOpen():
+            self.closePort()
+        self.saveLayout()
+        self.saveQuickSend()
+        self.saveSettings()
+        event.accept()
+
     def restoreLayout(self):
         if os.path.isfile(get_config_path("UILayout.dat")):
             try:
@@ -1617,7 +1730,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def syncMenu(self):
         #self.actionPort_Config_Panel.setChecked(not self.dockWidget_PortConfig.isHidden())
         self.actionQuick_Send_Panel.setChecked(not self.dockWidget_QuickSend.isHidden())
-        self.actionSend_Hex_Panel.setChecked(not self.dockWidget_SendHex.isHidden())
+        self.actionSend_Panel.setChecked(not self.dockWidget_Send.isHidden())
+        self.actionParse_Panel.setChecked(not self.dockWidget_Parse.isHidden())
 
     def onViewChanged(self):
         checked = self._viewGroup.checkedAction()
@@ -1641,7 +1755,19 @@ def is_hex(s):
     except ValueError:
         return False
 
-
+def string_to_hex(hexstring):
+    hexarray = []
+    if len(hexstring) > 0:
+        _hexstring = hexstring.replace(' ', '')
+        _hexstring = _hexstring.replace('\r', '')
+        _hexstring = _hexstring.replace('\n', '')
+        for i in range(0, len(_hexstring), 2):
+            word = _hexstring[i:i+2]
+            if is_hex(word):
+                hexarray.append(int(word, 16))
+            else:
+                raise Exception("'%s' is not hexadecimal." % (word))
+    return hexarray
 
 class ReaderThread(QThread):
     """loop and copy serial->GUI"""
@@ -1779,6 +1905,16 @@ class LoopSendThread(QThread):
             except Exception as e:
                 self.exception.emit('{}'.format(e))
         self._stopped = True
+
+def chkParseFmtValid(fmt):
+    if re.fullmatch("[<>xcbB?hHiIlLqQnNefdspP]*", fmt) == None:
+        return False
+    if len(re.findall("[<>]{2,}", fmt)) > 0:
+        return False
+    return True
+
+def splitParseFmt(fmt):
+    return re.findall("[<>][^<>]+", fmt)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

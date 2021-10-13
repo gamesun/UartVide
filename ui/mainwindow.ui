@@ -10,6 +10,13 @@
     <height>612</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <family>Segoe UI</family>
+    <stylestrategy>PreferAntialias</stylestrategy>
+    <kerning>true</kerning>
+   </font>
+  </property>
   <property name="windowTitle">
    <string notr="true">UartVide</string>
   </property>
@@ -616,7 +623,7 @@
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QDockWidget" name="dockWidget_SendHex">
+  <widget class="QDockWidget" name="dockWidget_Send">
    <property name="contextMenuPolicy">
     <enum>Qt::PreventContextMenu</enum>
    </property>
@@ -926,6 +933,117 @@
     <bool>false</bool>
    </attribute>
   </widget>
+  <widget class="QDockWidget" name="dockWidget_Parse">
+   <property name="contextMenuPolicy">
+    <enum>Qt::PreventContextMenu</enum>
+   </property>
+   <property name="windowTitle">
+    <string notr="true">Parse</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_4">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QTableWidget" name="parseTable">
+       <property name="selectionMode">
+        <enum>QAbstractItemView::NoSelection</enum>
+       </property>
+       <property name="verticalScrollMode">
+        <enum>QAbstractItemView::ScrollPerPixel</enum>
+       </property>
+       <property name="horizontalScrollMode">
+        <enum>QAbstractItemView::ScrollPerPixel</enum>
+       </property>
+       <property name="rowCount">
+        <number>50</number>
+       </property>
+       <property name="columnCount">
+        <number>3</number>
+       </property>
+       <attribute name="horizontalHeaderMinimumSectionSize">
+        <number>16</number>
+       </attribute>
+       <attribute name="verticalHeaderVisible">
+        <bool>true</bool>
+       </attribute>
+       <attribute name="verticalHeaderMinimumSectionSize">
+        <number>16</number>
+       </attribute>
+       <attribute name="verticalHeaderDefaultSectionSize">
+        <number>16</number>
+       </attribute>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <row/>
+       <column/>
+       <column/>
+       <column/>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
   <action name="actionSave_Log">
    <property name="text">
     <string notr="true">Save Log</string>
@@ -1084,21 +1202,21 @@
     <string notr="true">Show as HEX(UPPERCASE)</string>
    </property>
   </action>
-  <action name="actionSend_Hex_Panel">
+  <action name="actionSend_Panel">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string notr="true">Send Hex Panel</string>
+    <string notr="true">Send Panel</string>
    </property>
    <property name="iconText">
-    <string notr="true">Send Hex Panel</string>
+    <string notr="true">Send Panel</string>
    </property>
    <property name="toolTip">
-    <string notr="true">Show or hide Send Hex Panel</string>
+    <string notr="true">Show or hide Send Panel</string>
    </property>
    <property name="statusTip">
-    <string notr="true">Show or hide Hex Transmit Panel</string>
+    <string notr="true">Show or hide Send Panel</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -1158,6 +1276,23 @@
    </property>
    <property name="statusTip">
     <string notr="true">Show or hide Quick Send Panel</string>
+   </property>
+  </action>
+  <action name="actionParse_Panel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string notr="true">Parse Panel</string>
+   </property>
+   <property name="iconText">
+    <string notr="true">Parse Panel</string>
+   </property>
+   <property name="toolTip">
+    <string notr="true">Show or hide Parse Panel</string>
+   </property>
+   <property name="statusTip">
+    <string notr="true">Show or hide Parse Panel</string>
    </property>
   </action>
  </widget>

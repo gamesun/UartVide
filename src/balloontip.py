@@ -25,13 +25,9 @@
 
 import os
 from PySide2 import QtCore, QtGui, QtWidgets
-from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget, \
-    QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget, QToolButton, \
-    QFileDialog, QToolTip, QLabel, QStyle, QSizePolicy, QGridLayout, QLayout
-from PySide2.QtCore import Qt, QThread, Signal, QSignalMapper, QFile, QPoint, \
-    QIODevice, QSize, QRect
-from PySide2.QtGui import QFontMetrics, QFont, QIcon, QPalette, QColor, \
-    QPainterPath, QBitmap, QPainter, QPen, QBrush, QPixmap, QScreen
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
 import shiboken2
 
 if os.name == 'nt':
@@ -42,8 +38,6 @@ elif os.name == 'posix':
 theSolitaryBalloonTip = None
 
 class BalloonTip(QWidget):
-    listShowEntered = Signal()
-    
     def __init__(self, icon, title, msg, *args, **kwargs):
         super(BalloonTip, self).__init__(*args, **kwargs)
         
@@ -57,19 +51,20 @@ class BalloonTip(QWidget):
         self.setAttribute(Qt.WA_DeleteOnClose)
         self.destroyed.connect(self.close)
 
-        titleLabel = QLabel(self)
-        titleLabel.installEventFilter(self)
-        titleLabel.setText(title)
+        if title != None:
+            titleLabel = QLabel(self)
+            titleLabel.installEventFilter(self)
+            titleLabel.setText(title)
         
-        if UI_FONT:
-            font = QFont()
-            font.setFamily(UI_FONT)
-            font.setPointSize(9)
-        else:
-            font = titleLabel.font()
-        font.setBold(True)
-        titleLabel.setFont(font)
-        titleLabel.setTextFormat(Qt.PlainText) # to maintain compat with windows
+            if UI_FONT:
+                font = QFont()
+                font.setFamily(UI_FONT)
+                font.setPointSize(9)
+            else:
+                font = titleLabel.font()
+            font.setBold(True)
+            titleLabel.setFont(font)
+            titleLabel.setTextFormat(Qt.AutoText)
     
         iconSize = 18
         # closeButtonSize = 15
@@ -81,11 +76,15 @@ class BalloonTip(QWidget):
         # closeButton.clicked.connect(self.close)
     
         msgLabel = QLabel(self)
-        font.setBold(False)
+        if UI_FONT:
+            font = QFont(UI_FONT)
+        else:
+            font = msgLabel.font()
+        font.setPointSize(9)
         msgLabel.setFont(font)
         msgLabel.installEventFilter(self)
         msgLabel.setText(msg)
-        msgLabel.setTextFormat(Qt.PlainText)
+        msgLabel.setTextFormat(Qt.AutoText)
         msgLabel.setAlignment(Qt.AlignTop | Qt.AlignLeft)
         # smart size for the message label
         #limit = QDesktopWidgetPrivate.availableGeometry(msgLabel).size().width() // 3
@@ -109,9 +108,11 @@ class BalloonTip(QWidget):
             iconLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
             iconLabel.setMargin(2)
             layout.addWidget(iconLabel, 0, 0)
-            layout.addWidget(titleLabel, 0, 1)
+            if title != None:
+                layout.addWidget(titleLabel, 0, 1)
         else:
-            layout.addWidget(titleLabel, 0, 0, 1, 2)
+            if title != None:
+                layout.addWidget(titleLabel, 0, 0, 1, 2)
     
         #layout.addWidget(closeButton, 0, 2)
         layout.addWidget(msgLabel, 1, 0, 1, 3)
