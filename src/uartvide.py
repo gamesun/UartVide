@@ -88,7 +88,7 @@ import re
 
 
 if os.name == 'nt':
-    CODE_FONT = "MS Gothic"
+    CODE_FONT = "Segoe MDL2 Assets"
     UI_FONT = "Segoe UI"
 elif os.name == 'posix':
     CODE_FONT = "Monospace"
@@ -126,14 +126,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         font1.setStyleStrategy(QFont.PreferAntialias)
         self.setFont(font1)
 
+        self.setupMenu()
+        self.setupFlatUi()
+
         font2 = QFont()
         font2.setFamily(CODE_FONT)
         font2.setPointSize(9)
         self.txtEdtOutput.setFont(font2)
         self.txtEdtInput.setFont(font2)
         #self.quickSendTable.setFont(font2)
-        self.setupMenu()
-        self.setupFlatUi()
         
         icon = QIcon(":/uartvide-icon/uartvide.ico")
         self.setWindowIcon(icon)
@@ -200,7 +201,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # initial action
         self.setTabWidth(4)
         self.actionHEX_UPPERCASE.setChecked(True)
-        self.readerThread.setViewMode(VIEWMODE_HEX_UPPERCASE)
         self.initQuickSend()
         self.initParseTable()
         self.restoreLayout()
@@ -864,6 +864,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self._is_timestamp = True
             self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'#3a9ecc', 'HBG':'#51c0d1'})
+        
+        self.readerThread.setTimestampEnable(self._is_timestamp)
 
     def onTogglePortCfgBar(self):
         #self.pos_animation.start()
@@ -1045,7 +1047,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 elif 'UPPERCASE' in ReceiveView:
                     self.actionHEX_UPPERCASE.setChecked(True)
                     self._viewMode = VIEWMODE_HEX_UPPERCASE
-                self.readerThread.setViewMode(self._viewMode)
 
                 send_text = tree.findtext('Contents/Send/Value', default='')
                 self.txtEdtInput.setText(send_text)
@@ -1310,18 +1311,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             #QMessageBox.critical(self.defaultStyleWidget, "Open failed", str(e), QMessageBox.Close)
             raise e
         else:
-                self.appendOutputText("\n%ssending %s [%s]" % (self.timestamp(), filepath, form), Qt.blue)
-                self.repaint()
-                
-                sent_len = 0
-                if 'HF' == form:
-                    sent_len = self.transmitHex(content, echo = False)
-                elif 'AF' == form:
-                    sent_len = self.transmitAsc(content, echo = False)
-                elif 'BF' == form:
-                    sent_len = self.transmitBytearray(content)
-                
-                self.appendOutputText("\n%s%d bytes sent" % (self.timestamp(), sent_len), Qt.blue)
+            self.appendOutput(self.timestamp(), "sending %s [%s]" % (filepath, form))
+            self.repaint()
+            
+            sent_len = 0
+            if 'HF' == form:
+                sent_len = self.transmitHex(content, echo = False)
+            elif 'AF' == form:
+                sent_len = self.transmitAsc(content, echo = False)
+            elif 'BF' == form:
+                sent_len = self.transmitBytearray(content)
+            
+            self.appendOutput(self.timestamp(), "%d bytes sent" % (sent_len))
 
     def onLoopChanged(self):
         if self._is_loop_mode:
@@ -1407,14 +1408,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             hexarray = string_to_hex(hexstring)
             if echo:
                 text = ''.join('%02X ' % t for t in hexarray)
-                self.appendOutputText("\n%s%s" % (self.timestamp(), text), Qt.blue)
+                self.appendOutput(self.timestamp(), text)
             return self.transmitBytearray(bytearray(hexarray))
 
     def transmitAsc(self, text, echo = True):
         if len(text) > 0:
             byteArray = [ord(char) for char in text]
             if echo:
-                self.appendOutputText("\n%s%s" % (self.timestamp(), text), Qt.blue)
+                self.appendOutput(self.timestamp(), text)
             return self.transmitBytearray(bytearray(byteArray))
 
     def transmitAscS(self, text, echo = True):
@@ -1458,13 +1459,42 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return ''
 
     def onReceive(self, data):
-        self.appendOutputText("\n%s%s" % (self.timestamp(), data))
+        ts = data[0]
+        ts_text = ''
+        if type(ts) == datetime.time:
+            if ts.microsecond:
+                ts_text = ts.isoformat()[:-3]+':'
+            else:
+                ts_text = ts.isoformat() + '.000:'
+
+        try:
+            bytes_data = data[1]
+            if self._viewMode == VIEWMODE_ASCII:
+                data_text = bytes_data.decode('unicode_escape')
+            elif self._viewMode == VIEWMODE_HEX_LOWERCASE:
+                data_text = ''.join('%02x ' % t for t in bytes_data)
+            elif self._viewMode == VIEWMODE_HEX_UPPERCASE:
+                data_text = ''.join('%02X ' % t for t in bytes_data)
+        except UnicodeDecodeError:
+            pass
+        else:
+            self.appendOutput(ts_text, data_text, 'R')
+
+    def appendOutput(self, ts_text, data_text, data_type = 'T'):
+        if data_type == 'T':
+            self.txtEdtOutput.insertHtml(
+                '<br /><span style="color:#800000;">%(ts)s</span><span style="color:#000000;">%(data)s</span>' 
+                % dict(ts = ts_text, data = data_text))
+        elif data_type == 'R':
+            self.txtEdtOutput.insertHtml(
+                '<br /><span style="color:#800000;">%(ts)s</span><span style="color:#0000ff;">%(data)s</span>'
+                % dict(ts = ts_text, data = data_text))
 
     def appendOutputText(self, data, color=Qt.black):
         # the qEditText's "append" methon will add a unnecessary newline.
         # self.txtEdtOutput.append(data.decode('utf-8'))
 
-        tc=self.txtEdtOutput.textColor()
+        tc = self.txtEdtOutput.textColor()
         self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
         self.txtEdtOutput.setTextColor(QtGui.QColor(color))
         self.txtEdtOutput.insertPlainText(data)
@@ -1746,8 +1776,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif 'UPPERCASE' in checked.text():
                 self._viewMode = VIEWMODE_HEX_UPPERCASE
 
-        self.readerThread.setViewMode(self._viewMode)
-
 def is_hex(s):
     try:
         int(s, 16)
@@ -1771,7 +1799,7 @@ def string_to_hex(hexstring):
 
 class ReaderThread(QThread):
     """loop and copy serial->GUI"""
-    read = signal(str)
+    read = signal(list)
     exception = signal(str)
 
     def __init__(self, parent=None):
@@ -1779,13 +1807,13 @@ class ReaderThread(QThread):
         self._alive = False
         self._stopped = True
         self._serialport = None
-        self._viewMode = None
+        self._ts_enabled = False
 
     def setPort(self, port):
         self._serialport = port
 
-    def setViewMode(self, mode):
-        self._viewMode = mode
+    def setTimestampEnable(self, enabled):
+        self._ts_enabled = enabled
 
     def start(self, priority = QThread.InheritPriority):
         if not self._alive:
@@ -1807,29 +1835,21 @@ class ReaderThread(QThread):
 
     def run(self):
         self._stopped = False
-        text = str()
+        ts = None
         try:
             while self._alive:
                 # read all that is there or wait for one byte
-                data = self._serialport.read(self._serialport.inWaiting() or 1)
+                bytes_data = self._serialport.read(self._serialport.inWaiting() or 1)
+                if self._ts_enabled:
+                    ts = datetime.datetime.now().time()
                 if not self._alive:
                     return
                 else:
                     sleep(0.05)
                 if self._serialport.inWaiting():
-                    data = data + self._serialport.read(self._serialport.inWaiting())
-                if data:
-                    try:
-                        if self._viewMode == VIEWMODE_ASCII:
-                            text = data.decode('unicode_escape')
-                        elif self._viewMode == VIEWMODE_HEX_LOWERCASE:
-                            text = ''.join('%02x ' % t for t in data)
-                        elif self._viewMode == VIEWMODE_HEX_UPPERCASE:
-                            text = ''.join('%02X ' % t for t in data)
-                    except UnicodeDecodeError:
-                        pass
-                    else:
-                        self.read.emit(text)
+                    bytes_data = bytes_data + self._serialport.read(self._serialport.inWaiting())
+                if bytes_data:
+                    self.read.emit([ts, bytes_data])
         except Exception as e:
             self.exception.emit('{}'.format(e))
         self._stopped = True
