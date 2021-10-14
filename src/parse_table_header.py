@@ -102,9 +102,9 @@ UNPACK_FORMAT_REF = '''
 <html><head><style type="text/css">
     table.full-width-table {width: 100%;}
     table       {line-height:10px;}
-    th          {background: #dddddd; font-weight: normal;font-size:80%;}
-    td          {background: #ffffff;font-size:80%;}
-    body        {font-size:80%;}
+    th          {background: #dddddd; font-weight: normal;}
+    td          {background: #ffffff;}
+    body        {font-size:small;}
 </style></head>
 <body><h4>Byte Order, Size, and Alignment</h4>
 <table border="0" cellspacing="1" cellpadding='3' bgcolor="#c0c0c0">
@@ -135,37 +135,37 @@ UNPACK_FORMAT_REF = '''
 <tr><th><p>Format</p></th><th><p>C Type</p></th><th><p>Size</p></th><th><p>Format</p></th><th><p>C Type</p></th><th><p>Size</p></th></tr>
 </thead>
 <tbody>
-<tr><td align="center"><p><code>x</code></p></td><td><p><code>pad byte</code></p></td><td align="center"></td>
-<td align="center"><p><code>q</code></p></td><td><p><code>long long</code></p></td><td align="center"><p>8</p></td>
+<tr><td align="center"><p><code>x</code></p></td><td><p>pad byte</p></td><td align="center"></td>
+<td align="center"><p><code>q</code></p></td><td><p>long long</p></td><td align="center"><p>8</p></td>
 </tr>
-<tr><td align="center"><p><code>c</code></p></td><td><p><code>char</code></p></td><td align="center"><p>1</p></td>
-<td align="center"><p><code>Q</code></p></td><td><p><code>unsigned long long</code></p></td><td align="center"><p>8</p></td>
+<tr><td align="center"><p><code>c</code></p></td><td><p>char</p></td><td align="center"><p>1</p></td>
+<td align="center"><p><code>Q</code></p></td><td><p>unsigned long long</p></td><td align="center"><p>8</p></td>
 </tr>
-<tr><td align="center"><p><code>b</code></p></td><td><p><code>signed char</code></p></td><td align="center"><p>1</p></td>
-<td align="center"><p><code>n</code></p></td><td><p><code>ssize_t</code></p></td><td align="center"></td>
+<tr><td align="center"><p><code>b</code></p></td><td><p>signed char</p></td><td align="center"><p>1</p></td>
+<td align="center"><p><code>n</code></p></td><td><p>ssize_t</p></td><td align="center"></td>
 </tr>
-<tr><td align="center"><p><code>B</code></p></td><td><p><code>unsigned char</code></p></td><td align="center"><p>1</p></td>
-<td align="center"><p><code>N</code></p></td><td><p><code>size_t</code></p></td><td align="center"></td>
+<tr><td align="center"><p><code>B</code></p></td><td><p>unsigned char</p></td><td align="center"><p>1</p></td>
+<td align="center"><p><code>N</code></p></td><td><p>size_t</p></td><td align="center"></td>
 </tr>
-<tr><td align="center"><p><code>?</code></p></td><td><p><code>_Bool</code></p></td><td align="center"><p>1</p></td>
-<td align="center"><p><code>e</code></p></td><td><p><code>half precision</code></p></td><td align="center"><p>2</p></td>
+<tr><td align="center"><p><code>?</code></p></td><td><p>_Bool</p></td><td align="center"><p>1</p></td>
+<td align="center"><p><code>e</code></p></td><td><p>half precision</p></td><td align="center"><p>2</p></td>
 </tr>
-<tr><td align="center"><p><code>h</code></p></td><td><p><code>short</code></p></td><td align="center"><p>2</p></td>
-<td align="center"><p><code>f</code></p></td><td><p><code>float</code></p></td><td align="center"><p>4</p></td>
+<tr><td align="center"><p><code>h</code></p></td><td><p>short</p></td><td align="center"><p>2</p></td>
+<td align="center"><p><code>f</code></p></td><td><p>float</p></td><td align="center"><p>4</p></td>
 </tr>
-<tr><td align="center"><p><code>H</code></p></td><td><p><code>unsigned short</code></p></td><td align="center"><p>2</p></td>
-<td align="center"><p><code>d</code></p></td><td><p><code>double</code></p></td><td align="center"><p>8</p></td>
+<tr><td align="center"><p><code>H</code></p></td><td><p>unsigned short</p></td><td align="center"><p>2</p></td>
+<td align="center"><p><code>d</code></p></td><td><p>double</p></td><td align="center"><p>8</p></td>
 </tr>
-<tr><td align="center"><p><code>i</code></p></td><td><p><code>int</code></p></td><td align="center"><p>4</p></td>
-<td align="center"><p><code>s</code></p></td><td><p><code>char[]</code></p></td><td align="center"></td>
+<tr><td align="center"><p><code>i</code></p></td><td><p>int</p></td><td align="center"><p>4</p></td>
+<td align="center"><p><code>s</code></p></td><td><p>char[]</p></td><td align="center"></td>
 </tr>
-<tr><td align="center"><p><code>I</code></p></td><td><p><code>unsigned int</code></p></td><td align="center"><p>4</p></td>
-<td align="center"><p><code>p</code></p></td><td><p><code>char[]</code></p></td><td align="center"></td>
+<tr><td align="center"><p><code>I</code></p></td><td><p>unsigned int</p></td><td align="center"><p>4</p></td>
+<td align="center"><p><code>p</code></p></td><td><p>char[]</p></td><td align="center"></td>
 </tr>
-<tr><td align="center"><p><code>l</code></p></td><td><p><code>long</code></p></td><td align="center"><p>4</p></td>
-<td align="center"><p><code>P</code></p></td><td><p><code>void *</code></p></td><td align="center"></td>
+<tr><td align="center"><p><code>l</code></p></td><td><p>long</p></td><td align="center"><p>4</p></td>
+<td align="center"><p><code>P</code></p></td><td><p>void *</p></td><td align="center"></td>
 </tr>
-<tr><td align="center"><p><code>L</code></p></td><td><p><code>unsigned long</code></p></td><td align="center"><p>4</p></td>
+<tr><td align="center"><p><code>L</code></p></td><td><p>unsigned long</p></td><td align="center"><p>4</p></td>
 <td/><td/><td/>
 </tr></tbody></table>
 <h4>Examples</h4>
