@@ -1575,9 +1575,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ports_cnt = 0
         ports_info = ''
         for port, desc, _ in sorted(comports()):
-            self.cmbPort.addItem(port + '  ' + desc)
-            ports_info = ports_info + port + '  ' + desc + '\n'
+            state = ' (Busy)' if self.isPortBusy(port) else ''
+            self.cmbPort.addItem(port + '  ' + desc + state)
+            ports_info = ports_info + port + '  ' + desc + state + '\n'
             ports_cnt = ports_cnt + 1
+
+
         self.fixComboViewSize(self.cmbPort)
         
         idx = self.cmbPort.findText(sel)
@@ -1587,6 +1590,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.cmbPort.setCurrentText('')
 
         return ports_cnt, ports_info
+
+    def isPortBusy(self, port):
+        try:
+            se = serial.Serial(port)
+        except IOError as e:
+            #print(e)
+            return True
+        else:
+            return False
 
     def onAbout(self):
         QMessageBox.about(self.defaultStyleWidget, "About UartVide", appInfo.aboutme)
