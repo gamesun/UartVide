@@ -571,6 +571,35 @@ class Ui_MainWindow(object):
         self.toolBar.setAllowedAreas(Qt.TopToolBarArea)
         self.toolBar.setFloatable(False)
         MainWindow.addToolBar(Qt.TopToolBarArea, self.toolBar)
+        self.dockWidget_Parse = QDockWidget(MainWindow)
+        self.dockWidget_Parse.setObjectName(u"dockWidget_Parse")
+        self.dockWidget_Parse.setContextMenuPolicy(Qt.PreventContextMenu)
+        self.dockWidget_Parse.setWindowTitle(u"Parse")
+        self.dockWidgetContents = QWidget()
+        self.dockWidgetContents.setObjectName(u"dockWidgetContents")
+        self.verticalLayout_4 = QVBoxLayout(self.dockWidgetContents)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.verticalLayout_4.setContentsMargins(0, 0, 0, 0)
+        self.parseTable = QTableWidget(self.dockWidgetContents)
+        if (self.parseTable.columnCount() < 3):
+            self.parseTable.setColumnCount(3)
+        if (self.parseTable.rowCount() < 50):
+            self.parseTable.setRowCount(50)
+        self.parseTable.setObjectName(u"parseTable")
+        self.parseTable.setSelectionMode(QAbstractItemView.NoSelection)
+        self.parseTable.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+        self.parseTable.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
+        self.parseTable.setRowCount(50)
+        self.parseTable.setColumnCount(3)
+        self.parseTable.horizontalHeader().setMinimumSectionSize(16)
+        self.parseTable.verticalHeader().setVisible(True)
+        self.parseTable.verticalHeader().setMinimumSectionSize(16)
+        self.parseTable.verticalHeader().setDefaultSectionSize(16)
+
+        self.verticalLayout_4.addWidget(self.parseTable)
+
+        self.dockWidget_Parse.setWidget(self.dockWidgetContents)
+        MainWindow.addDockWidget(Qt.RightDockWidgetArea, self.dockWidget_Parse)
 
         self.retranslateUi(MainWindow)
 

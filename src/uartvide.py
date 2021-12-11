@@ -71,6 +71,9 @@ from ui_mainwindow_pyside2 import Ui_MainWindow
 from balloontip import BalloonTip
 from combo import Combo
 from animationswitchbutton import AnimationSwitchButton
+from parse_table_header import ParseTableHorizontalHeader, ParseTableVerticalHeader
+from hexparser import HexParser
+
 
 import datetime
 import pickle
@@ -162,9 +165,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #self.actionPort_Config_Panel.triggered.connect(self.onTogglePrtCfgPnl)
         self.actionQuick_Send_Panel.triggered.connect(self.onToggleQckSndPnl)
         self.actionSend_Panel.triggered.connect(self.onToggleSndPnl)
+        self.actionParse_Panel.triggered.connect(self.onToggleParsePnl)
         #self.dockWidget_PortConfig.visibilityChanged.connect(self.onVisiblePrtCfgPnl)
         self.dockWidget_QuickSend.visibilityChanged.connect(self.onVisibleQckSndPnl)
         self.dockWidget_Send.visibilityChanged.connect(self.onVisibleSndPnl)
+        self.dockWidget_Parse.visibilityChanged.connect(self.onVisibleParsePnl)
         # self.actionLocal_Echo.triggered.connect(self.onLocalEcho)
         # self.actionAlways_On_Top.triggered.connect(self.onAlwaysOnTop)
 
@@ -199,6 +204,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setTabWidth(4)
         self.actionHEX_UPPERCASE.setChecked(True)
         self.initQuickSend()
+        self.initParseTable()
         self.restoreLayout()
         self.moveScreenCenter()
         self.syncMenu()
@@ -278,6 +284,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.menuMoreSettings.addSeparator()
         #self.menuMenu.addAction(self.actionPort_Config_Panel)
         self.menuMoreSettings.addAction(self.actionQuick_Send_Panel)
+        self.menuMoreSettings.addAction(self.actionParse_Panel)
         self.menuMoreSettings.addAction(self.actionSend_Panel)
         self.menuMoreSettings.addAction(self.menuView.menuAction())
         # self.menuMenu.addAction(self.actionLocal_Echo)
@@ -1046,6 +1053,113 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 send_text = tree.findtext('Contents/Send/Value', default='')
                 self.txtEdtInput.setText(send_text)
 
+    def initParseTable(self):
+        self.parsersLen = 50
+        self.parsers = [HexParser()] * self.parsersLen
+        self.parseSelLst = [False] * self.parsersLen
+
+        self.parseTable.setRowCount(self.parsersLen)
+        self.parseTable.setColumnCount(3)
+        
+        for row in range(self.parsersLen):
+            self.setParseTable(row)
+        
+        title0 = QTableWidgetItem('En')
+        title1 = QTableWidgetItem('Header')
+        title2 = QTableWidgetItem('')
+        title0.setFont(QFont(UI_FONT, 9))
+        title1.setFont(QFont(UI_FONT, 9))
+        self.parseTable.setHorizontalHeaderItem(0, title0)
+        self.parseTable.setHorizontalHeaderItem(1, title1)
+        self.parseTable.setHorizontalHeaderItem(2, title2)
+        
+        self.parseTable.verticalHeader().setVisible(False)
+        # self.parseTable.horizontalHeader().model().setHeaderData(0, Qt.Horizontal, QFont(UI_FONT), Qt.FontRole)
+        # self.parseTable.horizontalHeader().model().setHeaderData(1, Qt.Horizontal, QFont(UI_FONT), Qt.FontRole)
+
+        pthh = ParseTableHorizontalHeader(self)
+        pthh.setMinimumSectionSize(16)
+        self.parseTable.setHorizontalHeader(pthh)
+
+        # ptvh = ParseTableVerticalHeader(self)
+        # self.parseTable.setVerticalHeader(ptvh)
+
+        self.parseTable.resizeColumnsToContents()
+        self.parseTable.setColumnWidth(0, 19)
+
+    def setParseTable(self, row, checked = False, header = '', format = ''):
+        if self.parseTable.cellWidget(row, 0) is None:
+            chkbox = QCheckBox(self)
+            chkbox.setText('')
+            chkbox.setChecked(checked)
+            chkbox.setCursor(Qt.PointingHandCursor)
+            chkbox.setStyleSheet("padding-left:2px;")
+            chkbox.stateChanged.connect(lambda newState: self.onParseSelect(row, newState))
+            self.parseTable.setCellWidget(row, 0, chkbox)
+        else:
+            self.parseTable.cellWidget(row, 0).setChecked(checked)
+
+        if self.parseTable.cellWidget(row, 1) is None:
+            item = QLineEdit(header)
+            item.setStyleSheet('''
+                QLineEdit {border: none;font-size:9pt;font-family:%(Code_Font)s;}
+                QMenu {margin: 2px;color: #202020;background: #eeeeee;}
+                QMenu::item {padding: 2px 12px 2px 12px;border: 1px solid transparent;}
+                QMenu::item:selected {background: #51c0d1;}
+                QMenu::icon {background: transparent;border: 2px inset transparent;}
+                QMenu::item:disabled {color: #808080;background: #eeeeee;}''' % dict(Code_Font = CODE_FONT))
+            item.textChanged.connect(lambda newText: self.onParseTextEdited(row, 1, newText))
+            self.parseTable.setCellWidget(row, 1, item)
+        else:
+            self.parseTable.cellWidget(row, 1).setText(header)
+
+        if self.parseTable.cellWidget(row, 2) is None:
+            item = QLineEdit(format)
+            item.setStyleSheet('''
+                QLineEdit {border: none;font-size:9pt;font-family:%(Code_Font)s;}
+                QMenu {margin: 2px;color: #202020;background: #eeeeee;}
+                QMenu::item {padding: 2px 12px 2px 12px;border: 1px solid transparent;}
+                QMenu::item:selected {background: #51c0d1;}
+                QMenu::icon {background: transparent;border: 2px inset transparent;}
+                QMenu::item:disabled {color: #808080;background: #eeeeee;}''' % dict(Code_Font = CODE_FONT))
+            item.textChanged.connect(lambda newText: self.onParseTextEdited(row, 2, newText))
+            self.parseTable.setCellWidget(row, 2, item)
+        else:
+            self.parseTable.cellWidget(row, 2).setText(format)
+
+        self.parseTable.setRowHeight(row, 20)
+
+    def onParseSelect(self, row, state):
+        self.parseSelLst[row] = (state == Qt.Checked)
+    
+    def onParseTextEdited(self, row, column, text):
+        if column == 1:
+            textColor = '#202020'
+            try:
+                hexarray = string_to_hex(text)
+            except Exception as e:
+                # print(str(e))
+                textColor = 'red'
+            else:
+                self.parsers[row].setHeader(hexarray)
+
+            edt = self.parseTable.cellWidget(row, 1)
+            p = edt.palette()
+            p.setColor(QPalette.Text, QColor(textColor))
+            edt.setPalette(p)
+
+        elif column == 2:
+            textColor = '#202020'
+            if HexParser.isFormatValid(text):
+                self.parsers[row].setFormat(text)
+            else:
+                textColor = 'red'
+
+            edt = self.parseTable.cellWidget(row, 2)
+            p = edt.palette()
+            p.setColor(QPalette.Text, QColor(textColor))
+            edt.setPalette(p)
+
     def initQuickSend(self):
         #self.quickSendTable.horizontalHeader().setDefaultSectionSize(40)
         #self.quickSendTable.horizontalHeader().setMinimumSectionSize(25)
@@ -1367,6 +1481,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             pass
         else:
             self.appendOutput(ts_text, data_text, 'R')
+        
+        for row in range(self.parsersLen):
+            if self.parseSelLst[row]:
+                self.parsers[row].data_in(rx_data)
 
     def appendOutput(self, ts_text, data_text, data_type = 'T'):
         if data_type == 'T':
@@ -1503,6 +1621,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.dockWidget_Send.show()
         else:
             self.dockWidget_Send.hide()
+    
+    def onToggleParsePnl(self):
+        if self.actionParse_Panel.isChecked():
+            self.dockWidget_Parse.show()
+        else:
+            self.dockWidget_Parse.hide()
 
     def onVisiblePrtCfgPnl(self, visible):
         self.actionPort_Config_Panel.setChecked(visible)
@@ -1512,6 +1636,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def onVisibleSndPnl(self, visible):
         self.actionSend_Panel.setChecked(visible)
+
+    def onVisibleParsePnl(self, visible):
+        self.actionParse_Panel.setChecked(visible)
 
     # def onLocalEcho(self):
     #     self._localEcho = self.actionLocal_Echo.isChecked()
@@ -1640,6 +1767,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #self.actionPort_Config_Panel.setChecked(not self.dockWidget_PortConfig.isHidden())
         self.actionQuick_Send_Panel.setChecked(not self.dockWidget_QuickSend.isHidden())
         self.actionSend_Panel.setChecked(not self.dockWidget_Send.isHidden())
+        self.actionParse_Panel.setChecked(not self.dockWidget_Parse.isHidden())
 
     def onViewChanged(self):
         checked = self._viewGroup.checkedAction()
