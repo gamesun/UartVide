@@ -1355,18 +1355,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             else:
                 ts_text = ts.isoformat() + '.000:'
 
-        try:
-            bytes_data = data[1]
-            if self._viewMode == VIEWMODE_ASCII:
-                data_text = bytes_data.decode('unicode_escape')
-            elif self._viewMode == VIEWMODE_HEX_LOWERCASE:
-                data_text = ''.join('%02x ' % t for t in bytes_data)
-            elif self._viewMode == VIEWMODE_HEX_UPPERCASE:
-                data_text = ''.join('%02X ' % t for t in bytes_data)
-        except UnicodeDecodeError:
-            pass
-        else:
-            self.appendOutput(ts_text, data_text, 'R')
+        if self._viewMode == VIEWMODE_ASCII:
+            text = ''.join(chr(b) for b in data[1])
+        elif self._viewMode == VIEWMODE_HEX_LOWERCASE:
+            text = ''.join('%02x ' % b for b in data[1])
+        elif self._viewMode == VIEWMODE_HEX_UPPERCASE:
+            text = ''.join('%02X ' % b for b in data[1])
+
+        self.appendOutput(ts_text, text, 'R')
 
     def appendOutput(self, ts_text, data_text, data_type = 'T'):
         if data_type == 'T':
