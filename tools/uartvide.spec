@@ -3,6 +3,11 @@
 
 block_cipher = None
 
+import os
+if os.name == 'nt':
+    icon_file = '../res/uartvide-icon/uartvide.ico'
+elif os.name == 'posix':
+    icon_file = '../res/uartvide-icon/uartvide_32.png'
 
 a = Analysis(['../src/uartvide.py'],
              pathex=[],
@@ -28,7 +33,8 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           console=False,
-          icon='../res/uartvide-icon/uartvide_32.png')
+          version='version_info.txt',
+          icon=icon_file)
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
