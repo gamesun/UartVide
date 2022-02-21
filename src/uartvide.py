@@ -342,6 +342,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def setupFlatUi(self):
         self._dragPos = self.pos()
         self._isDragging = False
+        self._isResizing = False
+        self._resizeArea = 0
         self.setMouseTracking(True)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setStyleSheet("""
@@ -938,17 +940,76 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self._isDragging = True
-            self._dragPos = event.globalPos() - self.pos()
+            if 0 == self._resizeArea:
+                self._isDragging = True
+                self._dragPos = event.globalPos() - self.pos()
+            elif not self._isResizing:
+                self._isResizing = True
+                self._resizePos = event.globalPos()
+                self._resizeRect = self.geometry()
         event.accept()
         
     def mouseMoveEvent(self, event):
-        if event.buttons() == Qt.LeftButton and self._isDragging and not self.isMaximized():
-            self.move(event.globalPos() - self._dragPos)
+        if not self.isMaximized():
+            if not self._isResizing:
+                x = event.pos().x()
+                y = event.pos().y()
+                # print(x, y)
+                area = 0
+                if y < 4:
+                    area = 1
+                elif self.height() - 2 < y:
+                    area = 2
+
+                if x < 5:
+                    area = area + 4
+                elif self.width() - 5 < x:
+                    area = area + 8
+
+                if 1 == area or 2 == area:   # up / bottom
+                    self.setCursor(Qt.SizeVerCursor)
+                elif 4 == area or 8 == area: # left / right
+                    self.setCursor(Qt.SizeHorCursor)
+                elif 5 == area or 10 == area: # up left / bottom right
+                    self.setCursor(Qt.SizeFDiagCursor)
+                elif 9 == area or 6 == area: # up right / bottom left
+                    self.setCursor(Qt.SizeBDiagCursor)
+                else:
+                    self.setCursor(Qt.ArrowCursor)
+                
+                self._resizeArea = area
+        
+            if event.buttons() == Qt.LeftButton:
+                if self._isDragging:
+                    self.move(event.globalPos() - self._dragPos)
+                elif self._isResizing:
+                    rect = QRect(self._resizeRect)
+                    tmpPos = event.globalPos() - self._resizePos
+                    if 1 == self._resizeArea:       # up
+                        rect.setTop(rect.top()+tmpPos.y())
+                    elif 2 == self._resizeArea:     # bottom
+                        rect.setBottom(rect.bottom()+tmpPos.y())
+                    elif 4 == self._resizeArea:     # left
+                        rect.setLeft(rect.left()+tmpPos.x())
+                    elif 8 == self._resizeArea:     # right
+                        rect.setRight(rect.right()+tmpPos.x())
+                    elif 5 == self._resizeArea:     # up left
+                        rect.setTopLeft(rect.topLeft()+tmpPos)
+                    elif 10 == self._resizeArea:    # bottom right
+                        rect.setBottomRight(rect.bottomRight()+tmpPos)
+                    elif 9 == self._resizeArea:     # up right
+                        rect.setTopRight(rect.topRight()+tmpPos)
+                    elif 6 == self._resizeArea:     # bottom left
+                        rect.setBottomLeft(rect.bottomLeft()+tmpPos)
+                    
+                    if self._resizeArea:
+                        self.setGeometry(rect)
+
         event.accept()
 
     def mouseReleaseEvent(self, event):
         self._isDragging = False
+        self._isResizing = False
         event.accept()
 
     def saveSettings(self):

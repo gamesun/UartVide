@@ -17,16 +17,22 @@
     <kerning>true</kerning>
    </font>
   </property>
+  <property name="mouseTracking">
+   <bool>true</bool>
+  </property>
   <property name="windowTitle">
    <string notr="true">UartVide</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="mouseTracking">
+    <bool>true</bool>
+   </property>
    <layout class="QHBoxLayout" name="horizontalLayout_2">
     <property name="spacing">
      <number>0</number>
     </property>
     <property name="leftMargin">
-     <number>1</number>
+     <number>3</number>
     </property>
     <property name="topMargin">
      <number>0</number>
@@ -44,6 +50,9 @@
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
+      </property>
+      <property name="mouseTracking">
+       <bool>true</bool>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <property name="spacing">
@@ -80,6 +89,9 @@
            <width>16777215</width>
            <height>29</height>
           </size>
+         </property>
+         <property name="mouseTracking">
+          <bool>true</bool>
          </property>
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
@@ -125,6 +137,9 @@
                 <height>20</height>
                </size>
               </property>
+              <property name="mouseTracking">
+               <bool>true</bool>
+              </property>
               <property name="toolTip">
                <string notr="true">Baud Rate</string>
               </property>
@@ -158,6 +173,9 @@
                 <width>16777215</width>
                 <height>23</height>
                </size>
+              </property>
+              <property name="mouseTracking">
+               <bool>true</bool>
               </property>
               <property name="toolTip">
                <string notr="true">Baud Rate</string>
@@ -340,6 +358,9 @@
                 <height>20</height>
                </size>
               </property>
+              <property name="mouseTracking">
+               <bool>true</bool>
+              </property>
               <property name="toolTip">
                <string notr="true">Data Bits</string>
               </property>
@@ -373,6 +394,9 @@
                 <width>16777215</width>
                 <height>23</height>
                </size>
+              </property>
+              <property name="mouseTracking">
+               <bool>true</bool>
               </property>
               <property name="toolTip">
                <string notr="true">Data Bits</string>
@@ -419,6 +443,9 @@
                 <height>20</height>
                </size>
               </property>
+              <property name="mouseTracking">
+               <bool>true</bool>
+              </property>
               <property name="toolTip">
                <string notr="true">Parity</string>
               </property>
@@ -452,6 +479,9 @@
                 <width>16777215</width>
                 <height>23</height>
                </size>
+              </property>
+              <property name="mouseTracking">
+               <bool>true</bool>
               </property>
               <property name="toolTip">
                <string notr="true">Parity</string>
@@ -503,6 +533,9 @@
                 <height>20</height>
                </size>
               </property>
+              <property name="mouseTracking">
+               <bool>true</bool>
+              </property>
               <property name="toolTip">
                <string notr="true">Stop Bits</string>
               </property>
@@ -530,6 +563,9 @@
                 <width>16777215</width>
                 <height>23</height>
                </size>
+              </property>
+              <property name="mouseTracking">
+               <bool>true</bool>
               </property>
               <property name="toolTip">
                <string notr="true">Stop Bits</string>
@@ -565,6 +601,9 @@
                 <height>22</height>
                </size>
               </property>
+              <property name="mouseTracking">
+               <bool>true</bool>
+              </property>
               <property name="text">
                <string notr="true">RTS/CTS</string>
               </property>
@@ -578,6 +617,9 @@
                 <height>22</height>
                </size>
               </property>
+              <property name="mouseTracking">
+               <bool>true</bool>
+              </property>
               <property name="text">
                <string notr="true">Xon/Xoff</string>
               </property>
@@ -585,6 +627,9 @@
             </item>
             <item>
              <spacer name="horizontalSpacer_2">
+              <property name="mouseTracking">
+               <bool>true</bool>
+              </property>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -617,6 +662,9 @@
            <kerning>true</kerning>
           </font>
          </property>
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
       </layout>
@@ -624,8 +672,15 @@
     </item>
    </layout>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="statusbar">
+   <property name="mouseTracking">
+    <bool>true</bool>
+   </property>
+  </widget>
   <widget class="QDockWidget" name="dockWidget_Send">
+   <property name="mouseTracking">
+    <bool>true</bool>
+   </property>
    <property name="contextMenuPolicy">
     <enum>Qt::PreventContextMenu</enum>
    </property>
@@ -639,6 +694,9 @@
     <number>2</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_2">
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
      <property name="spacing">
       <number>2</number>
@@ -650,7 +708,7 @@
       <number>2</number>
      </property>
      <property name="rightMargin">
-      <number>4</number>
+      <number>3</number>
      </property>
      <property name="bottomMargin">
       <number>0</number>
@@ -686,6 +744,9 @@
            <height>22</height>
           </size>
          </property>
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
          <property name="text">
           <string notr="true">ASC</string>
          </property>
@@ -705,6 +766,9 @@
            <height>22</height>
           </size>
          </property>
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
          <property name="text">
           <string notr="true">HEX</string>
          </property>
@@ -712,6 +776,9 @@
        </item>
        <item>
         <spacer name="horizontalSpacer">
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -736,6 +803,9 @@
            <width>16777215</width>
            <height>22</height>
           </size>
+         </property>
+         <property name="mouseTracking">
+          <bool>true</bool>
          </property>
          <property name="toolTip">
           <string notr="true">Period</string>
@@ -771,6 +841,9 @@
            <height>22</height>
           </size>
          </property>
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item>
@@ -787,6 +860,9 @@
            <height>22</height>
           </size>
          </property>
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
          <property name="text">
           <string notr="true">Send</string>
          </property>
@@ -796,6 +872,9 @@
      </item>
      <item>
       <widget class="QTextEdit" name="txtEdtInput">
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
        <property name="frameShape">
         <enum>QFrame::NoFrame</enum>
        </property>
@@ -811,6 +890,9 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidget_QuickSend">
+   <property name="mouseTracking">
+    <bool>true</bool>
+   </property>
    <property name="contextMenuPolicy">
     <enum>Qt::PreventContextMenu</enum>
    </property>
@@ -824,6 +906,9 @@
     <number>2</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_3">
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <property name="spacing">
       <number>0</number>
@@ -835,7 +920,7 @@
       <number>0</number>
      </property>
      <property name="rightMargin">
-      <number>0</number>
+      <number>4</number>
      </property>
      <property name="bottomMargin">
       <number>0</number>
@@ -848,6 +933,9 @@
          <stylestrategy>PreferAntialias</stylestrategy>
          <kerning>true</kerning>
         </font>
+       </property>
+       <property name="mouseTracking">
+        <bool>true</bool>
        </property>
        <property name="editTriggers">
         <set>QAbstractItemView::AllEditTriggers</set>
@@ -914,6 +1002,9 @@
      <width>16777215</width>
      <height>34</height>
     </size>
+   </property>
+   <property name="mouseTracking">
+    <bool>true</bool>
    </property>
    <property name="contextMenuPolicy">
     <enum>Qt::PreventContextMenu</enum>
