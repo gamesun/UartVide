@@ -3,7 +3,7 @@
 #
 #############################################################################
 ##
-## Copyright (c) 2013-2021, gamesun
+## Copyright (c) 2013-2022, gamesun
 ## All right reserved.
 ##
 ## This file is part of UartVide(MyTerm).
@@ -28,7 +28,7 @@ title = 'UartVide'
 version = '2.4'
 url = 'http://sourceforge.net/projects/myterm/'
 author = 'gamesun'
-copyright = 'Copyright (C) 2013-2021, gamesun'
+copyright = 'Copyright (C) 2013-2022, gamesun'
 aboutme = """
 <p><div>%(title)s %(ver)s</div>
 <div>%(copyright)s</div></p>
