@@ -1640,11 +1640,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.fixComboViewSize(self.cmbPort)
         
-        idx = self.cmbPort.findText(sel)
-        if idx != -1:
-            self.cmbPort.setCurrentIndex(idx)
-        else:
-            self.cmbPort.setCurrentText('')
+        if not self.serialport.isOpen():
+            idx = self.cmbPort.findText(sel, Qt.MatchContains)
+            if idx != -1:
+                self.cmbPort.setCurrentIndex(idx)
+            else:
+                self.cmbPort.setCurrentText('')
 
         return ports_cnt, ports_info
 
