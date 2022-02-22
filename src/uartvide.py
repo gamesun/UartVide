@@ -958,7 +958,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 area = 0
                 if y < 4:
                     area = 1
-                elif self.height() - 2 < y:
+                elif self.height() - 5 < y:
                     area = 2
 
                 if x < 5:

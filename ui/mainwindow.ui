@@ -41,7 +41,7 @@
      <number>1</number>
     </property>
     <property name="bottomMargin">
-     <number>0</number>
+     <number>5</number>
     </property>
     <item>
      <widget class="QFrame" name="centerFrame">
@@ -672,11 +672,6 @@
     </item>
    </layout>
   </widget>
-  <widget class="QStatusBar" name="statusbar">
-   <property name="mouseTracking">
-    <bool>true</bool>
-   </property>
-  </widget>
   <widget class="QDockWidget" name="dockWidget_Send">
    <property name="mouseTracking">
     <bool>true</bool>
@@ -711,7 +706,7 @@
       <number>3</number>
      </property>
      <property name="bottomMargin">
-      <number>0</number>
+      <number>5</number>
      </property>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
@@ -923,7 +918,7 @@
       <number>4</number>
      </property>
      <property name="bottomMargin">
-      <number>0</number>
+      <number>5</number>
      </property>
      <item>
       <widget class="QTableWidget" name="quickSendTable">
