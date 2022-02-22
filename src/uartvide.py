@@ -1426,14 +1426,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.appendOutput(ts_text, text, 'R')
 
     def appendOutput(self, ts_text, data_text, data_type = 'T'):
+        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
+        self.txtEdtOutput.insertPlainText('\n')
         if data_type == 'T':
-            self.txtEdtOutput.insertHtml(
-                '<br /><span style="color:#800000;">%(ts)s</span><span style="color:#000000;">%(data)s</span>' 
-                % dict(ts = ts_text, data = data_text))
+            # self.txtEdtOutput.insertHtml(
+            #     '<br /><span style="color:#800000;">%(ts)s</span><span style="color:#000000;">%(data)s</span>' 
+            #     % dict(ts = ts_text, data = data_text))
+            self.txtEdtOutput.setTextColor(QtGui.QColor('#800000'))
+            self.txtEdtOutput.insertPlainText(ts_text)
+            self.txtEdtOutput.setTextColor(QtGui.QColor('#000000'))
+            self.txtEdtOutput.insertPlainText(data_text)
         elif data_type == 'R':
-            self.txtEdtOutput.insertHtml(
-                '<br /><span style="color:#800000;">%(ts)s</span><span style="color:#0000ff;">%(data)s</span>'
-                % dict(ts = ts_text, data = data_text))
+            # self.txtEdtOutput.insertHtml(
+            #     '<br /><span style="color:#800000;">%(ts)s</span><span style="color:#0000ff;">%(data)s</span>'
+            #     % dict(ts = ts_text, data = data_text))
+            self.txtEdtOutput.setTextColor(QtGui.QColor('#800000'))
+            self.txtEdtOutput.insertPlainText(ts_text)
+            self.txtEdtOutput.setTextColor(QtGui.QColor('#0000ff'))
+            self.txtEdtOutput.insertPlainText(data_text)
 
     def appendOutputText(self, data, color=Qt.black):
         # the qEditText's "append" methon will add a unnecessary newline.
