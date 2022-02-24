@@ -45,5 +45,6 @@
         <file>radiobutton_checked_pressed.png</file>
         <file>timestamp.png</file>
         <file>save.png</file>
+        <file>clear.png</file>
     </qresource>
 </RCC>

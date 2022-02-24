@@ -215,6 +215,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.loadSettings()
         self.onEnumPorts()
+        self.onClearRxTxCnt()
 
     def onRefreshPorts(self):
         ports_cnt, ports_info = self.onEnumPorts()
@@ -791,7 +792,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnTimestamp.setIcon(QIcon(":/timestamp.png"))
         self.btnTimestamp.setIconSize(QtCore.QSize(20, 20))
         self.btnTimestamp.clicked.connect(self.onTimestamp)
-        self.btnTimestamp.setToolTip("Select Timestamp")
+        self.btnTimestamp.setToolTip("Timestamp")
         self.btnTimestamp.setCursor(Qt.PointingHandCursor)
 
         self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
@@ -830,6 +831,37 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnMenu.setCursor(Qt.PointingHandCursor)
         self.btnMenu.setMenu(self.menuMoreSettings)
 
+        x,w = x+w+12,22
+        self.btnClearRxTxCnt = QPushButton(self)
+        self.btnClearRxTxCnt.setGeometry(x,6,w,w)
+        self.btnClearRxTxCnt.setStyleSheet("""
+            QPushButton { background-color:#30a7b8; border:none; 
+                          border-top-left-radius:6px;
+                          border-bottom-left-radius:6px; }
+            QPushButton:hover { background-color:#51c0d1; }
+            QPushButton:pressed { background-color:#b8e5f1; }
+        """)
+        self.btnClearRxTxCnt.setIcon(QIcon(":/clear.png"))
+        # self.btnClearRxTxCnt.setText('C')
+        self.btnClearRxTxCnt.setIconSize(QtCore.QSize(22, 22))
+        self.btnClearRxTxCnt.setToolTip("Clear RX/TX counters")
+        self.btnClearRxTxCnt.setCursor(Qt.PointingHandCursor)
+        self.btnClearRxTxCnt.clicked.connect(self.onClearRxTxCnt)
+
+        x,w = x+w,22
+        self.RxTxCnt = [0, 0]
+        self.lblRxTxCnt_textlen = 0
+        self.lblRxTxCnt = QLabel(self)
+        self.lblRxTxCnt.setGeometry(x,6,100,w)
+        self.lblRxTxCnt.setStyleSheet("""
+            QLabel { background-color:transparent; border: 1px solid #30a7b8; 
+                     border-top-right-radius:6px;
+                     border-bottom-right-radius:6px;
+                     font-size:10pt; padding: 0px 0px 2px 0px; }
+        """)
+        self.lblRxTxCnt.setText('R:0 T:0')
+        self.lblRxTxCnt.setMouseTracking(True)
+
         if os.name == 'posix':
             self.fixComboViewSize(self.cmbBaudRate)
             self.fixComboViewSize(self.cmbDataBits)
@@ -840,6 +872,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     #     # print('onDockLocationChanged', area)
     #     self.dockWidget_QuickSend.adjustSize()
     #     self.dockWidget.adjustSize()
+
+    def onClearRxTxCnt(self):
+        self.RxTxCnt = [0, 0]
+        self.updateRxTxCnt()
 
     def fixComboViewSize(self, widget):
         fm = QFontMetrics(widget.fontMetrics())
@@ -1388,6 +1424,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 #return 0
                 raise e
             else:
+                self.RxTxCnt[1] = self.RxTxCnt[1] + len(byteArray)
+                self.updateRxTxCnt()
                 return len(byteArray)
 
     def onReaderExcept(self, e):
@@ -1407,6 +1445,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             return ''
 
+    def updateRxTxCnt(self):
+        cnt_text = 'R:{} T:{}'.format(self.RxTxCnt[0], self.RxTxCnt[1])
+        textlen = len(cnt_text)
+        if self.lblRxTxCnt_textlen != textlen:
+            fm = QFontMetrics(self.lblRxTxCnt.fontMetrics())
+            if hasattr(fm, 'horizontalAdvance'):
+                w = fm.horizontalAdvance(cnt_text+'   ')
+            else:
+                w = fm.width(cnt_text+'   ')
+            rect = QRect(self.lblRxTxCnt.geometry())
+            rect.setWidth(w)
+            self.lblRxTxCnt.setGeometry(rect)
+        self.lblRxTxCnt.setText(cnt_text)
+        self.lblRxTxCnt_textlen = textlen
+
     def onReceive(self, data):
         ts = data[0]
         ts_text = ''
@@ -1415,6 +1468,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 ts_text = ts.isoformat()[:-3]+':'
             else:
                 ts_text = ts.isoformat() + '.000:'
+
+        self.RxTxCnt[0] = self.RxTxCnt[0] + len(data[1])
+        self.updateRxTxCnt()
 
         if self._viewMode == VIEWMODE_ASCII:
             text = ''.join(chr(b) for b in data[1])
@@ -1427,7 +1483,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def appendOutput(self, ts_text, data_text, data_type = 'T'):
         self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
-        self.txtEdtOutput.insertPlainText('\n')
         if data_type == 'T':
             # self.txtEdtOutput.insertHtml(
             #     '<br /><span style="color:#800000;">%(ts)s</span><span style="color:#000000;">%(data)s</span>' 
@@ -1444,6 +1499,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.txtEdtOutput.insertPlainText(ts_text)
             self.txtEdtOutput.setTextColor(QtGui.QColor('#0000ff'))
             self.txtEdtOutput.insertPlainText(data_text)
+        self.txtEdtOutput.insertPlainText('\n')
+        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
 
     def appendOutputText(self, data, color=Qt.black):
         # the qEditText's "append" methon will add a unnecessary newline.
