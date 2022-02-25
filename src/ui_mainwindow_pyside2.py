@@ -12,6 +12,8 @@ from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
+from tablewidget import TableWidget
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -555,7 +557,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setSpacing(0)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(0, 0, 4, 5)
-        self.quickSendTable = QTableWidget(self.dockWidgetContents_3)
+        self.quickSendTable = TableWidget(self.dockWidgetContents_3)
         if (self.quickSendTable.columnCount() < 2):
             self.quickSendTable.setColumnCount(2)
         if (self.quickSendTable.rowCount() < 10):

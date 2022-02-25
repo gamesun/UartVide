@@ -921,7 +921,7 @@
       <number>5</number>
      </property>
      <item>
-      <widget class="QTableWidget" name="quickSendTable">
+      <widget class="TableWidget" name="quickSendTable">
        <property name="font">
         <font>
          <family>Consolas</family>
@@ -1275,6 +1275,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TableWidget</class>
+   <extends>QTableWidget</extends>
+   <header location="global">tablewidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
