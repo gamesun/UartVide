@@ -71,6 +71,8 @@ from ui_mainwindow_pyside2 import Ui_MainWindow
 from balloontip import BalloonTip
 from combo import Combo
 from animationswitchbutton import AnimationSwitchButton
+from toolbutton import ToolButton
+from rename_dailog import RenameDailog
 
 import datetime
 import pickle
@@ -1160,10 +1162,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def initQuickSendButton(self, row, cmd = 'cmd', opt = 'H', dat = ''):
         if self.quickSendTable.cellWidget(row, 0) is None:
-            item = QToolButton(self)
+            item = ToolButton(self)
             item.setText(cmd)
             item.setCursor(Qt.PointingHandCursor)
-            item.clicked.connect(lambda x : self.onQuickSend(row))
+            item.clicked.connect(lambda : self.onQuickSend(row))
+            item.rightClicked.connect(lambda : self.onQuickSendRightClick(row))
             self.quickSendTable.setCellWidget(row, 0, item)
         else:
             self.quickSendTable.cellWidget(row, 0).setText(cmd)
@@ -1173,7 +1176,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             item.setText(opt)
             item.setCursor(Qt.PointingHandCursor)
             #item.setMaximumSize(QtCore.QSize(16, 16))
-            item.clicked.connect(lambda x : self.onQuickSendOptions(row))
+            item.clicked.connect(lambda : self.onQuickSendOptions(row))
             self.quickSendTable.setCellWidget(row, 1, item)
         else:
             self.quickSendTable.cellWidget(row, 1).setText(opt)
@@ -1287,6 +1290,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
             pos = self.quickSendTable.cellWidget(row, 1).mapToGlobal(QPoint(30, 10))
             BalloonTip.showBalloon(None, 'Send Failed', str(e), pos, 5000)
+    
+    def onQuickSendRightClick(self, row):
+        item = self.quickSendTable.cellWidget(row, 0)
+        oldname = item.text()
+        pos = item.mapToGlobal(QPoint(30, 10))
+        newname = RenameDailog.getNewName(oldname, pos)
+        if newname:
+            item.setText(newname)
+            self.quickSendTable.resizeColumnsToContents()
 
     def transmitFile(self, filepath, form):
         try:
