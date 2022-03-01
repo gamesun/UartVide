@@ -116,6 +116,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._quickSendOptRow = 1
         self._is_loop_sending = False
         self._is_timestamp = False
+        self.quickSendEdtLst = []
+        self.quickSendPathBtnLst = []
 
         self.setupUi(self)
         self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
@@ -1190,34 +1192,65 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 QMenu::item:selected {background: #51c0d1;}
                 QMenu::icon {background: transparent;border: 2px inset transparent;}
                 QMenu::item:disabled {color: #808080;background: #eeeeee;}''' % dict(Code_Font = CODE_FONT))
-            self.quickSendTable.setCellWidget(row, 2, item)
+            self.quickSendEdtLst.append(item)
+            btnPath = QPushButton('...')
+            btnPath.setMinimumSize(QSize(17, 17))
+            btnPath.setMaximumSize(QSize(17, 17))
+            btnPath.clicked.connect(lambda : self.onQuickSendSelectFile(row))
+            self.quickSendPathBtnLst.append(btnPath)
+            hLayout = QHBoxLayout()
+            hLayout.addWidget(item)
+            hLayout.addWidget(btnPath)
+            hLayout.setSpacing(0)
+            hLayout.setContentsMargins(0, 0, 1, 0)
+            frame = QFrame()
+            frame.setLayout(hLayout)
+            self.quickSendTable.setCellWidget(row, 2, frame)
         else:
-            self.quickSendTable.cellWidget(row, 2).setText(dat)
+            self.quickSendEdtLst[row].setText(dat)
+
+        if opt == 'HF' or opt == 'AF' or opt == 'BF':
+            self.quickSendPathBtnLst[row].show()
+        else:
+            self.quickSendPathBtnLst[row].hide()
 
         self.quickSendTable.setRowHeight(row, 20)
 
     def onSetSendHex(self):
         self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('H')
+        self.quickSendPathBtnLst[self._quickSendOptRow].hide()
 
     def onSetSendAsc(self):
         self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('A')
+        self.quickSendPathBtnLst[self._quickSendOptRow].hide()
         
     def onSetSendAscS(self):
         self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('AS')
+        self.quickSendPathBtnLst[self._quickSendOptRow].hide()
 
     def onSetSendHF(self):
         self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('HF')
+        self.quickSendPathBtnLst[self._quickSendOptRow].show()
 
     def onSetSendAF(self):
         self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('AF')
+        self.quickSendPathBtnLst[self._quickSendOptRow].show()
 
     def onSetSendBF(self):
         self.quickSendTable.cellWidget(self._quickSendOptRow, 1).setText('BF')
+        self.quickSendPathBtnLst[self._quickSendOptRow].show()
 
     def onQuickSendOptions(self, row):
         self._quickSendOptRow = row
         item = self.quickSendTable.cellWidget(row, 1)
         self.menuSendOpt.popup(item.mapToGlobal(QPoint(item.size().width(), item.size().height())))
+
+    def onQuickSendSelectFile(self, row):
+        old_path = self.quickSendEdtLst[row].text()
+        fileName = QFileDialog.getOpenFileName(self.defaultStyleWidget, "Select a file",
+            old_path, "All Files (*.*)")[0]
+        if fileName:
+            self.quickSendEdtLst[row].setText(fileName)
 
     def openQuickSend(self):
         fileName = QFileDialog.getOpenFileName(self.defaultStyleWidget, "Select a file",
@@ -1231,7 +1264,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         save_data = [[self.quickSendTable.cellWidget(row, 0).text(),
                       self.quickSendTable.cellWidget(row, 1).text(),
-                      self.quickSendTable.cellWidget(row, 2).text()] for row in range(rows)]
+                      self.quickSendEdtLst[row].text()] for row in range(rows)]
 
         #import pprint
         #pprint.pprint(save_data, width=120, compact=True)
@@ -1275,7 +1308,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         try:
             if self.serialport.isOpen():
                 if self.quickSendTable.cellWidget(row, 2) != None:
-                    tablestring = self.quickSendTable.cellWidget(row, 2).text()
+                    tablestring = self.quickSendEdtLst[row].text()
                     form = self.quickSendTable.cellWidget(row, 1).text()
                     if 'H' == form:
                         self.transmitHex(tablestring)
