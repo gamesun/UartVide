@@ -895,12 +895,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         widget.view().setFixedWidth(maxlen + 44)
 
     def onTimestamp(self):
-        if self._is_timestamp:
-            self._is_timestamp = False
-            self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
-        else:
+        self._is_timestamp = not self._is_timestamp
+        self.setTimestampEnabled(self._is_timestamp)
+    
+    def setTimestampEnabled(self, enabled):
+        if enabled:
             self._is_timestamp = True
             self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'#3a9ecc', 'HBG':'#51c0d1'})
+        else:
+            self._is_timestamp = False
+            self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
         
         self.readerThread.setTimestampEnable(self._is_timestamp)
 
@@ -1065,9 +1069,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ET.SubElement(PortCfg, "rtscts").text = self.chkRTSCTS.isChecked() and "on" or "off"
         ET.SubElement(PortCfg, "xonxoff").text = self.chkXonXoff.isChecked() and "on" or "off"
 
-        View = ET.SubElement(GUISettings, "View")
-        # ET.SubElement(View, "LocalEcho").text = self.actionLocal_Echo.isChecked() and "on" or "off"
-        ET.SubElement(View, "ReceiveView").text = self._viewGroup.checkedAction().text()
+        ET.SubElement(GUISettings, "ViewMode").text = self._viewGroup.checkedAction().text()
+        ET.SubElement(GUISettings, "Timestamp").text = "on" if self._is_timestamp else "off"
+        ET.SubElement(GUISettings, "SendAsHex").text = "on" if self.rdoHEX.isChecked() else "off"
+        ET.SubElement(GUISettings, "LoopTime").text = self.spnPeriod.text()[:-2]
         
         Contents = ET.SubElement(root, "Contents")
         Send = ET.SubElement(Contents, "Send")
@@ -1125,14 +1130,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 else:
                     self.chkXonXoff.setChecked(False)
 
-                # LocalEcho = tree.findtext('GUISettings/View/LocalEcho', default='off')
-                # if 'on' == LocalEcho:
-                #     self.actionLocal_Echo.setChecked(True)
-                #     self._localEcho = True
-                # else:
-                #     self.actionLocal_Echo.setChecked(False)
-                #     self._localEcho = False
-
                 ReceiveView = tree.findtext('GUISettings/View/ReceiveView', default='HEX(UPPERCASE)')
                 if 'Ascii' in ReceiveView:
                     self.actionAscii.setChecked(True)
@@ -1143,6 +1140,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 elif 'UPPERCASE' in ReceiveView:
                     self.actionHEX_UPPERCASE.setChecked(True)
                     self._viewMode = VIEWMODE_HEX_UPPERCASE
+
+                ts = tree.findtext('GUISettings/Timestamp', default='on')
+                self.setTimestampEnabled(True if ts == "on" else False)
+
+                sah = tree.findtext('GUISettings/SendAsHex', default='off')
+                self.rdoHEX.setChecked(True if sah == "on" else False)
+                self.rdoASC.setChecked(True if sah == "off" else False)
+
+                lt = tree.findtext('GUISettings/LoopTime', default='1000')
+                self.spnPeriod.setValue(int(lt))
 
                 send_text = tree.findtext('Contents/Send/Value', default='')
                 self.txtEdtInput.setText(send_text)
