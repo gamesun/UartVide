@@ -626,6 +626,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             TableView_Border = '#eeeeee',
             UIFont = UI_FONT,
         ))
+
+        self.chkbtn_SSTemplate = """
+            QPushButton, QToolButton { background-color:%(BG)s; border:none; border-radius: 6px; }
+            QPushButton:hover, QToolButton:hover { background-color:%(HBG)s; }
+            QPushButton:pressed, QToolButton:pressed { background-color:#b8e5f1; }
+        """
+
+        self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
+        self.btnLoop.setIcon(QIcon(":/loop.png"))
+        self.btnLoop.setIconSize(QtCore.QSize(20, 20))
+        self.btnLoop.clicked.connect(self.onLoopChanged)
+        self.btnLoop.setToolTip("Loop Send")
+        self.btnLoop.setCursor(Qt.PointingHandCursor)
+
         self.dockWidget_QuickSend.setStyleSheet("""
             QToolButton, QPushButton {
                 background-color:#27b798;
@@ -648,6 +662,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """)
 
         frame_w = self.frameGeometry().width()
+
+        self.btnMenu = QPushButton(self)
+        self.btnMenu.setGeometry(frame_w-200,4,26,26)
+        self.btnMenu.setStyleSheet("""
+            QPushButton { background-color:transparent; border:none; border-radius: 6px; }
+            QPushButton:hover { background-color:#51c0d1; }
+            QPushButton:pressed { background-color:#b8e5f1; }
+            QPushButton:menu-indicator { image:none; }
+        """)
+        self.btnMenu.setIcon(QIcon(":/menu.png"))
+        self.btnMenu.setIconSize(QtCore.QSize(24, 24))
+        self.btnMenu.setToolTip("More Settings...")
+        self.btnMenu.setCursor(Qt.PointingHandCursor)
+        self.btnMenu.setMenu(self.menuMoreSettings)
 
         self.btnPin = QPushButton(self)
         self.btnPin.setGeometry(frame_w-160,0,40,34)
@@ -702,12 +730,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }
         """)
         
-        #self.toolBar.setFixedHeight(28)
-        
-        # font = QFont()
-        # font.setFamily(UI_FONT)
-        # font.setPointSize(9)
-        
         x,y = 12,5
         w = 24
         self.btnRefresh = QPushButton(self)
@@ -745,30 +767,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.asbtnOpen.setToolTip("Open Port")
         self.asbtnOpen.setCursor(Qt.PointingHandCursor)
 
-        # self.btnOpen = QPushButton(self)
-        # self.btnOpen.setEnabled(True)
-        # x,w = x+w+12,23
-        # self.btnOpen.setGeometry(x,y,w,h)
-        # self.btnOpen.setStyleSheet("""
-        #     QPushButton { background-color:transparent; border:none; }
-        #     QPushButton:hover { background-color:#51c0d1; }
-        #     QPushButton:pressed { /*background-color:#3a9ecc;*/ padding-top: 1px; }
-        # """)
-        # self.btnOpen.setIconSize(QtCore.QSize(22, 22))
-        # self.btnOpen.setIcon(QIcon(":/port_off.png"))
-
-        self.btnClear = QPushButton(self)
-        x,w = x+w+10,28
-        self.btnClear.setGeometry(x,3,w,w)
-        self.btnClear.setStyleSheet("""
+        self.btnTogglePortCfgBar = QPushButton(self)
+        self.btnTogglePortCfgBar.setIcon(QIcon(':/up.png'))
+        self.btnTogglePortCfgBar.setIconSize(QtCore.QSize(23, 23))
+        x,w = x+w+12,23
+        self.btnTogglePortCfgBar.setGeometry(x,y,w,24)
+        self.btnTogglePortCfgBar.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; border-radius: 6px; }
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { background-color:#b8e5f1; }
         """)
-        self.btnClear.setIcon(QIcon(":/eraser.png"))
-        self.btnClear.setIconSize(QtCore.QSize(20, 20))
-        self.btnClear.setToolTip("Clear Log")
-        self.btnClear.setCursor(Qt.PointingHandCursor)
+        self.btnTogglePortCfgBar.clicked.connect(self.onTogglePortCfgBar)
+        self.btnTogglePortCfgBar.setToolTip("Toggle Port Config Bar")
+        self.btnTogglePortCfgBar.setCursor(Qt.PointingHandCursor)
+
+        self.btnTimestamp = QPushButton(self)
+        x,w = x+w+10,28
+        self.btnTimestamp.setGeometry(x,3,w,w)
+        self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
+        self.btnTimestamp.setIcon(QIcon(":/timestamp.png"))
+        self.btnTimestamp.setIconSize(QtCore.QSize(20, 20))
+        self.btnTimestamp.clicked.connect(self.onTimestamp)
+        self.btnTimestamp.setToolTip("Timestamp")
+        self.btnTimestamp.setCursor(Qt.PointingHandCursor)
 
         self.btnSaveLog = QPushButton(self)
         self.btnSaveLog.setParent(self)
@@ -784,56 +805,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnSaveLog.setToolTip("Save Log As")
         self.btnSaveLog.setCursor(Qt.PointingHandCursor)
 
-        self.btnTimestamp = QPushButton(self)
+        self.btnClear = QPushButton(self)
         x,w = x+w+10,28
-        self.btnTimestamp.setGeometry(x,3,w,w)
-        self.chkbtn_SSTemplate = """
-            QPushButton, QToolButton { background-color:%(BG)s; border:none; border-radius: 6px; }
-            QPushButton:hover, QToolButton:hover { background-color:%(HBG)s; }
-            QPushButton:pressed, QToolButton:pressed { background-color:#b8e5f1; }
-        """
-        self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
-        self.btnTimestamp.setIcon(QIcon(":/timestamp.png"))
-        self.btnTimestamp.setIconSize(QtCore.QSize(20, 20))
-        self.btnTimestamp.clicked.connect(self.onTimestamp)
-        self.btnTimestamp.setToolTip("Timestamp")
-        self.btnTimestamp.setCursor(Qt.PointingHandCursor)
-
-        self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
-        self.btnLoop.setIcon(QIcon(":/loop.png"))
-        self.btnLoop.setIconSize(QtCore.QSize(20, 20))
-        self.btnLoop.clicked.connect(self.onLoopChanged)
-        self.btnLoop.setToolTip("Loop Send")
-        self.btnLoop.setCursor(Qt.PointingHandCursor)
-
-        self.btnTogglePortCfgBar = QPushButton(self)
-        self.btnTogglePortCfgBar.setIcon(QIcon(':/up.png'))
-        self.btnTogglePortCfgBar.setIconSize(QtCore.QSize(23, 23))
-        x,w = x+w+12,23
-        self.btnTogglePortCfgBar.setGeometry(x,y,w,24)
-        self.btnTogglePortCfgBar.setStyleSheet("""
+        self.btnClear.setGeometry(x,3,w,w)
+        self.btnClear.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; border-radius: 6px; }
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { background-color:#b8e5f1; }
         """)
-        self.btnTogglePortCfgBar.clicked.connect(self.onTogglePortCfgBar)
-        self.btnTogglePortCfgBar.setToolTip("Toggle Port Config Bar")
-        self.btnTogglePortCfgBar.setCursor(Qt.PointingHandCursor)
-        
-        x,w = x+w+12,28
-        self.btnMenu = QPushButton(self)
-        self.btnMenu.setGeometry(x,3,w,w)
-        self.btnMenu.setStyleSheet("""
-            QPushButton { background-color:transparent; border:none; border-radius: 6px; }
-            QPushButton:hover { background-color:#51c0d1; }
-            QPushButton:pressed { background-color:#b8e5f1; }
-            QPushButton:menu-indicator { image:none; }
-        """)
-        self.btnMenu.setIcon(QIcon(":/menu.png"))
-        self.btnMenu.setIconSize(QtCore.QSize(24, 24))
-        self.btnMenu.setToolTip("More Settings...")
-        self.btnMenu.setCursor(Qt.PointingHandCursor)
-        self.btnMenu.setMenu(self.menuMoreSettings)
+        self.btnClear.setIcon(QIcon(":/eraser.png"))
+        self.btnClear.setIconSize(QtCore.QSize(20, 20))
+        self.btnClear.setToolTip("Clear Log")
+        self.btnClear.setCursor(Qt.PointingHandCursor)
 
         x,w = x+w+12,22
         self.btnClearRxTxCnt = QPushButton(self)
@@ -932,6 +915,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def resizeEvent(self, event):
         if hasattr(self, 'btnMax'):
             w = event.size().width()
+            self.btnMenu.move(w-200, 4)
             self.btnPin.move(w-160, 0)
             self.btnMin.move(w-120, 0)
             self.btnMax.move(w-80, 0)
