@@ -1056,7 +1056,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ET.SubElement(GUISettings, "ViewMode").text = self._viewGroup.checkedAction().text()
         ET.SubElement(GUISettings, "Timestamp").text = "on" if self._is_timestamp else "off"
         ET.SubElement(GUISettings, "SendAsHex").text = "on" if self.rdoHEX.isChecked() else "off"
-        ET.SubElement(GUISettings, "LoopTime").text = self.spnPeriod.text()[:-2]
+        ET.SubElement(GUISettings, "LoopTime").text = '{}'.format(self.spnPeriod.value())
         
         Contents = ET.SubElement(root, "Contents")
         Send = ET.SubElement(Contents, "Send")
@@ -1359,7 +1359,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.spnPeriod.setEnabled(self._is_loop_mode)
 
     def startLoopSend(self):
-        period_spacing = int(self.spnPeriod.text()[:-2]) / 1000.0
+        period_spacing = self.spnPeriod.value() / 1000.0
         self.loopSendThread.start(period_spacing)
         self.btnSend.setStyleSheet('''
             QToolButton, QPushButton {
