@@ -29,13 +29,13 @@ if extension != '.py':
     import except_logger
     sys.excepthook = except_logger.exceptHook
     
-    if os.name == 'nt':
-        app_path = os.path.dirname(os.path.abspath(__file__))
-        try:os.mkdir(app_path+"\\DLLs\\")
-        except: pass
+    # if os.name == 'nt':
+    #     app_path = os.path.dirname(os.path.abspath(__file__))
+    #     try:os.mkdir(app_path+"\\DLLs\\")
+    #     except: pass
         
-        os.add_dll_directory(app_path+"\\DLLs\\")
-        sys.path.append(app_path+"\\DLLs\\")
+    #     os.add_dll_directory(app_path+"\\DLLs\\")
+    #     sys.path.append(app_path+"\\DLLs\\")
 
         #import ctypes
         #dll_lst = [f for f in os.listdir(app_path+"\\DLLs\\") if f.endswith(".dll")]
