@@ -818,7 +818,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnClearRxTxCnt = QPushButton(self)
         self.btnClearRxTxCnt.setGeometry(x,6,w,w)
         self.btnClearRxTxCnt.setStyleSheet("""
-            QPushButton { background-color:#30a7b8; border:none; 
+            QPushButton { background-color:#3a9ecc; border:none; 
                           border-top-left-radius:6px;
                           border-bottom-left-radius:6px; }
             QPushButton:hover { background-color:#51c0d1; }
@@ -837,7 +837,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.lblRxTxCnt = QLabel(self)
         self.lblRxTxCnt.setGeometry(x,6,100,w)
         self.lblRxTxCnt.setStyleSheet("""
-            QLabel { background-color:transparent; border: 1px solid #30a7b8; 
+            QLabel { background-color:transparent; border: 1px solid #3a9ecc; 
                      border-top-right-radius:6px;
                      border-bottom-right-radius:6px;
                      font-size:10pt; padding: 0px 0px 2px 0px; }
