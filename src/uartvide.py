@@ -89,7 +89,7 @@ import re
 
 
 if os.name == 'nt':
-    CODE_FONT = "Segoe MDL2 Assets"
+    CODE_FONT = "Consolas"
     UI_FONT = "Segoe UI"
 elif os.name == 'posix':
     CODE_FONT = "Monospace"
