@@ -678,13 +678,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnMenu.setMenu(self.menuMoreSettings)
 
         self.btnPin = QPushButton(self)
-        self.btnPin.setGeometry(frame_w-160,0,40,34)
+        self.btnPin.setGeometry(frame_w-160,4,26,26)
         self.btnPin.clicked.connect(self.onAlwaysOnTop)
-        self.btnPin.setStyleSheet("""
-            QPushButton { background-color:transparent;border:none; }
-            QPushButton:hover { background-color:#51c0d1; }
-            QPushButton:pressed { background-color:#b8e5f1; }
-        """)
+        self.btnPin.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
         self.btnPin.setIcon(QIcon(":/pin.png"))
         self.btnPin.setIconSize(QtCore.QSize(24, 24))
         self.btnPin.setToolTip("Always On Top")
@@ -847,6 +843,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                      font-size:10pt; padding: 0px 0px 2px 0px; }
         """)
         self.lblRxTxCnt.setText('R:0 T:0')
+        self.lblRxTxCnt.setToolTip("RX/TX data counters")
         self.lblRxTxCnt.setMouseTracking(True)
 
         if os.name == 'posix':
@@ -916,7 +913,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if hasattr(self, 'btnMax'):
             w = event.size().width()
             self.btnMenu.move(w-200, 4)
-            self.btnPin.move(w-160, 0)
+            self.btnPin.move(w-160, 4)
             self.btnMin.move(w-120, 0)
             self.btnMax.move(w-80, 0)
             self.btnExit.move(w-40, 0)
@@ -1630,9 +1627,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 )
             )
             self.cmbPort.setEnabled(False)
-            #self.cmbPort.setStyleSheet('QComboBox:editable {background: #ffffcc;}')
-            #self.btnOpen.setText('Close')
-            #self.btnOpen.setIcon(QIcon(":/port_on.png"))
 
     def closePort(self):
         if self.serialport.isOpen():
@@ -1647,10 +1641,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.setWindowTitle(appInfo.title)
             self.cmbPort.setEnabled(True)
             self.asbtnOpen.setChecked(False)
-            
-            #self.cmbPort.setStyleSheet('QComboBox:editable {background: white;}')
-            #self.btnOpen.setText('Open')
-            #self.btnOpen.setIcon(QIcon(":/port_off.png"))
 
     def onToggleQckSndPnl(self):
         if self.actionQuick_Send_Panel.isChecked():
@@ -1673,16 +1663,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def onVisibleSndPnl(self, visible):
         self.actionSend_Panel.setChecked(visible)
 
-    # def onLocalEcho(self):
-    #     self._localEcho = self.actionLocal_Echo.isChecked()
-
     def onAlwaysOnTop(self):
         self._is_always_on_top = not self._is_always_on_top
         self.setWindowFlag(Qt.WindowStaysOnTopHint, self._is_always_on_top)
         if self._is_always_on_top:
-            self.btnPin.setIcon(QIcon(":/pin_active.png"))
+            self.btnPin.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'#3a9ecc', 'HBG':'#51c0d1'})
         else:
-            self.btnPin.setIcon(QIcon(":/pin.png"))
+            self.btnPin.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
         if os.name == 'posix':
             self.destroy()
             self.create()
@@ -1695,12 +1682,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             if self.serialport.isOpen():
                 self.closePort()
-
-    # def onOpen(self):
-    #     if self.serialport.isOpen():
-    #         self.closePort()
-    #     else:
-    #         self.openPort()
 
     def onClear(self):
         self.txtEdtOutput.clear()
