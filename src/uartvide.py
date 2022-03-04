@@ -1722,15 +1722,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ports_info = ports_info + port + '  ' + desc + state + '\n'
             ports_cnt = ports_cnt + 1
 
-
         self.fixComboViewSize(self.cmbPort)
         
-        if not self.serialport.isOpen():
-            idx = self.cmbPort.findText(sel, Qt.MatchContains)
-            if idx != -1:
-                self.cmbPort.setCurrentIndex(idx)
-            else:
-                self.cmbPort.setCurrentText('')
+        idx = self.cmbPort.findText(sel, Qt.MatchContains)
+        if idx != -1:
+            self.cmbPort.setCurrentIndex(idx)
+        else:
+            self.cmbPort.setCurrentText('')
 
         return ports_cnt, ports_info
 
