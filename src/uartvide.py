@@ -73,6 +73,7 @@ from combo import Combo
 from animationswitchbutton import AnimationSwitchButton
 from toolbutton import ToolButton
 from rename_dailog import RenameDailog
+from elidedlineedit import ElidedLineEdit
 
 import datetime
 import pickle
@@ -1172,7 +1173,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.quickSendTable.cellWidget(row, 1).setText(opt)
 
         if self.quickSendTable.cellWidget(row, 2) is None:
-            item = QLineEdit(dat)
+            item = ElidedLineEdit(dat)
             item.setStyleSheet('''
                 QLineEdit {border: none;font-size:9pt;font-family:%(Code_Font)s;}
                 QMenu {margin: 2px;color: #202020;background: #eeeeee;}
