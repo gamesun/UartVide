@@ -1513,7 +1513,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.updateRxTxCnt()
 
         if self._viewMode == VIEWMODE_ASCII:
-            text = ''.join(chr(b) for b in data[1])
+            text = ''.join(chr(b) if b != 0 else ' ' for b in data[1])
         elif self._viewMode == VIEWMODE_HEX_LOWERCASE:
             text = ''.join('%02x ' % b for b in data[1])
         elif self._viewMode == VIEWMODE_HEX_UPPERCASE:
