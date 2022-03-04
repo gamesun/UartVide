@@ -1118,7 +1118,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 else:
                     self.chkXonXoff.setChecked(False)
 
-                ReceiveView = tree.findtext('GUISettings/View/ReceiveView', default='HEX(UPPERCASE)')
+                ReceiveView = tree.findtext('GUISettings/ViewMode', default='HEX(UPPERCASE)')
                 if 'Ascii' in ReceiveView:
                     self.actionAscii.setChecked(True)
                     self._viewMode = VIEWMODE_ASCII
