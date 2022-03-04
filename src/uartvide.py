@@ -1523,18 +1523,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def appendOutput(self, ts_text, data_text, data_type = 'T'):
         self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
-        if data_type == 'T':
-            # self.txtEdtOutput.insertHtml(
-            #     '<br /><span style="color:#800000;">%(ts)s</span><span style="color:#000000;">%(data)s</span>' 
-            #     % dict(ts = ts_text, data = data_text))
+        if data_type == 'R':
             self.txtEdtOutput.setTextColor(QtGui.QColor('#800000'))
             self.txtEdtOutput.insertPlainText(ts_text)
             self.txtEdtOutput.setTextColor(QtGui.QColor('#000000'))
             self.txtEdtOutput.insertPlainText(data_text)
-        elif data_type == 'R':
-            # self.txtEdtOutput.insertHtml(
-            #     '<br /><span style="color:#800000;">%(ts)s</span><span style="color:#0000ff;">%(data)s</span>'
-            #     % dict(ts = ts_text, data = data_text))
+        elif data_type == 'T':
             self.txtEdtOutput.setTextColor(QtGui.QColor('#800000'))
             self.txtEdtOutput.insertPlainText(ts_text)
             self.txtEdtOutput.setTextColor(QtGui.QColor('#0000ff'))
