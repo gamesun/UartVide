@@ -243,7 +243,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.txtEdtInput.setTabStopWidth(n * w)
 
     def onBaudRateChanged(self, text):
-        self.serialport.baudrate = self.cmbBaudRate.currentText()
+        try:
+            prev_baudrate = self.serialport.baudrate
+            self.serialport.baudrate = self.cmbBaudRate.currentText()
+        except Exception as e:
+            pos = self.mapToGlobal(self.cmbBaudRate.pos() + QPoint(20, 20+34))
+            BalloonTip.showBalloon(None, 'Invalid Parameter', str(e), pos, 5000)
+            self.cmbBaudRate.setCurrentText(str(prev_baudrate))
         
     def onDataBitsChanged(self, text):
         self.serialport.bytesize = self.getDataBits()
