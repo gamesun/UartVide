@@ -259,12 +259,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.serialport.stopbits = self.getStopBits()
         except ValueError:
             #QMessageBox.critical(self.defaultStyleWidget, "Exception", "Wrong setting", QMessageBox.Close)
-            pos = self.mapToGlobal(self.cmbStopBits.pos() + QPoint(20, 20))
+            pos = self.mapToGlobal(self.cmbStopBits.pos() + QPoint(20, 20+34))
             BalloonTip.showBalloon(None, 'Invalid Parameter', '', pos, 5000)
             self.cmbStopBits.setCurrentText('1')
         except Exception as e:
             #QMessageBox.critical(self.defaultStyleWidget, "Exception", str(e), QMessageBox.Close)
-            pos = self.mapToGlobal(self.cmbStopBits.pos() + QPoint(20, 20))
+            pos = self.mapToGlobal(self.cmbStopBits.pos() + QPoint(20, 20+34))
             BalloonTip.showBalloon(None, 'Invalid Parameter', str(e), pos, 5000)
             self.cmbStopBits.setCurrentText('1')
     
