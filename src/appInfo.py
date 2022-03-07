@@ -25,7 +25,7 @@
 
 
 title = 'UartVide'
-version = '2.4'
+version = '2.5'
 url = 'http://sourceforge.net/projects/myterm/'
 author = 'gamesun'
 copyright = 'Copyright (C) 2013-2022, gamesun'

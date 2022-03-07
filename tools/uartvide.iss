@@ -2,7 +2,7 @@
 ; 
 
 #define AppName "UartVide"
-#define AppVersion "2.4"
+#define AppVersion "2.5"
 
 [Setup]
 AppName={#AppName} {#AppVersion}
