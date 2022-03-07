@@ -1848,7 +1848,7 @@ class ReaderThread(QThread):
 
     def calcWaitTime(self):
         bits = 1 + self._serialport.bytesize + (0 if self._serialport.parity == 'N' else 1) + self._serialport.stopbits
-        return min(0.2, (32 + 1) * bits / self._serialport.baudrate)
+        return min(0.2, max(0.005, (32 + 10) * bits / self._serialport.baudrate))
 
     def start(self, priority = QThread.InheritPriority):
         if not self._alive:
