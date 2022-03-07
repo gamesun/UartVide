@@ -1846,6 +1846,10 @@ class ReaderThread(QThread):
     def setTimestampEnable(self, enabled):
         self._ts_enabled = enabled
 
+    def calcWaitTime(self):
+        bits = 1 + self._serialport.bytesize + (0 if self._serialport.parity == 'N' else 1) + self._serialport.stopbits
+        return min(0.2, (32 + 1) * bits / self._serialport.baudrate)
+
     def start(self, priority = QThread.InheritPriority):
         if not self._alive:
             self._alive = True
@@ -1869,16 +1873,22 @@ class ReaderThread(QThread):
         ts = None
         try:
             while self._alive:
-                # read all that is there or wait for one byte
                 bytes_data = self._serialport.read(self._serialport.inWaiting() or 1)
+                wait_time = self.calcWaitTime()
                 if self._ts_enabled:
                     ts = datetime.datetime.now().time()
+                else:
+                    ts = None
                 if not self._alive:
                     return
                 else:
-                    sleep(0.05)
-                if self._serialport.inWaiting():
+                    sleep(wait_time)
+                while self._serialport.inWaiting():
                     bytes_data = bytes_data + self._serialport.read(self._serialport.inWaiting())
+                    if 4096 < len(bytes_data):
+                        break
+                    sleep(wait_time)
+                    
                 if bytes_data:
                     self.read.emit([ts, bytes_data])
         except Exception as e:
