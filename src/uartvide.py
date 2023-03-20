@@ -1288,13 +1288,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             rows = self.quickSendTable.rowCount()
 
             if rows < len(data):
-                rows = len(data) + 10
+                rows = len(data)
                 self.quickSendTable.setRowCount(rows)
 
             for row, rowdat in enumerate(data):
-                if len(rowdat) >= 3:
-                    cmd, opt, dat = rowdat[0:3]
-                    self.initQuickSendButton(row, cmd, opt, dat)
+                param = [''] * 3
+                for i in range(min(3, len(rowdat))):
+                    param[i] = rowdat[i]
+                self.initQuickSendButton(row, param[0], param[1], param[2])
 
             self.quickSendTable.resizeColumnsToContents()
             #self.quickSendTable.resizeRowsToContents()
