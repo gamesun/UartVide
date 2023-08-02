@@ -1969,6 +1969,7 @@ class LoopSendThread(QThread):
         self._stopped = True
 
 if __name__ == '__main__':
+    QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)
     frame = MainWindow()
     frame.show()
