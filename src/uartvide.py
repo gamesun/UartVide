@@ -48,27 +48,11 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
-signal = Signal
 # from qfluentwidgets import *
 from qframelesswindow import *
-import resources_pyside2
-from ui_mainwindow_pyside2 import Ui_MainWindow
+import resources
+from ui_mainwindow import Ui_MainWindow
 
-# PyQt5
-# from PyQt5 import QtCore, QtGui, QtWidgets
-# from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget, \
-#     QTableWidgetItem, QPushButton, QActionGroup, QDesktopWidget, QToolButton, \
-#     QFileDialog, QToolTip
-# from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSignalMapper, QFile, QPoint, \
-#     QIODevice
-# from PyQt5.QtGui import QFontMetrics, QFont, QIcon
-# signal = pyqtSignal
-# try:
-#   from PyQt5 import sip
-# except ImportError:
-#   import sip
-# import resources_pyqt5
-# from ui_mainwindow_pyqt5 import Ui_MainWindow
 
 from balloontip import BalloonTip
 from combo import Combo
@@ -280,7 +264,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.serialport.xonxoff = self.chkXonXoff.isChecked()
 
     def setupMenu(self):
-        self.menuMoreSettings = QtWidgets.QMenu()
+        self.menuMoreSettings = QtWidgets.QMenu(self)
         # self.menuMoreSettings.setTitle("&More")
         self.menuView = QtWidgets.QMenu(self.menuMoreSettings)
         self.menuView.setTitle("&View")
@@ -1832,8 +1816,8 @@ def string_to_hex(hexstring):
 
 class ReaderThread(QThread):
     """loop and copy serial->GUI"""
-    read = signal(list)
-    exception = signal(str)
+    read = Signal(list)
+    exception = Signal(str)
 
     def __init__(self, parent=None):
         super(ReaderThread, self).__init__(parent)
@@ -1898,8 +1882,8 @@ class ReaderThread(QThread):
         self._stopped = True
 
 class PortMonitorThread(QThread):
-    portPlugOut = signal()
-    exception = signal(str)
+    portPlugOut = Signal()
+    exception = Signal(str)
     
     def __init__(self, parent=None):
         super(PortMonitorThread, self).__init__(parent)
@@ -1936,8 +1920,8 @@ class PortMonitorThread(QThread):
         self._stopped = True
 
 class LoopSendThread(QThread):
-    trigger = signal()
-    exception = signal(str)
+    trigger = Signal()
+    exception = Signal(str)
     
     def __init__(self, parent=None):
         super(LoopSendThread, self).__init__(parent)

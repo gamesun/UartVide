@@ -1,3 +1,3 @@
 #!/bin/bash
-python3 -m PyInstaller --noconfirm uartvide.spec
+python3 -m PyInstaller --noconfirm pyinstaller_config.spec
 
