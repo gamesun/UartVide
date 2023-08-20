@@ -49,6 +49,8 @@ from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 signal = Signal
+# from qfluentwidgets import *
+from qframelesswindow import *
 import resources_pyside2
 from ui_mainwindow_pyside2 import Ui_MainWindow
 
@@ -100,7 +102,7 @@ VIEWMODE_ASCII           = 0
 VIEWMODE_HEX_LOWERCASE   = 1
 VIEWMODE_HEX_UPPERCASE   = 2
 
-class MainWindow(QMainWindow, Ui_MainWindow):
+class MainWindow(FramelessMainWindow, Ui_MainWindow):
     """docstring for MainWindow."""
     def __init__(self, parent=None):
         super(MainWindow, self).__init__()
@@ -357,7 +359,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._isResizing = False
         self._resizeArea = 0
         self.setMouseTracking(True)
-        self.setWindowFlags(Qt.FramelessWindowHint)
         self.setStyleSheet("""
             QWidget { background-color: %(BackgroundColor)s; outline: none; }
             QToolBar { border: none; }
@@ -1969,8 +1970,12 @@ class LoopSendThread(QThread):
         self._stopped = True
 
 if __name__ == '__main__':
-    QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+    QApplication.setHighDpiScaleFactorRoundingPolicy(
+            Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
     app = QApplication(sys.argv)
+    app.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)
     frame = MainWindow()
     frame.show()
     app.exec_()
