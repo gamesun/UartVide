@@ -1,4 +1,7 @@
 <RCC>
+    <qresource prefix="/uartvide">
+        <file alias="exit.svg">titlebar_button/exit.svg</file>
+    </qresource>
     <qresource prefix="/">
         <file>uartvide-icon/uartvide.ico</file>
         <file>qt_logo_16.ico</file>

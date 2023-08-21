@@ -708,7 +708,8 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnExit.setStyleSheet("""
             QPushButton {
                 background-color:transparent;border:none;
-                image: url(:/close2_inactive.png);
+                /*image: url(:/close2_inactive.png);*/
+                image: url(:/uartvide/exit.svg);
             }
             QPushButton:hover {
                 background-color:#ea5e00; image: url(:/close2_active.png);
