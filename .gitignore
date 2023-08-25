@@ -1,3 +1,4 @@
+envsetup.bat
 QckSndBckup.csv
 setting.ini
 layout.dat
@@ -88,3 +89,4 @@ Release/
 ## wxGlade
 #############
 *~wxg.autosave~*
+
