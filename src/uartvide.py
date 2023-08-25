@@ -708,14 +708,13 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnExit.setStyleSheet("""
             QPushButton {
                 background-color:transparent;border:none;
-                /*image: url(:/close2_inactive.png);*/
-                image: url(:/uartvide/exit.svg);
+                image: url(:/uartvide/exit_inactive.svg);
             }
             QPushButton:hover {
-                background-color:#ea5e00; image: url(:/close2_active.png);
+                background-color:#ea5e00; image: url(:/uartvide/exit_active.svg);
             }
             QPushButton:pressed {
-                background-color:#994005; image: url(:/close2_active.png);
+                background-color:#994005; image: url(:/uartvide/exit_inactive.svg);
             }
         """)
         
