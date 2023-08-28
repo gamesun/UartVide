@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>uartvide-icon/uartvide.ico</file>
-        <file>qt_logo_16.ico</file>
         <file>downarrow.png</file>
         <file>uparrow.png</file>
         <file>leftarrow.png</file>
