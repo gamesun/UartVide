@@ -48,7 +48,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
-# from qfluentwidgets import *
+from qfluentwidgets import *
 from qframelesswindow import *
 import resources
 from ui_mainwindow import Ui_MainWindow
@@ -82,12 +82,8 @@ elif os.name == 'posix':
     CODE_FONT = "Monospace"
     UI_FONT = "Ubuntu"
 
-VIEWMODE_ASCII           = 0
-VIEWMODE_HEX_LOWERCASE   = 1
-VIEWMODE_HEX_UPPERCASE   = 2
-
 class MainWindow(FramelessMainWindow, Ui_MainWindow):
-    """docstring for MainWindow."""
+
     def __init__(self, parent=None):
         super(MainWindow, self).__init__()
         self._csvFilePath = ""
@@ -97,7 +93,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.portMonitorThread = PortMonitorThread(self)
         self.portMonitorThread.setPort(self.serialport)
         self.loopSendThread = LoopSendThread(self)
-        # self._localEcho = None
         self._is_always_on_top = False
         self._viewMode = None
         self._quickSendOptRow = 1
@@ -118,6 +113,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
         self.setupMenu()
         self.setupFlatUi()
+        self.setupTitleBar()
 
         font2 = QFont()
         font2.setFamily(CODE_FONT)
@@ -133,22 +129,10 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.defaultStyleWidget = QWidget()
         self.defaultStyleWidget.setWindowIcon(icon)
 
-        icon = QIcon(":/qt_logo_16.ico")
-        self.actionAbout_Qt.setIcon(icon)
-
-        self._viewGroup = QActionGroup(self)
-        self._viewGroup.addAction(self.actionAscii)
-        self._viewGroup.addAction(self.actionHex_lowercase)
-        self._viewGroup.addAction(self.actionHEX_UPPERCASE)
-        self._viewGroup.setExclusive(True)
-
         # bind events
         self.actionOpen_Cmd_File.triggered.connect(self.openQuickSend)
         self.actionSave_Log.triggered.connect(self.onSaveLog)
-        self.actionExit.triggered.connect(self.onExit)
-
-        self.actionOpen.triggered.connect(self.openPort)
-        self.actionClose.triggered.connect(self.closePort)
+        self.actionExit.triggered.connect(self.close)   # -> closeEvent
 
         #self.actionPort_Config_Panel.triggered.connect(self.onTogglePrtCfgPnl)
         self.actionQuick_Send_Panel.triggered.connect(self.onToggleQckSndPnl)
@@ -156,17 +140,13 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         #self.dockWidget_PortConfig.visibilityChanged.connect(self.onVisiblePrtCfgPnl)
         self.dockWidget_QuickSend.visibilityChanged.connect(self.onVisibleQckSndPnl)
         self.dockWidget_Send.visibilityChanged.connect(self.onVisibleSndPnl)
-        # self.actionLocal_Echo.triggered.connect(self.onLocalEcho)
-        # self.actionAlways_On_Top.triggered.connect(self.onAlwaysOnTop)
-
         # self.dockWidget_QuickSend.dockLocationChanged.connect(self.onDockLocationChanged)
 
-        self.actionAscii.triggered.connect(self.onViewChanged)
-        self.actionHex_lowercase.triggered.connect(self.onViewChanged)
-        self.actionHEX_UPPERCASE.triggered.connect(self.onViewChanged)
+        # self.actionAscii.triggered.connect(self.onViewChanged)
+        # self.actionHex_lowercase.triggered.connect(self.onViewChanged)
+        # self.actionHEX_UPPERCASE.triggered.connect(self.onViewChanged)
 
         self.actionAbout.triggered.connect(self.onAbout)
-        self.actionAbout_Qt.triggered.connect(self.onAboutQt)
 
         self.cmbBaudRate.currentTextChanged.connect(self.onBaudRateChanged)
         self.cmbDataBits.currentTextChanged.connect(self.onDataBitsChanged)
@@ -175,10 +155,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.chkRTSCTS.stateChanged.connect(self.onRTSCTSChanged)
         self.chkXonXoff.stateChanged.connect(self.onXonXoffChanged)
         
-        #self.btnOpen.clicked.connect(self.onOpen)
-        self.btnClear.clicked.connect(self.onClear)
-        self.btnSaveLog.clicked.connect(self.onSaveLog)
-        #self.btnEnumPorts.clicked.connect(self.onEnumPorts)
         self.btnSend.clicked.connect(self.onSend)
         
         self.loopSendThread.trigger.connect(self.onPeriodTrigger)
@@ -188,25 +164,27 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
         # initial action
         self.setTabWidth(4)
-        self.actionHEX_UPPERCASE.setChecked(True)
+        # self.actionHEX_UPPERCASE.setChecked(True)
         self.initQuickSend()
         self.restoreLayout()
         self.moveScreenCenter()
         self.syncMenu()
-        self.setPortCfgBarVisible(False)
+        # self.setPortCfgBarVisible(False)
         
         self.rdoHEX.setChecked(True)
         self._is_loop_mode = False
         self.spnPeriod.setEnabled(False)
 
-        if self.isMaximized():
-            self.setMaximizeButton("restore")
-        else:
-            self.setMaximizeButton("maximize")
+        # if self.isMaximized():
+        #     self.setMaximizeButton("restore")
+        # else:
+        #     self.setMaximizeButton("maximize")
 
-        self.loadSettings()
+        # self.loadSettings()
         self.onEnumPorts()
-        self.onClearRxTxCnt()
+        # self.onClearRxTxCnt()
+
+        self.titleBar.raise_()
 
     def onRefreshPorts(self):
         ports_cnt, ports_info = self.onEnumPorts()
@@ -244,12 +222,10 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         try:
             self.serialport.stopbits = self.getStopBits()
         except ValueError:
-            #QMessageBox.critical(self.defaultStyleWidget, "Exception", "Wrong setting", QMessageBox.Close)
             pos = self.mapToGlobal(self.cmbStopBits.pos() + QPoint(20, 20+34))
             BalloonTip.showBalloon(None, 'Invalid Parameter', '', pos, 5000)
             self.cmbStopBits.setCurrentText('1')
         except Exception as e:
-            #QMessageBox.critical(self.defaultStyleWidget, "Exception", str(e), QMessageBox.Close)
             pos = self.mapToGlobal(self.cmbStopBits.pos() + QPoint(20, 20+34))
             BalloonTip.showBalloon(None, 'Invalid Parameter', str(e), pos, 5000)
             self.cmbStopBits.setCurrentText('1')
@@ -264,33 +240,43 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.serialport.xonxoff = self.chkXonXoff.isChecked()
 
     def setupMenu(self):
-        self.menuMoreSettings = QtWidgets.QMenu(self)
-        # self.menuMoreSettings.setTitle("&More")
-        self.menuView = QtWidgets.QMenu(self.menuMoreSettings)
-        self.menuView.setTitle("&View")
-        self.menuView.addAction(self.actionAscii)
-        self.menuView.addAction(self.actionHex_lowercase)
-        self.menuView.addAction(self.actionHEX_UPPERCASE)
+        self.actionSave_Log = Action(FluentIcon.SAVE, self.tr('Save Log'))
+        self.actionExit = Action(FluentIcon.CLOSE, self.tr('Exit'))
+        # self.actionPort_Config_Panel = Action(FluentIcon., self.tr('Port Config Panel'))
+        # self.actionAscii = Action(self.tr('Ascii'))
+        # self.actionHex_lowercase = Action(self.tr('hex'))
+        # self.actionHEX_UPPERCASE = Action(self.tr('HEX'))
+        self.actionSend_Panel = Action(FluentIcon.VIEW, self.tr('Send Panel'))
+        self.actionSend_Panel.setCheckable(True)
+        self.actionAbout = Action(self.tr('About'))
+        self.actionOpen_Cmd_File = Action(FluentIcon.EDIT, self.tr('Open Cmd File'))
+        self.actionQuick_Send_Panel = Action(FluentIcon.VIEW, self.tr('Quick Send Panel'))
+        self.actionQuick_Send_Panel.setCheckable(True)
+        # self.actionParse_Panel = Action(FluentIcon., self.tr('Parse Panel'))
+
+        self.menuMoreSettings = CheckableMenu(self.titleBar)
+        # self.menuView = CheckableMenu(self.menuMoreSettings)
+        # self.menuView.setTitle("&View")
+        # self.menuView.addAction(self.actionAscii)
+        # self.menuView.addAction(self.actionHex_lowercase)
+        # self.menuView.addAction(self.actionHEX_UPPERCASE)
         self.menuMoreSettings.addAction(self.actionOpen_Cmd_File)
         self.menuMoreSettings.addAction(self.actionSave_Log)
         self.menuMoreSettings.addSeparator()
         #self.menuMenu.addAction(self.actionPort_Config_Panel)
         self.menuMoreSettings.addAction(self.actionQuick_Send_Panel)
         self.menuMoreSettings.addAction(self.actionSend_Panel)
-        self.menuMoreSettings.addAction(self.menuView.menuAction())
-        # self.menuMenu.addAction(self.actionLocal_Echo)
-        # self.menuMenu.addAction(self.actionAlways_On_Top)
+        # self.menuMoreSettings.addAction(self.menuView.menuAction())
         self.menuMoreSettings.addSeparator()
         self.menuMoreSettings.addAction(self.actionAbout)
-        self.menuMoreSettings.addAction(self.actionAbout_Qt)
         self.menuMoreSettings.addSeparator()
         self.menuMoreSettings.addAction(self.actionExit)
-        self.menuMoreSettings.setStyleSheet('''
-            QMenu {margin: 2px;color: #202020;background: #eeeeee;}
-            /*QMenu::item {padding: 2px 22px 2px 2px;border: 1px solid transparent;}*/
-            QMenu::item:selected {background: #51c0d1;}
-            QMenu::icon {background: transparent;border: 2px inset transparent;}
-            QMenu::item:disabled {color: #808080;background: #eeeeee;}''')
+        # self.menuMoreSettings.setStyleSheet('''
+        #     QMenu {margin: 2px;color: #202020;background: #eeeeee;}
+        #     /*QMenu::item {padding: 2px 22px 2px 2px;border: 1px solid transparent;}*/
+        #     QMenu::item:selected {background: #51c0d1;}
+        #     QMenu::icon {background: transparent;border: 2px inset transparent;}
+        #     QMenu::item:disabled {color: #808080;background: #eeeeee;}''')
 
         self.actionSend_Hex = QtWidgets.QAction(self)
         self.actionSend_Hex.setText("HEX")
@@ -316,19 +302,19 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.actionSend_BF.setText("Bin/HEX file")
         self.actionSend_BF.setStatusTip("Send a Bin/HEX file")
 
-        self.menuSendOpt = QtWidgets.QMenu()
+        self.menuSendOpt = RoundMenu()
         self.menuSendOpt.addAction(self.actionSend_Hex)
         self.menuSendOpt.addAction(self.actionSend_Asc)
         self.menuSendOpt.addAction(self.actionSend_AscS)
         self.menuSendOpt.addAction(self.actionSend_HF)
         self.menuSendOpt.addAction(self.actionSend_AF)
         self.menuSendOpt.addAction(self.actionSend_BF)
-        self.menuSendOpt.setStyleSheet('''
-            QMenu {margin: 2px;color: #202020;background: #eeeeee;}
-            QMenu::item {padding: 2px 12px 2px 12px;border: 1px solid transparent;}
-            QMenu::item:selected {background: #51c0d1;}
-            QMenu::icon {background: transparent;border: 2px inset transparent;}
-            QMenu::item:disabled {color: #808080;background: #eeeeee;}''')
+        # self.menuSendOpt.setStyleSheet('''
+        #     QMenu {margin: 2px;color: #202020;background: #eeeeee;}
+        #     QMenu::item {padding: 2px 12px 2px 12px;border: 1px solid transparent;}
+        #     QMenu::item:selected {background: #51c0d1;}
+        #     QMenu::icon {background: transparent;border: 2px inset transparent;}
+        #     QMenu::item:disabled {color: #808080;background: #eeeeee;}''')
 
         self.actionSend_Hex.triggered.connect(self.onSetSendHex)
         self.actionSend_Asc.triggered.connect(self.onSetSendAsc)
@@ -653,75 +639,19 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             }
         """)
 
-        frame_w = self.frameGeometry().width()
+    def setupTitleBar(self):
+        self.lblIcon = QLabel(self)
+        self.lblIcon.setFixedSize(QSize(24, 24))
+        self.lblIcon.setMinimumSize(QSize(24, 24))
+        self.lblIcon.setMaximumSize(QSize(24, 24))
 
-        self.btnMenu = QPushButton(self)
-        self.btnMenu.setGeometry(frame_w-200,4,26,26)
-        self.btnMenu.setStyleSheet("""
-            QPushButton { background-color:transparent; border:none; border-radius: 6px; }
-            QPushButton:hover { background-color:#51c0d1; }
-            QPushButton:pressed { background-color:#b8e5f1; }
-            QPushButton:menu-indicator { image:none; }
-        """)
-        self.btnMenu.setIcon(QIcon(":/menu.png"))
-        self.btnMenu.setIconSize(QtCore.QSize(24, 24))
-        self.btnMenu.setToolTip("More Settings...")
-        self.btnMenu.setCursor(Qt.PointingHandCursor)
-        self.btnMenu.setMenu(self.menuMoreSettings)
+        self.lblIcon.setPixmap(QIcon(":/uartvide-icon/uartvide.ico").pixmap(20, 20))
+        
+        self.lblTitle = QLabel(self)
+        self.lblTitle.setText(appInfo.title)
 
-        self.btnPin = QPushButton(self)
-        self.btnPin.setGeometry(frame_w-160,4,26,26)
-        self.btnPin.clicked.connect(self.onAlwaysOnTop)
-        self.btnPin.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
-        self.btnPin.setIcon(QIcon(":/pin.png"))
-        self.btnPin.setIconSize(QtCore.QSize(24, 24))
-        self.btnPin.setToolTip("Always On Top")
-        self.btnPin.setCursor(Qt.PointingHandCursor)
-
-        self.btnMin = QPushButton(self)
-        self.btnMin.setGeometry(frame_w-120,0,40,34)
-        self.btnMin.clicked.connect(self.onMinimize)
-        self.btnMin.setCursor(Qt.PointingHandCursor)
-        self.btnMin.setStyleSheet("""
-            QPushButton {
-                background-color:transparent; border:none;
-                image: url(:/minimize2_inactive.png);
-            }
-            QPushButton:hover {
-                background-color:#51c0d1; image: url(:/minimize2_active.png);
-            }
-            QPushButton:pressed {
-                background-color:#b8e5f1; image: url(:/minimize2_active.png);
-            }
-        """)
-        
-        self.btnMax = QPushButton(self)
-        self.btnMax.setGeometry(frame_w-80,0,40,34)
-        self.btnMax.clicked.connect(self.onMaximize)
-        self.btnMax.setCursor(Qt.PointingHandCursor)
-        self.setMaximizeButton("maximize")
-        
-        self.btnExit = QPushButton(self)
-        self.btnExit.setGeometry(frame_w-40,0,40,34)
-        self.btnExit.clicked.connect(self.onExit)
-        self.btnExit.setCursor(Qt.PointingHandCursor)
-        self.btnExit.setStyleSheet("""
-            QPushButton {
-                background-color:transparent;border:none;
-                image: url(:/close2_inactive.png);
-            }
-            QPushButton:hover {
-                background-color:#ea5e00; image: url(:/close2_active.png);
-            }
-            QPushButton:pressed {
-                background-color:#994005; image: url(:/close2_active.png);
-            }
-        """)
-        
-        x,y = 12,5
-        w = 24
-        self.btnRefresh = QPushButton(self)
-        self.btnRefresh.setGeometry(x,y,w,w)
+        self.btnRefresh = QPushButton(self.titleBar)
+        self.btnRefresh.setFixedSize(QSize(24, 24))
         self.btnRefresh.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; 
                           border-top-left-radius:6px;
@@ -735,31 +665,27 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnRefresh.setCursor(Qt.PointingHandCursor)
         self.btnRefresh.clicked.connect(self.onRefreshPorts)
         
-        self.cmbPort = Combo(self)
+        self.cmbPort = Combo(self.titleBar)
         self.cmbPort.setEditable(True)
         self.cmbPort.setCurrentText("")
-        if os.name == 'nt':
-            x,w = x+w,90
-        elif os.name == 'posix':
-            x,w = x+w,120
-        self.cmbPort.setGeometry(x,y,w,24)
+        self.cmbPort.setFixedSize(QSize(80, 24))
+        self.cmbPort.setMinimumSize(QSize(80, 24))
         self.cmbPort.listShowEntered.connect(self.onEnumPorts)
         self.cmbPort.currentTextChanged.connect(self.onPortChanged)
         self.cmbPort.setToolTip("Select/Input Port")
         self.cmbPort.setCursor(Qt.PointingHandCursor)
     
-        self.asbtnOpen = AnimationSwitchButton(self)
-        x,w = x+w+12,30
-        self.asbtnOpen.setGeometry(x,8,w,18)
+        self.asbtnOpen = AnimationSwitchButton(self.titleBar)
+        self.asbtnOpen.setFixedSize(QSize(30, 18))
         self.asbtnOpen.stateChanged.connect(self.onOpen)
         self.asbtnOpen.setToolTip("Open Port")
         self.asbtnOpen.setCursor(Qt.PointingHandCursor)
 
-        self.btnTogglePortCfgBar = QPushButton(self)
+        self.btnTogglePortCfgBar = QPushButton(self.titleBar)
         self.btnTogglePortCfgBar.setIcon(QIcon(':/up.png'))
+        self.btnTogglePortCfgBar.setFixedSize(QSize(24, 24))
         self.btnTogglePortCfgBar.setIconSize(QtCore.QSize(23, 23))
-        x,w = x+w+12,23
-        self.btnTogglePortCfgBar.setGeometry(x,y,w,24)
+        # self.btnTogglePortCfgBar.setGeometry(x,y,w,24)
         self.btnTogglePortCfgBar.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; border-radius: 6px; }
             QPushButton:hover { background-color:#51c0d1; }
@@ -769,9 +695,15 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnTogglePortCfgBar.setToolTip("Toggle Port Config Bar")
         self.btnTogglePortCfgBar.setCursor(Qt.PointingHandCursor)
 
-        self.btnTimestamp = QPushButton(self)
-        x,w = x+w+10,28
-        self.btnTimestamp.setGeometry(x,3,w,w)
+        self.cmbViewMode = QComboBox(self.titleBar)
+        self.cmbViewMode.addItems(['Ascii', 'HEX', 'hex'])
+        self.cmbViewMode.setFixedSize(QSize(50, 24))
+        self.cmbViewMode.currentTextChanged.connect(self.onViewModeChanged)
+        self.cmbViewMode.setToolTip("Select hexadecimal/ASCII")
+        self.cmbViewMode.setCursor(Qt.PointingHandCursor)
+
+        self.btnTimestamp = QPushButton(self.titleBar)
+        self.btnTimestamp.setFixedSize(QSize(24, 24))
         self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
         self.btnTimestamp.setIcon(QIcon(":/timestamp.png"))
         self.btnTimestamp.setIconSize(QtCore.QSize(20, 20))
@@ -779,10 +711,9 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnTimestamp.setToolTip("Timestamp")
         self.btnTimestamp.setCursor(Qt.PointingHandCursor)
 
-        self.btnSaveLog = QPushButton(self)
+        self.btnSaveLog = QPushButton(self.titleBar)
         self.btnSaveLog.setParent(self)
-        x,w = x+w+10,28
-        self.btnSaveLog.setGeometry(x,3,w,w)
+        self.btnSaveLog.setFixedSize(QSize(24, 24))
         self.btnSaveLog.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; border-radius: 6px; }
             QPushButton:hover { background-color:#51c0d1; }
@@ -792,10 +723,10 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnSaveLog.setIconSize(QtCore.QSize(20, 20))
         self.btnSaveLog.setToolTip("Save Log As")
         self.btnSaveLog.setCursor(Qt.PointingHandCursor)
+        self.btnSaveLog.clicked.connect(self.onSaveLog)
 
-        self.btnClear = QPushButton(self)
-        x,w = x+w+10,28
-        self.btnClear.setGeometry(x,3,w,w)
+        self.btnClear = QPushButton(self.titleBar)
+        self.btnClear.setFixedSize(QSize(24, 24))
         self.btnClear.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; border-radius: 6px; }
             QPushButton:hover { background-color:#51c0d1; }
@@ -805,10 +736,10 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnClear.setIconSize(QtCore.QSize(20, 20))
         self.btnClear.setToolTip("Clear Log")
         self.btnClear.setCursor(Qt.PointingHandCursor)
+        self.btnClear.clicked.connect(self.onClear)
 
-        x,w = x+w+12,22
-        self.btnClearRxTxCnt = QPushButton(self)
-        self.btnClearRxTxCnt.setGeometry(x,6,w,w)
+        self.btnClearRxTxCnt = QPushButton(self.titleBar)
+        self.btnClearRxTxCnt.setFixedSize(QSize(24, 24))
         self.btnClearRxTxCnt.setStyleSheet("""
             QPushButton { background-color:#3a9ecc; border:none; 
                           border-top-left-radius:6px;
@@ -823,11 +754,11 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnClearRxTxCnt.setCursor(Qt.PointingHandCursor)
         self.btnClearRxTxCnt.clicked.connect(self.onClearRxTxCnt)
 
-        x,w = x+w,22
         self.RxTxCnt = [0, 0]
-        self.lblRxTxCnt_textlen = 0
-        self.lblRxTxCnt = QLabel(self)
-        self.lblRxTxCnt.setGeometry(x,6,100,w)
+        # self.lblRxTxCnt_textlen = 0
+        self.lblRxTxCnt = QLabel(self.titleBar)
+        self.lblRxTxCnt.setMinimumSize(QSize(20, 24))
+        self.lblRxTxCnt.setMaximumSize(QSize(200, 24))
         self.lblRxTxCnt.setStyleSheet("""
             QLabel { background-color:transparent; border: 1px solid #3a9ecc; 
                      border-top-right-radius:6px;
@@ -838,11 +769,81 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.lblRxTxCnt.setToolTip("RX/TX data counters")
         self.lblRxTxCnt.setMouseTracking(True)
 
+        self.btnMenu = QPushButton(self.titleBar)
+        self.btnMenu.setFixedSize(QSize(26, 26))
+        self.btnMenu.setStyleSheet("""
+            QPushButton { background-color:transparent; border:none; border-radius: 1.5px; }
+            QPushButton:hover { background-color:#51c0d1; }
+            QPushButton:pressed { background-color:#b8e5f1; }
+            QPushButton:menu-indicator { image:none; }
+        """)
+        self.btnMenu.setIcon(QIcon(":/menu.png"))
+        self.btnMenu.setIconSize(QtCore.QSize(24, 24))
+        self.btnMenu.setToolTip("More Settings...")
+        self.btnMenu.setCursor(Qt.PointingHandCursor)
+        self.btnMenu.setMenu(self.menuMoreSettings)
+
+        self.hBxLyt_tb_0 = QHBoxLayout()
+        self.hBxLyt_tb_0.setObjectName('hBxLyt_tb_0')
+        self.hBxLyt_tb_0.setSpacing(6)
+        self.hBxLyt_tb_0.setContentsMargins(6, 0, 0, 0)
+        self.hBxLyt_tb_0.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+
+        self.hBxLyt_tb_1 = QHBoxLayout()
+        self.hBxLyt_tb_1.setObjectName('hBxLyt_tb_1')
+        self.hBxLyt_tb_1.setSpacing(0)
+        self.hBxLyt_tb_1.setContentsMargins(10, 0, 0, 0)
+        self.hBxLyt_tb_1.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        
+        self.hBxLyt_tb_1.addWidget(self.btnRefresh, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_1.addWidget(self.cmbPort, 0, Qt.AlignLeft)
+        
+        self.hBxLyt_tb_2 = QHBoxLayout()
+        self.hBxLyt_tb_2.setObjectName('hBxLyt_tb_2')
+        self.hBxLyt_tb_2.setSpacing(0)
+        self.hBxLyt_tb_2.setContentsMargins(0, 0, 0, 0)
+        self.hBxLyt_tb_2.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        
+        self.hBxLyt_tb_2.addWidget(self.btnClearRxTxCnt, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_2.addWidget(self.lblRxTxCnt, 0, Qt.AlignLeft)
+
+        self.hBxLyt_tb_0.addWidget(self.lblIcon, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_0.addWidget(self.lblTitle, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_0.addLayout(self.hBxLyt_tb_1)
+        self.hBxLyt_tb_0.addWidget(self.asbtnOpen, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_0.addWidget(self.btnTogglePortCfgBar, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_0.addWidget(self.cmbViewMode, 0, Qt.AlignLeft)
+        
+        self.hBxLyt_tb_0.addWidget(self.btnTimestamp, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_0.addWidget(self.btnSaveLog, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_0.addWidget(self.btnClear, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_0.addLayout(self.hBxLyt_tb_2)
+        self.hBxLyt_tb_0.addWidget(self.btnMenu, 0, Qt.AlignLeft)
+
+        self.hBxLyt_tb_0.addStretch(1)
+
+        self.titleBar.hBoxLayout.insertLayout(0, self.hBxLyt_tb_0, 0)
+
+        self.btnPin = TransparentToggleToolButton(self.titleBar)
+        self.btnPin.setFixedSize(QSize(26, 26))
+
+        self.btnPin.setIcon(QIcon(":/pin.png"))
+        self.btnPin.setIconSize(QtCore.QSize(24, 24))
+        self.btnPin.setToolTip("Always On Top")
+        self.btnPin.setCursor(Qt.PointingHandCursor)
+        self.btnPin.clicked.connect(self.onAlwaysOnTop)
+
+        self.titleBar.hBoxLayout.insertWidget(2, self.btnPin, 0, Qt.AlignRight)
+
         if os.name == 'posix':
             self.fixComboViewSize(self.cmbBaudRate)
             self.fixComboViewSize(self.cmbDataBits)
             self.fixComboViewSize(self.cmbParity)
             self.fixComboViewSize(self.cmbStopBits)
+
+    def resizeEvent(self, event):
+        self.setMinimumWidth(self.titleBar.hBoxLayout.sizeHint().width() + 30)
+        super().resizeEvent(event)
 
     # def onDockLocationChanged(self, area):
     #     # print('onDockLocationChanged', area)
@@ -901,133 +902,133 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             port_name = text[:pos]
             self.cmbPort.setCurrentText(port_name)
 
-    def resizeEvent(self, event):
-        if hasattr(self, 'btnMax'):
-            w = event.size().width()
-            self.btnMenu.move(w-200, 4)
-            self.btnPin.move(w-160, 4)
-            self.btnMin.move(w-120, 0)
-            self.btnMax.move(w-80, 0)
-            self.btnExit.move(w-40, 0)
+    # def resizeEvent(self, event):
+    #     if hasattr(self, 'btnMax'):
+    #         w = event.size().width()
+    #         self.btnMenu.move(w-200, 4)
+    #         self.btnPin.move(w-160, 4)
+    #         self.btnMin.move(w-120, 0)
+    #         self.btnMax.move(w-80, 0)
+    #         self.btnExit.move(w-40, 0)
 
-    def onMinimize(self):
-        self.showMinimized()
+    # def onMinimize(self):
+    #     self.showMinimized()
     
-    def isMaximized(self):
-        return ((self.windowState() == Qt.WindowMaximized))
+    # def isMaximized(self):
+    #     return ((self.windowState() == Qt.WindowMaximized))
     
-    def onMaximize(self):
-        if self.isMaximized():
-            self.showNormal()
-            self.setMaximizeButton("maximize")
-        else:
-            self.showMaximized()
-            self.setMaximizeButton("restore")
+    # def onMaximize(self):
+    #     if self.isMaximized():
+    #         self.showNormal()
+    #         self.setMaximizeButton("maximize")
+    #     else:
+    #         self.showMaximized()
+    #         self.setMaximizeButton("restore")
     
-    def setMaximizeButton(self, style):
-        if not hasattr(self, 'btnMax'):
-            return
+    # def setMaximizeButton(self, style):
+    #     if not hasattr(self, 'btnMax'):
+    #         return
 
-        if "maximize" == style:
-            self.btnMax.setStyleSheet("""
-                QPushButton {
-                    background-color:transparent; border:none;
-                    image: url(:/maximize2_inactive.png);
-                }
-                QPushButton:hover {
-                    background-color:#51c0d1; image: url(:/maximize2_active.png);
-                }
-                QPushButton:pressed {
-                    background-color:#b8e5f1; image: url(:/maximize2_active.png);
-                }
-            """)
-        elif "restore" == style:
-            self.btnMax.setStyleSheet("""
-                QPushButton {
-                    background-color:transparent; border:none;
-                    image: url(:/restore2_inactive.png);
-                }
-                QPushButton:hover {
-                    background-color:#51c0d1; image: url(:/restore2_active.png);
-                }
-                QPushButton:pressed {
-                    background-color:#b8e5f1; image: url(:/restore2_active.png);
-                }
-            """)
+    #     if "maximize" == style:
+    #         self.btnMax.setStyleSheet("""
+    #             QPushButton {
+    #                 background-color:transparent; border:none;
+    #                 image: url(:/maximize2_inactive.png);
+    #             }
+    #             QPushButton:hover {
+    #                 background-color:#51c0d1; image: url(:/maximize2_active.png);
+    #             }
+    #             QPushButton:pressed {
+    #                 background-color:#b8e5f1; image: url(:/maximize2_active.png);
+    #             }
+    #         """)
+    #     elif "restore" == style:
+    #         self.btnMax.setStyleSheet("""
+    #             QPushButton {
+    #                 background-color:transparent; border:none;
+    #                 image: url(:/restore2_inactive.png);
+    #             }
+    #             QPushButton:hover {
+    #                 background-color:#51c0d1; image: url(:/restore2_active.png);
+    #             }
+    #             QPushButton:pressed {
+    #                 background-color:#b8e5f1; image: url(:/restore2_active.png);
+    #             }
+    #         """)
     
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            if 0 == self._resizeArea:
-                self._isDragging = True
-                self._dragPos = event.globalPos() - self.pos()
-            elif not self._isResizing:
-                self._isResizing = True
-                self._resizePos = event.globalPos()
-                self._resizeRect = self.geometry()
-        event.accept()
+    # def mousePressEvent(self, event):
+    #     if event.button() == Qt.LeftButton:
+    #         if 0 == self._resizeArea:
+    #             self._isDragging = True
+    #             self._dragPos = event.globalPos() - self.pos()
+    #         elif not self._isResizing:
+    #             self._isResizing = True
+    #             self._resizePos = event.globalPos()
+    #             self._resizeRect = self.geometry()
+    #     event.accept()
         
-    def mouseMoveEvent(self, event):
-        if not self.isMaximized():
-            if not self._isResizing:
-                x = event.pos().x()
-                y = event.pos().y()
-                # print(x, y)
-                area = 0
-                if y < 4:
-                    area = 1
-                elif self.height() - 5 < y:
-                    area = 2
+    # def mouseMoveEvent(self, event):
+    #     if not self.isMaximized():
+    #         if not self._isResizing:
+    #             x = event.pos().x()
+    #             y = event.pos().y()
+    #             # print(x, y)
+    #             area = 0
+    #             if y < 4:
+    #                 area = 1
+    #             elif self.height() - 5 < y:
+    #                 area = 2
 
-                if x < 5:
-                    area = area + 4
-                elif self.width() - 5 < x:
-                    area = area + 8
+    #             if x < 5:
+    #                 area = area + 4
+    #             elif self.width() - 5 < x:
+    #                 area = area + 8
 
-                if 1 == area or 2 == area:   # up / bottom
-                    self.setCursor(Qt.SizeVerCursor)
-                elif 4 == area or 8 == area: # left / right
-                    self.setCursor(Qt.SizeHorCursor)
-                elif 5 == area or 10 == area: # up left / bottom right
-                    self.setCursor(Qt.SizeFDiagCursor)
-                elif 9 == area or 6 == area: # up right / bottom left
-                    self.setCursor(Qt.SizeBDiagCursor)
-                else:
-                    self.setCursor(Qt.ArrowCursor)
+    #             if 1 == area or 2 == area:   # up / bottom
+    #                 self.setCursor(Qt.SizeVerCursor)
+    #             elif 4 == area or 8 == area: # left / right
+    #                 self.setCursor(Qt.SizeHorCursor)
+    #             elif 5 == area or 10 == area: # up left / bottom right
+    #                 self.setCursor(Qt.SizeFDiagCursor)
+    #             elif 9 == area or 6 == area: # up right / bottom left
+    #                 self.setCursor(Qt.SizeBDiagCursor)
+    #             else:
+    #                 self.setCursor(Qt.ArrowCursor)
                 
-                self._resizeArea = area
+    #             self._resizeArea = area
         
-            if event.buttons() == Qt.LeftButton:
-                if self._isDragging:
-                    self.move(event.globalPos() - self._dragPos)
-                elif self._isResizing:
-                    rect = QRect(self._resizeRect)
-                    tmpPos = event.globalPos() - self._resizePos
-                    if 1 == self._resizeArea:       # up
-                        rect.setTop(rect.top()+tmpPos.y())
-                    elif 2 == self._resizeArea:     # bottom
-                        rect.setBottom(rect.bottom()+tmpPos.y())
-                    elif 4 == self._resizeArea:     # left
-                        rect.setLeft(rect.left()+tmpPos.x())
-                    elif 8 == self._resizeArea:     # right
-                        rect.setRight(rect.right()+tmpPos.x())
-                    elif 5 == self._resizeArea:     # up left
-                        rect.setTopLeft(rect.topLeft()+tmpPos)
-                    elif 10 == self._resizeArea:    # bottom right
-                        rect.setBottomRight(rect.bottomRight()+tmpPos)
-                    elif 9 == self._resizeArea:     # up right
-                        rect.setTopRight(rect.topRight()+tmpPos)
-                    elif 6 == self._resizeArea:     # bottom left
-                        rect.setBottomLeft(rect.bottomLeft()+tmpPos)
+    #         if event.buttons() == Qt.LeftButton:
+    #             if self._isDragging:
+    #                 self.move(event.globalPos() - self._dragPos)
+    #             elif self._isResizing:
+    #                 rect = QRect(self._resizeRect)
+    #                 tmpPos = event.globalPos() - self._resizePos
+    #                 if 1 == self._resizeArea:       # up
+    #                     rect.setTop(rect.top()+tmpPos.y())
+    #                 elif 2 == self._resizeArea:     # bottom
+    #                     rect.setBottom(rect.bottom()+tmpPos.y())
+    #                 elif 4 == self._resizeArea:     # left
+    #                     rect.setLeft(rect.left()+tmpPos.x())
+    #                 elif 8 == self._resizeArea:     # right
+    #                     rect.setRight(rect.right()+tmpPos.x())
+    #                 elif 5 == self._resizeArea:     # up left
+    #                     rect.setTopLeft(rect.topLeft()+tmpPos)
+    #                 elif 10 == self._resizeArea:    # bottom right
+    #                     rect.setBottomRight(rect.bottomRight()+tmpPos)
+    #                 elif 9 == self._resizeArea:     # up right
+    #                     rect.setTopRight(rect.topRight()+tmpPos)
+    #                 elif 6 == self._resizeArea:     # bottom left
+    #                     rect.setBottomLeft(rect.bottomLeft()+tmpPos)
                     
-                    if self._resizeArea:
-                        self.setGeometry(rect)
+    #                 if self._resizeArea:
+    #                     self.setGeometry(rect)
 
-        event.accept()
+    #     event.accept()
 
-    def mouseReleaseEvent(self, event):
-        self._isDragging = False
-        self._isResizing = False
-        event.accept()
+    # def mouseReleaseEvent(self, event):
+    #     self._isDragging = False
+    #     self._isResizing = False
+    #     event.accept()
 
     def saveSettings(self):
         root = ET.Element(appInfo.title)
@@ -1042,7 +1043,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         ET.SubElement(PortCfg, "rtscts").text = self.chkRTSCTS.isChecked() and "on" or "off"
         ET.SubElement(PortCfg, "xonxoff").text = self.chkXonXoff.isChecked() and "on" or "off"
 
-        ET.SubElement(GUISettings, "ViewMode").text = self._viewGroup.checkedAction().text()
+        ET.SubElement(GUISettings, "ViewMode").text = self._viewMode
         ET.SubElement(GUISettings, "Timestamp").text = "on" if self._is_timestamp else "off"
         ET.SubElement(GUISettings, "SendAsHex").text = "on" if self.rdoHEX.isChecked() else "off"
         ET.SubElement(GUISettings, "LoopTime").text = '{}'.format(self.spnPeriod.value())
@@ -1103,16 +1104,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 else:
                     self.chkXonXoff.setChecked(False)
 
-                ReceiveView = tree.findtext('GUISettings/ViewMode', default='HEX(UPPERCASE)')
-                if 'Ascii' in ReceiveView:
-                    self.actionAscii.setChecked(True)
-                    self._viewMode = VIEWMODE_ASCII
-                elif 'lowercase' in ReceiveView:
-                    self.actionHex_lowercase.setChecked(True)
-                    self._viewMode = VIEWMODE_HEX_LOWERCASE
-                elif 'UPPERCASE' in ReceiveView:
-                    self.actionHEX_UPPERCASE.setChecked(True)
-                    self._viewMode = VIEWMODE_HEX_UPPERCASE
+                self._viewMode = tree.findtext('GUISettings/ViewMode', default='HEX')
 
                 ts = tree.findtext('GUISettings/Timestamp', default='on')
                 self.setTimestampEnabled(True if ts == "on" else False)
@@ -1472,19 +1464,20 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             return ''
 
     def updateRxTxCnt(self):
-        cnt_text = 'R:{} T:{}'.format(self.RxTxCnt[0], self.RxTxCnt[1])
-        textlen = len(cnt_text)
-        if self.lblRxTxCnt_textlen != textlen:
-            fm = QFontMetrics(self.lblRxTxCnt.fontMetrics())
-            if hasattr(fm, 'horizontalAdvance'):
-                w = fm.horizontalAdvance(cnt_text+'   ')
-            else:
-                w = fm.width(cnt_text+'   ')
-            rect = QRect(self.lblRxTxCnt.geometry())
-            rect.setWidth(w)
-            self.lblRxTxCnt.setGeometry(rect)
-        self.lblRxTxCnt.setText(cnt_text)
-        self.lblRxTxCnt_textlen = textlen
+        self.lblRxTxCnt.setText('R:{} T:{}'.format(self.RxTxCnt[0], self.RxTxCnt[1]))
+        # cnt_text = 'R:{} T:{}'.format(self.RxTxCnt[0], self.RxTxCnt[1])
+        # textlen = len(cnt_text)
+        # if self.lblRxTxCnt_textlen != textlen:
+        #     fm = QFontMetrics(self.lblRxTxCnt.fontMetrics())
+        #     if hasattr(fm, 'horizontalAdvance'):
+        #         w = fm.horizontalAdvance(cnt_text+'   ')
+        #     else:
+        #         w = fm.width(cnt_text+'   ')
+        #     rect = QRect(self.lblRxTxCnt.geometry())
+        #     rect.setWidth(w)
+        #     self.lblRxTxCnt.setGeometry(rect)
+        # self.lblRxTxCnt.setText(cnt_text)
+        # self.lblRxTxCnt_textlen = textlen
 
     def onReceive(self, data):
         ts = data[0]
@@ -1498,11 +1491,11 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.RxTxCnt[0] = self.RxTxCnt[0] + len(data[1])
         self.updateRxTxCnt()
 
-        if self._viewMode == VIEWMODE_ASCII:
+        if self._viewMode == 'Ascii':
             text = ''.join(chr(b) if b != 0 else ' ' for b in data[1])
-        elif self._viewMode == VIEWMODE_HEX_LOWERCASE:
+        elif self._viewMode == 'hex':
             text = ''.join('%02x ' % b for b in data[1])
-        elif self._viewMode == VIEWMODE_HEX_UPPERCASE:
+        elif self._viewMode == 'HEX':
             text = ''.join('%02X ' % b for b in data[1])
 
         self.appendOutput(ts_text, text, 'R')
@@ -1653,10 +1646,10 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
     def onAlwaysOnTop(self):
         self._is_always_on_top = not self._is_always_on_top
         self.setWindowFlag(Qt.WindowStaysOnTopHint, self._is_always_on_top)
-        if self._is_always_on_top:
-            self.btnPin.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'#3a9ecc', 'HBG':'#51c0d1'})
-        else:
-            self.btnPin.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
+        # if self._is_always_on_top:
+        #     self.btnPin.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'#3a9ecc', 'HBG':'#51c0d1'})
+        # else:
+        #     self.btnPin.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
         if os.name == 'posix':
             self.destroy()
             self.create()
@@ -1780,18 +1773,8 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.actionQuick_Send_Panel.setChecked(not self.dockWidget_QuickSend.isHidden())
         self.actionSend_Panel.setChecked(not self.dockWidget_Send.isHidden())
 
-    def onViewChanged(self):
-        checked = self._viewGroup.checkedAction()
-        if checked is None:
-            self._viewMode = VIEWMODE_HEX_UPPERCASE
-            self.actionHEX_UPPERCASE.setChecked(True)
-        else:
-            if 'Ascii' in checked.text():
-                self._viewMode = VIEWMODE_ASCII
-            elif 'lowercase' in checked.text():
-                self._viewMode = VIEWMODE_HEX_LOWERCASE
-            elif 'UPPERCASE' in checked.text():
-                self._viewMode = VIEWMODE_HEX_UPPERCASE
+    def onViewModeChanged(self, sel):
+        self._viewMode = sel
 
 def is_hex(s):
     try:
