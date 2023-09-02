@@ -54,7 +54,6 @@ import resources
 from ui_mainwindow import Ui_MainWindow
 
 
-from balloontip import BalloonTip
 from combo import Combo
 from animationswitchbutton import AnimationSwitchButton
 from toolbutton import ToolButton
@@ -188,8 +187,15 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
     def onRefreshPorts(self):
         ports_cnt, ports_info = self.onEnumPorts()
-        pos = self.mapToGlobal(self.cmbPort.pos() + QPoint(20, 20))
-        BalloonTip.showBalloon(None, '{} Port(s) Found'.format(ports_cnt), ports_info, pos, 5000)
+        InfoBar.info(
+            title='{} Port(s) Found'.format(ports_cnt),
+            content=ports_info,
+            orient=Qt.Horizontal,
+            isClosable=True,
+            position=InfoBarPosition.BOTTOM,
+            duration=2000,
+            parent=self
+        )
 
     def setTabWidth(self, n):
         fm = QFontMetrics(self.txtEdtOutput.fontMetrics())
@@ -211,8 +217,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             prev_baudrate = self.serialport.baudrate
             self.serialport.baudrate = self.cmbBaudRate.currentText()
         except Exception as e:
-            pos = self.mapToGlobal(self.cmbBaudRate.pos() + QPoint(20, 20+34))
-            BalloonTip.showBalloon(None, 'Invalid Parameter', str(e), pos, 5000)
             self.cmbBaudRate.setCurrentText(str(prev_baudrate))
         
     def onDataBitsChanged(self, text):
@@ -222,12 +226,8 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         try:
             self.serialport.stopbits = self.getStopBits()
         except ValueError:
-            pos = self.mapToGlobal(self.cmbStopBits.pos() + QPoint(20, 20+34))
-            BalloonTip.showBalloon(None, 'Invalid Parameter', '', pos, 5000)
             self.cmbStopBits.setCurrentText('1')
         except Exception as e:
-            pos = self.mapToGlobal(self.cmbStopBits.pos() + QPoint(20, 20+34))
-            BalloonTip.showBalloon(None, 'Invalid Parameter', str(e), pos, 5000)
             self.cmbStopBits.setCurrentText('1')
     
     def onParityChanged(self, text):
@@ -1292,10 +1292,16 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                     else:
                         self.transmitFile(tablestring, form)
         except Exception as e:
-            #print("{}".format(e))
             print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
-            pos = self.quickSendTable.cellWidget(row, 1).mapToGlobal(QPoint(30, 10))
-            BalloonTip.showBalloon(None, 'Send Failed', str(e), pos, 5000)
+            InfoBar.warning(
+                title='Send Failed',
+                content=str(e),
+                orient=Qt.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.BOTTOM,
+                duration=2000,
+                parent=self
+            )
     
     def onQuickSendRightClick(self, row):
         item = self.quickSendTable.cellWidget(row, 0)
@@ -1403,8 +1409,15 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         except Exception as e:
             if self._is_loop_sending:
                 self.stopLoopSend()
-            pos = self.txtEdtInput.mapToGlobal(QPoint(20, 20))
-            BalloonTip.showBalloon(None, 'Send Failed', str(e), pos, 5000)
+            InfoBar.warning(
+                title='Send Failed',
+                content=str(e),
+                orient=Qt.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.BOTTOM,
+                duration=2000,
+                parent=self
+            )
 
     def transmitHex(self, hexstring, echo = True):
         if len(hexstring) > 0:
@@ -1448,10 +1461,15 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
     def onReaderExcept(self, e):
         self.closePort()
-        #QMessageBox.critical(self.defaultStyleWidget, "Read failed", str(e), QMessageBox.Close)
-        #QToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), str(e))
-        pos = self.mapToGlobal(self.cmbPort.pos() + QPoint(20, 20))
-        BalloonTip.showBalloon(None, 'Read Failed', str(e), pos, 5000)
+        InfoBar.warning(
+            title='Read Failed',
+            content=str(e),
+            orient=Qt.Horizontal,
+            isClosable=True,
+            position=InfoBarPosition.BOTTOM,
+            duration=2000,
+            parent=self
+        )
 
     def timestamp(self):
         if self._is_timestamp:
@@ -1553,21 +1571,29 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
         _port = self.getPort()
         if '' == _port:
-            #QMessageBox.information(self.defaultStyleWidget, "Invalid parameters", "Port is empty.")
-            #QToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), "Port is empty")
-            #ToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), "Port is empty")
-            #_, _, w, h = self.cmbPort.rect()
-            pos = self.mapToGlobal(self.cmbPort.pos()) + QPoint(20, 20)
-            BalloonTip.showBalloon(None, 'Invalid parameters', 'Port is empty', pos, 5000, True)
+            InfoBar.warning(
+                title='Port is empty',
+                content='',
+                orient=Qt.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.BOTTOM,
+                duration=2000,
+                parent=self
+            )
             self.asbtnOpen.setChecked(False)
             return
 
         _baudrate = self.cmbBaudRate.currentText()
         if '' == _baudrate:
-            #QMessageBox.information(self.defaultStyleWidget, "Invalid parameters", "Baudrate is empty.")
-            #QToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), "Baudrate is empty")
-            pos = self.mapToGlobal(self.cmbPort.pos() + QPoint(20, 20))
-            BalloonTip.showBalloon(None, 'Invalid parameters', 'Baudrate is empty', pos, 5000)
+            InfoBar.warning(
+                title='Baudrate is empty',
+                content='',
+                orient=Qt.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.BOTTOM,
+                duration=2000,
+                parent=self
+            )
             self.asbtnOpen.setChecked(False)
             return
 
@@ -1583,13 +1609,18 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         try:
             self.serialport.open()
         except Exception as e:
-            #QMessageBox.critical(self.defaultStyleWidget, "Could not open serial port", str(e), QMessageBox.Close)
-            #QToolTip.showText(self.mapToGlobal(self.cmbPort.pos()), str(e))
-            pos = self.mapToGlobal(self.cmbPort.pos() + QPoint(20, 20))
             msg = str(e)
             if 'Permission denied' in msg:
                 msg = msg + '\n\n Try "sudo chmod 777 {}"'.format(_port)
-            BalloonTip.showBalloon(None, 'Open port failed', msg, pos, 5000)
+            InfoBar.warning(
+                title='Open port failed',
+                content=msg,
+                orient=Qt.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.BOTTOM,
+                duration=2000,
+                parent=self
+            )
             self.asbtnOpen.setChecked(False)
             #print(str(e))
             print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
@@ -1725,13 +1756,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
     def onAboutQt(self):
         QMessageBox.aboutQt(self.defaultStyleWidget)
-
-    def onExit(self):
-        if BalloonTip.isBalloonVisible():
-            BalloonTip.hideBalloon()
-        if self.serialport.isOpen():
-            self.closePort()
-        self.close()
 
     def closeEvent(self, event):
         if self.serialport.isOpen():
