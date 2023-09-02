@@ -168,18 +168,13 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.restoreLayout()
         self.moveScreenCenter()
         self.syncMenu()
-        # self.setPortCfgBarVisible(False)
+        self.setPortCfgBarVisible(False)
         
         self.rdoHEX.setChecked(True)
         self._is_loop_mode = False
         self.spnPeriod.setEnabled(False)
 
-        # if self.isMaximized():
-        #     self.setMaximizeButton("restore")
-        # else:
-        #     self.setMaximizeButton("maximize")
-
-        # self.loadSettings()
+        self.loadSettings()
         self.onEnumPorts()
         # self.onClearRxTxCnt()
 
@@ -685,7 +680,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnTogglePortCfgBar.setIcon(QIcon(':/up.png'))
         self.btnTogglePortCfgBar.setFixedSize(QSize(24, 24))
         self.btnTogglePortCfgBar.setIconSize(QtCore.QSize(23, 23))
-        # self.btnTogglePortCfgBar.setGeometry(x,y,w,24)
         self.btnTogglePortCfgBar.setStyleSheet("""
             QPushButton { background-color:transparent; border:none; border-radius: 6px; }
             QPushButton:hover { background-color:#51c0d1; }
@@ -748,7 +742,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             QPushButton:pressed { background-color:#b8e5f1; }
         """)
         self.btnClearRxTxCnt.setIcon(QIcon(":/clear.png"))
-        # self.btnClearRxTxCnt.setText('C')
         self.btnClearRxTxCnt.setIconSize(QtCore.QSize(22, 22))
         self.btnClearRxTxCnt.setToolTip("Clear RX/TX counters")
         self.btnClearRxTxCnt.setCursor(Qt.PointingHandCursor)
@@ -775,13 +768,12 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             QPushButton { background-color:transparent; border:none; border-radius: 1.5px; }
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { background-color:#b8e5f1; }
-            QPushButton:menu-indicator { image:none; }
         """)
         self.btnMenu.setIcon(QIcon(":/menu.png"))
         self.btnMenu.setIconSize(QtCore.QSize(24, 24))
         self.btnMenu.setToolTip("More Settings...")
         self.btnMenu.setCursor(Qt.PointingHandCursor)
-        self.btnMenu.setMenu(self.menuMoreSettings)
+        self.btnMenu.clicked.connect(self.onMoreSettings)
 
         self.hBxLyt_tb_0 = QHBoxLayout()
         self.hBxLyt_tb_0.setObjectName('hBxLyt_tb_0')
@@ -849,6 +841,9 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
     #     # print('onDockLocationChanged', area)
     #     self.dockWidget_QuickSend.adjustSize()
     #     self.dockWidget.adjustSize()
+    
+    def onMoreSettings(self):
+        self.menuMoreSettings.popup(self.btnMenu.mapToGlobal(QPoint(0, self.btnMenu.size().height())))
 
     def onClearRxTxCnt(self):
         self.RxTxCnt = [0, 0]
@@ -902,134 +897,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             port_name = text[:pos]
             self.cmbPort.setCurrentText(port_name)
 
-    # def resizeEvent(self, event):
-    #     if hasattr(self, 'btnMax'):
-    #         w = event.size().width()
-    #         self.btnMenu.move(w-200, 4)
-    #         self.btnPin.move(w-160, 4)
-    #         self.btnMin.move(w-120, 0)
-    #         self.btnMax.move(w-80, 0)
-    #         self.btnExit.move(w-40, 0)
-
-    # def onMinimize(self):
-    #     self.showMinimized()
-    
-    # def isMaximized(self):
-    #     return ((self.windowState() == Qt.WindowMaximized))
-    
-    # def onMaximize(self):
-    #     if self.isMaximized():
-    #         self.showNormal()
-    #         self.setMaximizeButton("maximize")
-    #     else:
-    #         self.showMaximized()
-    #         self.setMaximizeButton("restore")
-    
-    # def setMaximizeButton(self, style):
-    #     if not hasattr(self, 'btnMax'):
-    #         return
-
-    #     if "maximize" == style:
-    #         self.btnMax.setStyleSheet("""
-    #             QPushButton {
-    #                 background-color:transparent; border:none;
-    #                 image: url(:/maximize2_inactive.png);
-    #             }
-    #             QPushButton:hover {
-    #                 background-color:#51c0d1; image: url(:/maximize2_active.png);
-    #             }
-    #             QPushButton:pressed {
-    #                 background-color:#b8e5f1; image: url(:/maximize2_active.png);
-    #             }
-    #         """)
-    #     elif "restore" == style:
-    #         self.btnMax.setStyleSheet("""
-    #             QPushButton {
-    #                 background-color:transparent; border:none;
-    #                 image: url(:/restore2_inactive.png);
-    #             }
-    #             QPushButton:hover {
-    #                 background-color:#51c0d1; image: url(:/restore2_active.png);
-    #             }
-    #             QPushButton:pressed {
-    #                 background-color:#b8e5f1; image: url(:/restore2_active.png);
-    #             }
-    #         """)
-    
-    # def mousePressEvent(self, event):
-    #     if event.button() == Qt.LeftButton:
-    #         if 0 == self._resizeArea:
-    #             self._isDragging = True
-    #             self._dragPos = event.globalPos() - self.pos()
-    #         elif not self._isResizing:
-    #             self._isResizing = True
-    #             self._resizePos = event.globalPos()
-    #             self._resizeRect = self.geometry()
-    #     event.accept()
-        
-    # def mouseMoveEvent(self, event):
-    #     if not self.isMaximized():
-    #         if not self._isResizing:
-    #             x = event.pos().x()
-    #             y = event.pos().y()
-    #             # print(x, y)
-    #             area = 0
-    #             if y < 4:
-    #                 area = 1
-    #             elif self.height() - 5 < y:
-    #                 area = 2
-
-    #             if x < 5:
-    #                 area = area + 4
-    #             elif self.width() - 5 < x:
-    #                 area = area + 8
-
-    #             if 1 == area or 2 == area:   # up / bottom
-    #                 self.setCursor(Qt.SizeVerCursor)
-    #             elif 4 == area or 8 == area: # left / right
-    #                 self.setCursor(Qt.SizeHorCursor)
-    #             elif 5 == area or 10 == area: # up left / bottom right
-    #                 self.setCursor(Qt.SizeFDiagCursor)
-    #             elif 9 == area or 6 == area: # up right / bottom left
-    #                 self.setCursor(Qt.SizeBDiagCursor)
-    #             else:
-    #                 self.setCursor(Qt.ArrowCursor)
-                
-    #             self._resizeArea = area
-        
-    #         if event.buttons() == Qt.LeftButton:
-    #             if self._isDragging:
-    #                 self.move(event.globalPos() - self._dragPos)
-    #             elif self._isResizing:
-    #                 rect = QRect(self._resizeRect)
-    #                 tmpPos = event.globalPos() - self._resizePos
-    #                 if 1 == self._resizeArea:       # up
-    #                     rect.setTop(rect.top()+tmpPos.y())
-    #                 elif 2 == self._resizeArea:     # bottom
-    #                     rect.setBottom(rect.bottom()+tmpPos.y())
-    #                 elif 4 == self._resizeArea:     # left
-    #                     rect.setLeft(rect.left()+tmpPos.x())
-    #                 elif 8 == self._resizeArea:     # right
-    #                     rect.setRight(rect.right()+tmpPos.x())
-    #                 elif 5 == self._resizeArea:     # up left
-    #                     rect.setTopLeft(rect.topLeft()+tmpPos)
-    #                 elif 10 == self._resizeArea:    # bottom right
-    #                     rect.setBottomRight(rect.bottomRight()+tmpPos)
-    #                 elif 9 == self._resizeArea:     # up right
-    #                     rect.setTopRight(rect.topRight()+tmpPos)
-    #                 elif 6 == self._resizeArea:     # bottom left
-    #                     rect.setBottomLeft(rect.bottomLeft()+tmpPos)
-                    
-    #                 if self._resizeArea:
-    #                     self.setGeometry(rect)
-
-    #     event.accept()
-
-    # def mouseReleaseEvent(self, event):
-    #     self._isDragging = False
-    #     self._isResizing = False
-    #     event.accept()
-
     def saveSettings(self):
         root = ET.Element(appInfo.title)
         GUISettings = ET.SubElement(root, "GUISettings")
@@ -1066,7 +933,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 with open(get_config_path(appInfo.title+".xml"), 'r') as f:
                     tree = safeET.parse(f)
             except Exception as e:
-                #print("{}".format(e))
                 print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
             else:
                 port = tree.findtext('GUISettings/PortConfig/port', default='')
@@ -1105,6 +971,11 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                     self.chkXonXoff.setChecked(False)
 
                 self._viewMode = tree.findtext('GUISettings/ViewMode', default='HEX')
+                if self._viewMode == '':
+                    self._viewMode = 'Ascii'
+                id = self.cmbViewMode.findText(self._viewMode)
+                if id != -1:
+                    self.cmbViewMode.setCurrentIndex(id)
 
                 ts = tree.findtext('GUISettings/Timestamp', default='on')
                 self.setTimestampEnabled(True if ts == "on" else False)
