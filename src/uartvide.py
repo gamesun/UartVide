@@ -1182,8 +1182,11 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.onQuickSendRightClick(self._qckSnd_OptRow)
 
     def onQuickSndInsertRow(self):
-        
-        pass
+        self._qckSnd_RawData.insert(self._qckSnd_OptRow, ['new', 'H', ''])
+        self._qckSnd_EdtLst = []
+        self._qckSnd_PathBtnLst = []
+        self.quickSendTable.setRowCount(len(self._qckSnd_RawData))
+        self.qckSnd_CreateButtons()
 
     def onQuickSndDeleteRow(self):
         # self.quickSendTable.removeRow(self._qckSnd_OptRow)
@@ -1191,6 +1194,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         del self._qckSnd_RawData[self._qckSnd_OptRow]
         self._qckSnd_EdtLst = []
         self._qckSnd_PathBtnLst = []
+        self.quickSendTable.setRowCount(len(self._qckSnd_RawData))
         self.qckSnd_CreateButtons()
 
     def transmitFile(self, filepath, form):
