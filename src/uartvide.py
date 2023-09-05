@@ -1108,33 +1108,14 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             self.loadQuickSendByFile(fileName, notifyExcept = True)
 
     def saveQuickSend(self):
-        # scan table
-        rows = self.quickSendTable.rowCount()
-
-        save_data = [[self.quickSendTable.cellWidget(row, 0).text(),
-                      self.quickSendTable.cellWidget(row, 1).text(),
-                      self._qckSnd_EdtLst[row].text()] for row in range(rows)]
-
-        #import pprint
-        #pprint.pprint(save_data, width=120, compact=True)
-
         try:
-            with open(get_config_path('QuickSend.csv'), 'w') as csvfile:
-                csvwriter = csv.writer(csvfile, delimiter=',', lineterminator='\n')
-                csvwriter.writerows(save_data)
+            self.quickSendTable.saveToCSV(get_config_path('QuickSend.csv'))
         except Exception as e:
             print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
 
     def loadQuickSendByFile(self, path, notifyExcept = False):
         try:
-            with open(path) as csvfile:
-                csvData = csv.reader(csvfile)
-                for row in csvData:
-                    if len(row) < 3:
-                        row = row + [''] * (3 - len(row))
-                    if 3 < len(row):
-                        row = row[:3]
-                    self._qckSnd_RawData.append(row)
+            self.quickSendTable.loadFromCSV(path)
         except Exception as e:
             print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
             if notifyExcept:
