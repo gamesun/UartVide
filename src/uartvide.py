@@ -84,6 +84,8 @@ elif os.name == 'posix':
 class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
     def __init__(self, parent=None):
+        self.quickSendTable_ = QTableWidget()
+
         super(MainWindow, self).__init__()
         self._csvFilePath = ""
         self.serialport = serial.Serial()
@@ -985,17 +987,21 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 self.txtEdtInput.setText(send_text)
 
     def initQuickSend(self):
-        if os.path.isfile(get_config_path('QuickSend.csv')):
+        self.quickSendTable.setSendFunc(self.onQuickSend)
+        self.quickSendTable.setMenuFunc(self.onQuickSendOptions)
+        self.quickSendTable.setPathFunc(self.onQuickSendSelectFile)
+
+        if 0: #os.path.isfile(get_config_path('QuickSend.csv')):
             self.loadQuickSendByFile(get_config_path('QuickSend.csv'))
         else:
-            for row in range(500):
+            for row in range(11):
                 self._qckSnd_RawData.append(['%d' % (row+1), 'H', ''])
                 # self.initQuickSendButton(row, cmd = '%d' % (row+1))
-        
+        # print('self._qckSnd_RawData', self._qckSnd_RawData)
         self.quickSendTable.setColumnCount(3)
         self.quickSendTable.setRowCount(len(self._qckSnd_RawData))
 
-        self.qckSnd_CreateButtons()
+        # self.qckSnd_CreateButtons()
 
         self.quickSendTable.resizeColumnsToContents()
 
@@ -1112,12 +1118,14 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             self.quickSendTable.saveToCSV(get_config_path('QuickSend.csv'))
         except Exception as e:
             print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
+            raise
 
     def loadQuickSendByFile(self, path, notifyExcept = False):
         try:
             self.quickSendTable.loadFromCSV(path)
         except Exception as e:
             print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
+            raise
             if notifyExcept:
                 QMessageBox.critical(self.defaultStyleWidget, "Load failed",
                     str(e), QMessageBox.Close)
