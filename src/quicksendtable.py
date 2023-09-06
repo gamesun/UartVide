@@ -35,10 +35,10 @@ import csv
 
 
 class IndexButton(QToolButton):
-    ibClicked = Signal(int)
+    clicked = Signal(int)
 
-    def __init__(self, row: int, *args, **kwargs):
-        super(IndexButton, self).__init__(*args, **kwargs)
+    def __init__(self, row: int, parent=None):
+        super(IndexButton, self).__init__(parent)
         super(IndexButton, self).clicked.connect(self.onClicked)
         self._row = row
 
@@ -47,21 +47,22 @@ class IndexButton(QToolButton):
 
     def onClicked(self):
         print('IndexButton:onClicked')
-        self.ibClicked.emit(self._row)
+        self.clicked.emit(self._row)
 
 class QckSndRow():
-    def __init__(self, row: int):
+    def __init__(self, row: int, parent=None):
         self.has_setup = False
         self.row = row
         self.name = ''
         self.format = ''
         self.data = ''
         
-        self.send_btn = IndexButton(row)
-        self.menu_btn = IndexButton(row)
+        self.send_btn = IndexButton(row, parent)
+        self.menu_btn = IndexButton(row, parent)
         
         self.data_edit = ElidedLineEdit()
-        self.path_btn = IndexButton(row)
+        self.path_btn = IndexButton(row, parent)
+        self.path_btn.setText('...')
         self.path_btn.setFixedSize(QSize(17, 17))
         hLayout = QHBoxLayout()
         hLayout.addWidget(self.data_edit)
@@ -72,11 +73,11 @@ class QckSndRow():
         self.frame.setLayout(hLayout)
 
 
-class TableWidget(QTableWidget):
+class QuickSendTable(QTableWidget):
     
-    def __init__(self, *args, **kwargs):
-        super(TableWidget, self).__init__(*args, **kwargs)
-        self._rowList = []
+    def __init__(self, parent=None):
+        super(QuickSendTable, self).__init__(parent)
+        self._rowList: list[QckSndRow] = []
         self._qckSnd_RawData = []
         self._send_func = None
         self._menu_func = None
@@ -88,26 +89,45 @@ class TableWidget(QTableWidget):
 
     def setSendFunc(self, send_func: callable):
         self._send_func = send_func
+        for r in self._rowList:
+            r.send_btn.clicked.connect(self._send_func)
 
     def setMenuFunc(self, menu_func: callable):
         self._menu_func = menu_func
+        for r in self._rowList:
+            r.menu_btn.clicked.connect(self._menu_func)
 
     def setPathFunc(self, path_func):
         self._path_func = path_func
+        for r in self._rowList:
+            r.path_btn.clicked.connect(self._path_func)
 
     def setRowCount(self, rows: int):
-        super(TableWidget, self).setRowCount(rows)
+        super(QuickSendTable, self).setRowCount(rows)
         print('setRowCount', rows)
         if len(self._rowList) < rows:
             for i in range(len(self._rowList), rows):
-                self._rowList.append(QckSndRow(i))
+                self._rowList.append(QckSndRow(i, parent=self))
                 self.initRow(i, name='%d' % i)
         elif rows < len(self._rowList):
             del self._rowList[rows:]
 
-    def initRow(self, row: int, name: str='', format: str='H', data: str=''):
-        print('initRow', row)
+    # def setCellWidget(self, row:int, column:int, widget:QtWidgets.QWidget):
+    #     super().setCellWidget(row, column, widget)
+    #     print(row, column, type(widget))
+    
+    def refreshWidgets(self, row):
+        self.removeCellWidget(row, 0)
+        self.removeCellWidget(row, 1)
+        self.removeCellWidget(row, 2)
+        self.setCellWidget(row, 0, self._rowList[row].send_btn)
+        self.setCellWidget(row, 1, self._rowList[row].menu_btn)
+        self.setCellWidget(row, 2, self._rowList[row].frame)
+
+    def initRow(self, row: int, name: str='new', format: str='H', data: str=''):
+        
         if not self._rowList[row].has_setup:
+            print('initRow setup', row)
             self._rowList[row].row = row
             self._rowList[row].name = name
             self._rowList[row].format = format
@@ -115,32 +135,42 @@ class TableWidget(QTableWidget):
             self._rowList[row].send_btn.setText(name)
             self._rowList[row].menu_btn.setText(format)
             self._rowList[row].data_edit.setText(data)
-            self._rowList[row].send_btn.ibClicked.connect(self._send_func)
-            self._rowList[row].menu_btn.ibClicked.connect(self._menu_func)
-            self._rowList[row].path_btn.ibClicked.connect(self._path_func)
+            self._rowList[row].send_btn.clicked.connect(self._send_func)
+            self._rowList[row].menu_btn.clicked.connect(self._menu_func)
+            self._rowList[row].path_btn.clicked.connect(self._path_func)
 
             self.setCellWidget(row, 0, self._rowList[row].send_btn)
             self.setCellWidget(row, 1, self._rowList[row].menu_btn)
             self.setCellWidget(row, 2, self._rowList[row].frame)
+            
+            if 'F' in format:
+                self._rowList[row].path_btn.show()
+            else:
+                self._rowList[row].path_btn.hide()
+
+            self.setRowHeight(row, 20)
 
             self._rowList[row].has_setup = True
         else:
+            print('initRow', row)
             old_row = self._rowList[row].row
             self._rowList[row].row = row
-            self._rowList[row].name = name
-            self._rowList[row].format = format
-            self._rowList[row].data = data
-            self._rowList[row].send_btn.setText(name)
+            # self._rowList[row].name = name
+            # self._rowList[row].format = format
+            # self._rowList[row].data = data
+            # self._rowList[row].send_btn.setText(name)
             self._rowList[row].send_btn.setRow(row)
-            self._rowList[row].menu_btn.setText(format)
+            # self._rowList[row].menu_btn.setText(format)
             self._rowList[row].menu_btn.setRow(row)
-            self._rowList[row].data_edit.setText(data)
-            self._rowList[row].data_edit.setRow(row)
+            # self._rowList[row].data_edit.setText(data)
+            self._rowList[row].path_btn.setRow(row)
 
-            self.setCellWidget(row, 0, self._rowList[row].send_btn)
-            self.setCellWidget(row, 1, self._rowList[row].menu_btn)
-            self.setCellWidget(row, 2, self._rowList[row].frame)
-
+    def insertRow(self, index):
+        self._rowList.insert(index, QckSndRow(index, parent=self))
+        rowCnt = len(self._rowList)
+        super(QuickSendTable, self).setRowCount(rowCnt)
+        for i in range(index, rowCnt):
+            self.initRow(i)
 
     def loadFromCSV(self, fileName: str):
         with open(fileName) as csvfile:

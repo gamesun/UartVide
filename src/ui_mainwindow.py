@@ -12,14 +12,14 @@ from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
-from tablewidget import TableWidget
+from quicksendtable import QuickSendTable
 
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(903, 612)
+        MainWindow.resize(761, 612)
         font = QFont()
         font.setFamily(u"Segoe UI")
         font.setKerning(True)
@@ -388,32 +388,30 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setSpacing(0)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(0, 0, 4, 5)
-        self.quickSendTable = TableWidget(self.dockWidgetContents_3)
-        if (self.quickSendTable.columnCount() < 2):
-            self.quickSendTable.setColumnCount(2)
-        if (self.quickSendTable.rowCount() < 10):
-            self.quickSendTable.setRowCount(10)
-        self.quickSendTable.setObjectName(u"quickSendTable")
+        self.qckSndTbl = QuickSendTable(self.dockWidgetContents_3)
+        if (self.qckSndTbl.columnCount() < 3):
+            self.qckSndTbl.setColumnCount(3)
+        self.qckSndTbl.setObjectName(u"qckSndTbl")
         font2 = QFont()
         font2.setFamily(u"Consolas")
         font2.setKerning(True)
         font2.setStyleStrategy(QFont.PreferAntialias)
-        self.quickSendTable.setFont(font2)
-        self.quickSendTable.setMouseTracking(True)
-        self.quickSendTable.setEditTriggers(QAbstractItemView.AllEditTriggers)
-        self.quickSendTable.setSelectionMode(QAbstractItemView.NoSelection)
-        self.quickSendTable.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
-        self.quickSendTable.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
-        self.quickSendTable.setRowCount(10)
-        self.quickSendTable.setColumnCount(2)
-        self.quickSendTable.horizontalHeader().setVisible(False)
-        self.quickSendTable.horizontalHeader().setMinimumSectionSize(16)
-        self.quickSendTable.horizontalHeader().setStretchLastSection(True)
-        self.quickSendTable.verticalHeader().setVisible(False)
-        self.quickSendTable.verticalHeader().setMinimumSectionSize(16)
-        self.quickSendTable.verticalHeader().setDefaultSectionSize(16)
+        self.qckSndTbl.setFont(font2)
+        self.qckSndTbl.setMouseTracking(True)
+        self.qckSndTbl.setEditTriggers(QAbstractItemView.AllEditTriggers)
+        self.qckSndTbl.setSelectionMode(QAbstractItemView.NoSelection)
+        self.qckSndTbl.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+        self.qckSndTbl.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
+        self.qckSndTbl.setRowCount(0)
+        self.qckSndTbl.setColumnCount(3)
+        self.qckSndTbl.horizontalHeader().setVisible(False)
+        self.qckSndTbl.horizontalHeader().setMinimumSectionSize(16)
+        self.qckSndTbl.horizontalHeader().setStretchLastSection(True)
+        self.qckSndTbl.verticalHeader().setVisible(False)
+        self.qckSndTbl.verticalHeader().setMinimumSectionSize(16)
+        self.qckSndTbl.verticalHeader().setDefaultSectionSize(16)
 
-        self.verticalLayout_3.addWidget(self.quickSendTable)
+        self.verticalLayout_3.addWidget(self.qckSndTbl)
 
         self.dockWidget_QuickSend.setWidget(self.dockWidgetContents_3)
         MainWindow.addDockWidget(Qt.RightDockWidgetArea, self.dockWidget_QuickSend)
