@@ -53,7 +53,7 @@ from qframelesswindow import *
 import resources
 from ui_mainwindow import Ui_MainWindow
 
-
+from functools import partial
 from combo import Combo
 from animationswitchbutton import AnimationSwitchButton
 from toolbutton import ToolButton
@@ -96,11 +96,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self._viewMode = None
         self._is_loop_sending = False
         self._is_timestamp = False
-        
-        self._qckSnd_OptRow = 1
-        self._qckSnd_RawData = []
-        self._qckSnd_EdtLst = []
-        self._qckSnd_PathBtnLst = []
+        self._qckSnd_SelectingRow = 0
 
         self.setupUi(self)
         self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
@@ -113,7 +109,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.setFont(font1)
 
         self.initMoreSettingsMenu()
-        self.initQuickSndOptMenu()
+        self.initQckSndOptMenu()
         self.setupFlatUi()
         self.setupTitleBar()
 
@@ -258,37 +254,37 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         #     QMenu::icon {background: transparent;border: 2px inset transparent;}
         #     QMenu::item:disabled {color: #808080;background: #eeeeee;}''')
 
-    def initQuickSndOptMenu(self):
+    def initQckSndOptMenu(self):
         self.actionRename = QtWidgets.QAction("Rename", self)
-        self.actionRename.triggered.connect(self.onQuickSndRename)
+        self.actionRename.triggered.connect(self.onQckSnd_Rename)
 
         self.actionInsertRow = QtWidgets.QAction("Insert row", self)
-        self.actionInsertRow.triggered.connect(self.onQuickSndInsertRow)
+        self.actionInsertRow.triggered.connect(self.onQckSnd_InsertRow)
 
         self.actionDeleteRow = QtWidgets.QAction("Delete row", self)
-        self.actionDeleteRow.triggered.connect(self.onQuickSndDeleteRow)
+        self.actionDeleteRow.triggered.connect(self.onQckSnd_RemoveRow)
 
         self.actionSend_Hex = QtWidgets.QAction("HEX", self)
-        self.actionSend_Hex.triggered.connect(self.onSetSendHex)
+        self.actionSend_Hex.triggered.connect(partial(self.onQckSnd_SelectFormat, 'H'))
 
         self.actionSend_Asc = QtWidgets.QAction("ASCII", self)
-        self.actionSend_Asc.triggered.connect(self.onSetSendAsc)
+        self.actionSend_Asc.triggered.connect(partial(self.onQckSnd_SelectFormat, 'A'))
 
         self.actionSend_AscS = QtWidgets.QAction(r"ASCII and \n \r \t...", self)
-        self.actionSend_AscS.triggered.connect(self.onSetSendAscS)
+        self.actionSend_AscS.triggered.connect(partial(self.onQckSnd_SelectFormat, 'AS'))
         
         self.actionSend_HF = QtWidgets.QAction(self)
         self.actionSend_HF.setText("HEX text File")
         self.actionSend_HF.setStatusTip('Send text file in HEX form("31 32 FF ...")')
-        self.actionSend_HF.triggered.connect(self.onSetSendHF)
+        self.actionSend_HF.triggered.connect(partial(self.onQckSnd_SelectFormat, 'HF'))
         
         self.actionSend_AF = QtWidgets.QAction(self)
         self.actionSend_AF.setText("ASCII text file")
         self.actionSend_AF.setStatusTip('Send text file in ASCII form("abc123...")')
-        self.actionSend_AF.triggered.connect(self.onSetSendAF)
+        self.actionSend_AF.triggered.connect(partial(self.onQckSnd_SelectFormat, 'AF'))
         
-        self.actionSend_BF = QtWidgets.QAction("All file", self)
-        self.actionSend_BF.triggered.connect(self.onSetSendBF)
+        self.actionSend_BF = QtWidgets.QAction("Bin file; All file", self)
+        self.actionSend_BF.triggered.connect(partial(self.onQckSnd_SelectFormat, 'BF'))
 
         # self.actSendFormat = RoundMenu('Send Format', parent=self)
 
@@ -989,122 +985,28 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.qckSndTbl.setMenuFunc(self.onQuickSendOptions)
         self.qckSndTbl.setPathFunc(self.onQuickSendSelectFile)
 
-        if 0: #os.path.isfile(get_config_path('QuickSend.csv')):
+        if os.path.isfile(get_config_path('QuickSend.csv')):
             self.loadQuickSendByFile(get_config_path('QuickSend.csv'))
         else:
-            for row in range(20):
-                self._qckSnd_RawData.append(['%d' % (row+1), 'H', ''])
-                # self.initQuickSendButton(row, cmd = '%d' % (row+1))
-        # print('self._qckSnd_RawData', self._qckSnd_RawData)
-        self.qckSndTbl.setColumnCount(3)
-        self.qckSndTbl.setRowCount(len(self._qckSnd_RawData))
-
-        # self.qckSnd_CreateButtons()
+            self.qckSndTbl.setRowCount(10)
 
         self.qckSndTbl.resizeColumnsToContents()
         self.qckSndTbl.update()
 
-    def qckSnd_CreateButtons(self):
-        for i in range(len(self._qckSnd_RawData)):
-            self.initQuickSendButton(i, self._qckSnd_RawData[i][0], self._qckSnd_RawData[i][1], 
-                                        self._qckSnd_RawData[i][2], force_new = True)
-
-    def initQuickSendButton(self, row, cmd = 'cmd', opt = 'H', dat = '', force_new=False):
-        if force_new or self.qckSndTbl.cellWidget(row, 0) is None:
-            btn1 = ToolButton(self)
-            btn1.setText(cmd)
-            btn1.setCursor(Qt.PointingHandCursor)
-            btn1.clicked.connect(lambda : self.onQuickSend(row))
-            btn1.rightClicked.connect(lambda : self.onQuickSendRightClick(row))
-            self.qckSndTbl.setCellWidget(row, 0, btn1)
-        else:
-            btn1 = self.qckSndTbl.cellWidget(row, 0)
-            btn1.setText(cmd)
-            # btn1.clicked.connect(lambda : self.onQuickSend(row))
-            # btn1.rightClicked.connect(lambda : self.onQuickSendRightClick(row))
-
-        if force_new or self.qckSndTbl.cellWidget(row, 1) is None:
-            btn2 = QToolButton(self)
-            btn2.setText(opt)
-            btn2.setCursor(Qt.PointingHandCursor)
-            #item.setMaximumSize(QtCore.QSize(16, 16))
-            btn2.clicked.connect(lambda : self.onQuickSendOptions(row))
-            self.qckSndTbl.setCellWidget(row, 1, btn2)
-        else:
-            btn2 = self.qckSndTbl.cellWidget(row, 1)
-            btn2.setText(opt)
-            # btn2.clicked.connect(lambda : self.onQuickSendOptions(row))
-
-        if force_new or self.qckSndTbl.cellWidget(row, 2) is None:
-            item = ElidedLineEdit(dat)
-            item.setStyleSheet('''
-                QLineEdit {border: none;font-size:9pt;font-family:%(Code_Font)s;}
-                QMenu {margin: 2px;color: #202020;background: #eeeeee;}
-                QMenu::item {padding: 2px 12px 2px 12px;border: 1px solid transparent;}
-                QMenu::item:selected {background: #51c0d1;}
-                QMenu::icon {background: transparent;border: 2px inset transparent;}
-                QMenu::item:disabled {color: #808080;background: #eeeeee;}''' % dict(Code_Font = CODE_FONT))
-            self._qckSnd_EdtLst.append(item)
-            btnPath = QPushButton('...')
-            btnPath.setMinimumSize(QSize(17, 17))
-            btnPath.setMaximumSize(QSize(17, 17))
-            btnPath.clicked.connect(lambda : self.onQuickSendSelectFile(row))
-            self._qckSnd_PathBtnLst.append(btnPath)
-            hLayout = QHBoxLayout()
-            hLayout.addWidget(item)
-            hLayout.addWidget(btnPath)
-            hLayout.setSpacing(0)
-            hLayout.setContentsMargins(0, 0, 1, 0)
-            frame = QFrame()
-            frame.setLayout(hLayout)
-            self.qckSndTbl.setCellWidget(row, 2, frame)
-        else:
-            self._qckSnd_EdtLst[row].setText(dat)
-
-        if opt == 'HF' or opt == 'AF' or opt == 'BF':
-            self._qckSnd_PathBtnLst[row].show()
-        else:
-            self._qckSnd_PathBtnLst[row].hide()
-
-        self.qckSndTbl.setRowHeight(row, 20)
-
-    def onSetSendHex(self):
-        self.qckSndTbl.cellWidget(self._qckSnd_OptRow, 1).setText('H')
-        self._qckSnd_PathBtnLst[self._qckSnd_OptRow].hide()
-
-    def onSetSendAsc(self):
-        self.qckSndTbl.cellWidget(self._qckSnd_OptRow, 1).setText('A')
-        self._qckSnd_PathBtnLst[self._qckSnd_OptRow].hide()
-        
-    def onSetSendAscS(self):
-        self.qckSndTbl.cellWidget(self._qckSnd_OptRow, 1).setText('AS')
-        self._qckSnd_PathBtnLst[self._qckSnd_OptRow].hide()
-
-    def onSetSendHF(self):
-        self.qckSndTbl.cellWidget(self._qckSnd_OptRow, 1).setText('HF')
-        self._qckSnd_PathBtnLst[self._qckSnd_OptRow].show()
-
-    def onSetSendAF(self):
-        self.qckSndTbl.cellWidget(self._qckSnd_OptRow, 1).setText('AF')
-        self._qckSnd_PathBtnLst[self._qckSnd_OptRow].show()
-
-    def onSetSendBF(self):
-        self.qckSndTbl.cellWidget(self._qckSnd_OptRow, 1).setText('BF')
-        self._qckSnd_PathBtnLst[self._qckSnd_OptRow].show()
+    def onQckSnd_SelectFormat(self, fmt):
+        self.qckSndTbl.setText(self._qckSnd_SelectingRow, 1, fmt)
 
     def onQuickSendOptions(self, row):
-        print('onQuickSendOptions', row)
-        self._qckSnd_OptRow = row
+        self._qckSnd_SelectingRow = row
         item = self.qckSndTbl.cellWidget(row, 1)
         self.menuSendOpt.popup(item.mapToGlobal(QPoint(item.size().width(), item.size().height())))
 
     def onQuickSendSelectFile(self, row):
-        print('onQuickSendSelectFile', row)
-        old_path = self._qckSnd_EdtLst[row].text()
+        old_path = self.qckSndTbl.text(row, 2)
         fileName = QFileDialog.getOpenFileName(self.defaultStyleWidget, "Select a file",
             old_path, "All Files (*.*)")[0]
         if fileName:
-            self._qckSnd_EdtLst[row].setText(fileName)
+            self.qckSndTbl.setText(row, 2, fileName)
 
     def openQuickSendFile(self):
         fileName = QFileDialog.getOpenFileName(self.defaultStyleWidget, "Select a file",
@@ -1130,20 +1032,18 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                     str(e), QMessageBox.Close)
 
     def onQuickSend(self, row):
-        print('onQuickSend', row)
         try:
             if self.serialport.isOpen():
-                if self.qckSndTbl.cellWidget(row, 2) != None:
-                    tablestring = self._qckSnd_EdtLst[row].text()
-                    form = self.qckSndTbl.cellWidget(row, 1).text()
-                    if 'H' == form:
-                        self.transmitHex(tablestring)
-                    elif 'A' == form:
-                        self.transmitAsc(tablestring)
-                    elif 'AS' == form:
-                        self.transmitAscS(tablestring)
-                    else:
-                        self.transmitFile(tablestring, form)
+                data = self.qckSndTbl.text(row, 2)
+                fmt = self.qckSndTbl.text(row, 1)
+                if 'H' == fmt:
+                    self.transmitHex(data)
+                elif 'A' == fmt:
+                    self.transmitAsc(data)
+                elif 'AS' == fmt:
+                    self.transmitAscS(data)
+                else:
+                    self.transmitFile(data, fmt)
         except Exception as e:
             print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
             InfoBar.warning(
@@ -1157,7 +1057,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             )
     
     def onQuickSendRightClick(self, row):
-        print('onQuickSendRightClick', row)
         item = self.qckSndTbl.cellWidget(row, 0)
         oldname = item.text()
         pos = item.mapToGlobal(QPoint(30, 10))
@@ -1166,25 +1065,14 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             item.setText(newname)
             self.qckSndTbl.resizeColumnsToContents()
 
-    def onQuickSndRename(self):
-        self.onQuickSendRightClick(self._qckSnd_OptRow)
+    def onQckSnd_Rename(self):
+        self.onQuickSendRightClick(self._qckSnd_SelectingRow)
 
-    def onQuickSndInsertRow(self):
-        # self._qckSnd_RawData.insert(self._qckSnd_OptRow, ['new', 'H', ''])
-        # self._qckSnd_EdtLst = []
-        # self._qckSnd_PathBtnLst = []
-        # self.qckSndTbl.setRowCount(len(self._qckSnd_RawData))
-        # self.qckSnd_CreateButtons()
-        self.qckSndTbl.insertRow(self._qckSnd_OptRow)
+    def onQckSnd_InsertRow(self):
+        self.qckSndTbl.insertRow(self._qckSnd_SelectingRow)
 
-    def onQuickSndDeleteRow(self):
-        # self.qckSndTbl.removeRow(self._qckSnd_OptRow)
-
-        del self._qckSnd_RawData[self._qckSnd_OptRow]
-        self._qckSnd_EdtLst = []
-        self._qckSnd_PathBtnLst = []
-        self.qckSndTbl.setRowCount(len(self._qckSnd_RawData))
-        # self.qckSnd_CreateButtons()
+    def onQckSnd_RemoveRow(self):
+        self.qckSndTbl.removeRow(self._qckSnd_SelectingRow)
 
     def transmitFile(self, filepath, form):
         try:
@@ -1577,7 +1465,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 with codecs.open(fileName, 'w', 'utf-8') as f:
                     f.write(self.txtEdtOutput.toPlainText())
             except Exception as e:
-                #print("{}".format(e))
                 print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
 
     def moveScreenCenter(self):
@@ -1660,7 +1547,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             with open(get_config_path("UILayout.dat"), 'wb') as f:
                 pickle.dump((self.saveGeometry(), self.saveState()), f)
         except Exception as e:
-            #print("{}".format(e))
             print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
 
     def syncMenu(self):
