@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>903</width>
+    <width>761</width>
     <height>612</height>
    </rect>
   </property>
@@ -921,7 +921,7 @@
       <number>5</number>
      </property>
      <item>
-      <widget class="TableWidget" name="quickSendTable">
+      <widget class="QuickSendTable" name="qckSndTbl">
        <property name="font">
         <font>
          <family>Consolas</family>
@@ -945,10 +945,10 @@
         <enum>QAbstractItemView::ScrollPerPixel</enum>
        </property>
        <property name="rowCount">
-        <number>10</number>
+        <number>0</number>
        </property>
        <property name="columnCount">
-        <number>2</number>
+        <number>3</number>
        </property>
        <attribute name="horizontalHeaderVisible">
         <bool>false</bool>
@@ -968,16 +968,7 @@
        <attribute name="verticalHeaderDefaultSectionSize">
         <number>16</number>
        </attribute>
-       <row/>
-       <row/>
-       <row/>
-       <row/>
-       <row/>
-       <row/>
-       <row/>
-       <row/>
-       <row/>
-       <row/>
+       <column/>
        <column/>
        <column/>
       </widget>
@@ -1026,9 +1017,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>TableWidget</class>
+   <class>QuickSendTable</class>
    <extends>QTableWidget</extends>
-   <header location="global">tablewidget.h</header>
+   <header location="global">quicksendtable.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
