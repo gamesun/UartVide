@@ -76,7 +76,7 @@ import re
 
 if os.name == 'nt':
     CODE_FONT = "Consolas"
-    UI_FONT = "Segoe UI"
+    UI_FONT = "Tahoma"
 elif os.name == 'posix':
     CODE_FONT = "Monospace"
     UI_FONT = "Ubuntu"
@@ -314,76 +314,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             QToolBar { border: none; }
             QLabel { color:%(TextColor)s; font-size:10pt; font-family:%(UIFont)s; }
 
-            /*
-            QComboBox {
-                border: 1px solid rgba(0, 0, 0, 0.073);
-                border-radius: 5px;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.183);
-                padding: 5px 31px 6px 11px;
-                font: 14px 'Segoe UI', 'Microsoft YaHei';
-                color: black;
-                background-color: rgba(255, 255, 255, 0.7);
-                text-align: left;
-            }
-
-            QComboBox:hover {
-                background-color: rgba(249, 249, 249, 0.5);
-            }
-
-            QComboBox:pressed {
-                background-color: rgba(249, 249, 249, 0.3);
-                border-bottom: 1px solid rgba(0, 0, 0, 0.073);
-                color: rgba(0, 0, 0, 0.63);
-            }
-
-            QComboBox:disabled {
-                color: rgba(0, 0, 0, 0.36);
-                background: rgba(249, 249, 249, 0.3);
-                border: 1px solid rgba(0, 0, 0, 0.06);
-                border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-            }
-
-
-            QComboBoxMenu>MenuActionListWidget {
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                border-radius: 9px;
-                background-color: rgb(249, 249, 249);
-                outline: none;
-                font: 14px 'Segoe UI', 'Microsoft YaHei';
-            }
-
-            QComboBoxMenu>MenuActionListWidget::item {
-                margin-top: 4px;
-                padding-left: 10px;
-                padding-right: 10px;
-                border-radius: 5px;
-                border: none;
-                color: black;
-            }
-
-            QComboBoxMenu>MenuActionListWidget::item:disabled {
-                padding-left: 10px;
-                padding-right: 10px;
-                border-radius: 5px;
-                border: none;
-                color: black;
-            }
-
-            QComboBoxMenu>MenuActionListWidget::item:hover {
-                background-color: rgba(0, 0, 0, 9);
-            }
-
-            QComboBoxMenu>MenuActionListWidget::item:selected {
-                background-color: rgba(0, 0, 0, 7);
-                color: black;
-            }
-
-            QComboBoxMenu>MenuActionListWidget::item:selected:active {
-                background-color: rgba(0, 0, 0, 0.06);
-                color: rgba(0, 0, 0, 0.7);
-            }
-            */               
-            
             QComboBox {
                 color:%(TextColor)s;
                 font-size:10pt;
@@ -397,33 +327,15 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             QComboBox:!editable:pressed, QComboBox::drop-down:editable:pressed { background: #35b6d7; }
             QComboBox:!editable:disabled, QComboBox::drop-down:editable:disabled { background: #c0c0c0; }
             QComboBox:on { padding-top: 3px; padding-left: 4px; font-size:10pt;}
-            QComboBox::drop-down { 
-                           subcontrol-origin: padding; 
-                           subcontrol-position: top right; 
-                           width: 16px; 
-                           border: none;
-                           font-size: 10pt;
-                        }
+            QComboBox::drop-down { subcontrol-origin: padding; subcontrol-position: top right; 
+                width: 16px; border: none; font-size: 10pt; }
             QComboBox::down-arrow { image: url(:/downarrow.png); }
             QComboBox::down-arrow:on { image: url(:/uparrow.png); }
-            QComboBox QAbstractItemView { 
-                           border: 1px solid rgba(0, 0, 0, 0.1);
-                           border-radius: 9px;
-                           background-color: rgb(249, 249, 249);
-                           outline: none;
-                           color:%(TextColor)s;
-                           background: white;
-                           font-size:10pt;
-                           margin-top: 4px;
-                           margin-bottom: 4px;
-                           padding-left: 10px;
-                           padding-right: 10px;
-                           border-radius: 5px;
-                           border: 1px solid rgba(0, 0, 0, 0.1); }
-            QComboBox QAbstractItemView::item:selected {
-                           color:%(TextColor)s;
-                           background-color: rgba(0, 0, 0, 9);
-            }
+            QComboBox QAbstractItemView { font-family:%(UIFont)s; outline: none; color:%(TextColor)s; 
+                background: white; font-size:10pt; margin-top: 2px; margin-bottom: 1px;
+                padding-left: 2px; padding-right: 2px; }
+            QComboBox QAbstractItemView::item:selected { color:%(TextColor)s; 
+                background-color: rgba(0, 0, 0, 12); border-radius: 4px; }
 
             QSpinBox {
                 border: none;
@@ -712,6 +624,11 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             }
         """)
 
+        self.cmbBaudRate.setView(QListView())
+        self.cmbDataBits.setView(QListView())
+        self.cmbParity.setView(QListView())
+        self.cmbStopBits.setView(QListView())
+
     def setupTitleBar(self):
         self.lblIcon = QLabel(self)
         self.lblIcon.setFixedSize(QSize(24, 24))
@@ -770,6 +687,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnTogglePortCfgBar.setCursor(Qt.PointingHandCursor)
 
         self.cmbViewMode = QComboBox(self.titleBar)
+        self.cmbViewMode.setView(QListView())
         self.cmbViewMode.addItems(['Ascii', 'HEX', 'hex'])
         self.cmbViewMode.setFixedSize(QSize(60, 24))
         self.cmbViewMode.currentTextChanged.connect(self.onViewModeChanged)
@@ -1750,7 +1668,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             l = fm.horizontalAdvance(text)
             if maxlen < l:
                 maxlen = l
-        self.cmbPort.view().setFixedWidth(maxlen*1.25)
+        self.cmbPort.view().setFixedWidth(maxlen*1.4)
         # self.cmbPort.view().setFixedHeight(len(ports_lst) * 18)
         
         idx = self.cmbPort.findText(sel, Qt.MatchContains)

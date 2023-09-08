@@ -654,14 +654,6 @@
            <verstretch>3</verstretch>
           </sizepolicy>
          </property>
-         <property name="font">
-          <font>
-           <family>Courier 10 Pitch</family>
-           <pointsize>10</pointsize>
-           <stylestrategy>PreferAntialias</stylestrategy>
-           <kerning>true</kerning>
-          </font>
-         </property>
          <property name="mouseTracking">
           <bool>true</bool>
          </property>
