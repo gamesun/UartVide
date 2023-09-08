@@ -76,7 +76,7 @@ import re
 
 if os.name == 'nt':
     CODE_FONT = "Consolas"
-    UI_FONT = "Segoe UI"
+    UI_FONT = "Tahoma"
 elif os.name == 'posix':
     CODE_FONT = "Monospace"
     UI_FONT = "Ubuntu"
@@ -90,7 +90,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.readerThread = ReaderThread(self)
         self.readerThread.setPort(self.serialport)
         self.portMonitorThread = PortMonitorThread(self)
-        self.portMonitorThread.setPort(self.serialport)
+        self.portMonitorThread.start()
         self.loopSendThread = LoopSendThread(self)
         self._is_always_on_top = False
         self._viewMode = None
@@ -154,6 +154,9 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.readerThread.read.connect(self.onReceive)
         self.readerThread.exception.connect(self.onReaderExcept)
 
+        self.portMonitorThread.portsListChanged.connect(self.onPortsListChanged)
+        self.portMonitorThread.exception.connect(self.onPortMonitorExcept)
+
         # initial action
         self.setTabWidth(4)
         self.initQuickSend()
@@ -171,18 +174,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         # self.onClearRxTxCnt()
 
         self.titleBar.raise_()
-
-    def onRefreshPorts(self):
-        ports_cnt, ports_info = self.onEnumPorts()
-        InfoBar.info(
-            title='{} Port(s) Found'.format(ports_cnt),
-            content=ports_info,
-            orient=Qt.Horizontal,
-            isClosable=True,
-            position=InfoBarPosition.BOTTOM,
-            duration=2000,
-            parent=self
-        )
 
     def setTabWidth(self, n):
         fm = QFontMetrics(self.txtEdtOutput.fontMetrics())
@@ -317,11 +308,11 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.setStyleSheet("""
             QWidget { background-color: %(BackgroundColor)s; outline: none; }
             QToolBar { border: none; }
-            QLabel { color:%(TextColor)s; font-size:9pt; font-family:%(UIFont)s; }
+            QLabel { color:%(TextColor)s; font-size:10pt; font-family:%(UIFont)s; }
 
             QComboBox {
                 color:%(TextColor)s;
-                font-size:9pt;
+                font-size:10pt;
                 font-family:%(UIFont)s;
                 border: none;
                 padding: 1px 1px 1px 3px;
@@ -331,17 +322,22 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             QComboBox:!editable:hover, QComboBox::drop-down:editable:hover { background: #c7eaf3; }
             QComboBox:!editable:pressed, QComboBox::drop-down:editable:pressed { background: #35b6d7; }
             QComboBox:!editable:disabled, QComboBox::drop-down:editable:disabled { background: #c0c0c0; }
-            QComboBox:on { padding-top: 3px; padding-left: 4px; }
-            QComboBox::drop-down { subcontrol-origin: padding; subcontrol-position: top right; width: 16px; border: none; }
+            QComboBox:on { padding-top: 3px; padding-left: 4px; font-size:10pt;}
+            QComboBox::drop-down { subcontrol-origin: padding; subcontrol-position: top right; 
+                width: 16px; border: none; font-size: 10pt; }
             QComboBox::down-arrow { image: url(:/downarrow.png); }
             QComboBox::down-arrow:on { image: url(:/uparrow.png); }
-            QComboBox QAbstractItemView { background: white; }
+            QComboBox QAbstractItemView { font-family:%(UIFont)s; outline: none; color:%(TextColor)s; 
+                background: white; font-size:10pt; margin-top: 2px; margin-bottom: 1px;
+                padding-left: 2px; padding-right: 2px; }
+            QComboBox QAbstractItemView::item:selected { color:%(TextColor)s; 
+                background-color: rgba(0, 0, 0, 12); border-radius: 4px; }
 
             QSpinBox {
                 border: none;
                 background: white;
                 color:%(TextColor)s;
-                font-size:9pt;
+                font-size:10pt;
                 font-family:%(UIFont)s;
             }
             QSpinBox::up-button { image: url(:/uparrow.png); height: 12px; }
@@ -355,7 +351,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             
             QGroupBox {
                 color:%(TextColor)s;
-                font-size:8pt;
+                font-size:10pt;
                 font-family:%(UIFont)s;
                 border: 1px solid gray;
                 margin-top: 15px;
@@ -367,7 +363,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 top:3px;
             }
             
-            QCheckBox { color:%(TextColor)s; spacing: 5px; font-size:9pt; font-family:%(UIFont)s; }
+            QCheckBox { color:%(TextColor)s; spacing: 5px; font-size:10pt; font-family:%(UIFont)s; }
             QCheckBox::indicator:unchecked { image: url(:/checkbox_unchecked.png); }
             QCheckBox::indicator:unchecked:hover { image: url(:/checkbox_unchecked_hover.png); }
             QCheckBox::indicator:unchecked:pressed { image: url(:/checkbox_unchecked_pressed.png); }
@@ -375,7 +371,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             QCheckBox::indicator:checked:hover { image: url(:/checkbox_checked_hover.png); }
             QCheckBox::indicator:checked:pressed { image: url(:/checkbox_checked_pressed.png); }
             
-            QRadioButton { color:%(TextColor)s; spacing: 4px; font-size:9pt; font-family:%(UIFont)s; }
+            QRadioButton { color:%(TextColor)s; spacing: 4px; font-size:10pt; font-family:%(UIFont)s; }
             QRadioButton::indicator:unchecked { image: url(:/radiobutton_unchecked.png); }
             QRadioButton::indicator:unchecked:hover { image: url(:/radiobutton_unchecked_hover.png); }
             QRadioButton::indicator:unchecked:pressed { image: url(:/radiobutton_unchecked_pressed.png); }
@@ -484,7 +480,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 background-color:#30a7b8;
                 border:none;
                 color:#ffffff;
-                font-size:9pt;
+                font-size:10pt;
                 font-family:%(UIFont)s;
             }
             QToolButton:hover, QPushButton:hover {
@@ -518,7 +514,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             QMenu::item:disabled {color: #808080;background: #eeeeee;}
             
             QDockWidget {
-                font-size:9pt;
+                font-size:10pt;
                 font-family:%(UIFont)s;
                 color: %(TextColor)s;
                 titlebar-close-icon: none;
@@ -568,7 +564,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             QTabBar { qproperty-drawBase: 0; }  /* remove the mysterious unstyled horizontal line */
             
             QTabBar::tab {
-                font-size:9pt;
+                font-size:10pt;
                 font-family:%(UIFont)s;
                 color: #202020;
                 background-color: #6fcae1;
@@ -607,7 +603,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             QToolButton, QPushButton {
                 background-color:#27b798;
                 font-family:Tahoma;
-                font-size:8pt;
+                font-size:10pt;
                 /*min-width:46px;*/
             }
             QToolButton:hover, QPushButton:hover {
@@ -624,6 +620,11 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             }
         """)
 
+        self.cmbBaudRate.setView(QListView())
+        self.cmbDataBits.setView(QListView())
+        self.cmbParity.setView(QListView())
+        self.cmbStopBits.setView(QListView())
+
     def setupTitleBar(self):
         self.lblIcon = QLabel(self)
         self.lblIcon.setFixedSize(QSize(24, 24))
@@ -634,6 +635,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         
         self.lblTitle = QLabel(self)
         self.lblTitle.setText(appInfo.title)
+
 
         self.btnRefresh = QPushButton(self.titleBar)
         self.btnRefresh.setFixedSize(QSize(24, 24))
@@ -651,10 +653,11 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnRefresh.clicked.connect(self.onRefreshPorts)
         
         self.cmbPort = Combo(self.titleBar)
+        self.cmbPort.setView(QListView())
+        self.cmbPort.view().setViewportMargins(5, 2, 5, 6)
         self.cmbPort.setEditable(True)
         self.cmbPort.setCurrentText("")
-        self.cmbPort.setFixedSize(QSize(80, 24))
-        self.cmbPort.setMinimumSize(QSize(80, 24))
+        self.cmbPort.setFixedSize(QSize(90, 24))
         self.cmbPort.listShowEntered.connect(self.onEnumPorts)
         self.cmbPort.currentTextChanged.connect(self.onPortChanged)
         self.cmbPort.setToolTip("Select/Input Port")
@@ -680,8 +683,9 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnTogglePortCfgBar.setCursor(Qt.PointingHandCursor)
 
         self.cmbViewMode = QComboBox(self.titleBar)
+        self.cmbViewMode.setView(QListView())
         self.cmbViewMode.addItems(['Ascii', 'HEX', 'hex'])
-        self.cmbViewMode.setFixedSize(QSize(50, 24))
+        self.cmbViewMode.setFixedSize(QSize(60, 24))
         self.cmbViewMode.currentTextChanged.connect(self.onViewModeChanged)
         self.cmbViewMode.setToolTip("Select hexadecimal/ASCII")
         self.cmbViewMode.setCursor(Qt.PointingHandCursor)
@@ -1116,7 +1120,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 background-color:#0072BB;
                 border:none;
                 color:#ffffff;
-                font-size:9pt;
+                font-size:10pt;
                 font-family:%(UIFont)s;
             }
             QToolButton:hover, QPushButton:hover {
@@ -1135,7 +1139,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 background-color:#30a7b8;
                 border:none;
                 color:#ffffff;
-                font-size:9pt;
+                font-size:10pt;
                 font-family:%(UIFont)s;
             }
             QToolButton:hover, QPushButton:hover {
@@ -1406,7 +1410,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             if self._is_loop_sending:
                 self.stopLoopSend()
             self.readerThread.join()
-            self.portMonitorThread.join()
             self.serialport.cancel_write()
             self.serialport.cancel_read()
             self.serialport.close()
@@ -1479,35 +1482,74 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         h = self.defaultStyleWidget.frameGeometry().height()
         self.defaultStyleWidget.setGeometry((screenW-w)//2, (screenH-h)//2, w, h)
 
-    def onEnumPorts(self):
-        sel = self.cmbPort.currentText()
-        self.cmbPort.clear()
-        ports_cnt = 0
-        ports_info = ''
-        for port, desc, _ in sorted(comports()):
-            state = ' (Busy)' if self.isPortBusy(port) else ''
-            self.cmbPort.addItem(port + '  ' + desc + state)
-            ports_info = ports_info + port + '  ' + desc + state + '\n'
-            ports_cnt = ports_cnt + 1
+    def onPortMonitorExcept(self, e):
+        print('PortMonitorExcept', str(e))
 
-        self.fixComboViewSize(self.cmbPort)
+    def onPortsListChanged(self, ports_lst):
+        self.updatePortComboText(ports_lst[0])
+
+        for inc in ports_lst[1]:
+            InfoBar.success(
+                title='%s is found' % inc,
+                content='',
+                orient=Qt.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.BOTTOM_LEFT,
+                duration=3000,
+                parent=self
+            )
+        
+        for dec in ports_lst[2]:
+            InfoBar.warning(
+                title='%s is lost' % dec,
+                content='',
+                orient=Qt.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.BOTTOM_LEFT,
+                duration=3000,
+                parent=self
+            )
+
+    def onRefreshPorts(self):
+        ports_lst = [[port, desc, is_port_busy(port)] for port, desc, _ in sorted(comports())]
+        
+        text = ''
+        for port, desc, _ in sorted(comports()):
+            text = text + port + ('⛔ ' if is_port_busy(port) else '🟢  ') + '\n'
+
+        InfoBar.info(
+            title='{} Port(s) Found'.format(len(ports_lst)),
+            content=text,
+            orient=Qt.Horizontal,
+            isClosable=True,
+            position=InfoBarPosition.BOTTOM_LEFT,
+            duration=2000,
+            parent=self
+        )
+
+    def onEnumPorts(self):
+        ports_lst = [[port, desc, is_port_busy(port)] for port, desc, _ in sorted(comports())]
+        self.updatePortComboText(ports_lst)
+
+    def updatePortComboText(self, ports_lst):
+        # print(ports_lst)
+        sel = self.cmbPort.currentText()
+        fm = QFontMetrics(self.cmbPort.fontMetrics())
+        maxlen = 0
+        self.cmbPort.clear()
+        for port, desc, isbusy in ports_lst:
+            state = '⛔ ' if isbusy else '🟢 '
+            text = port + ' ' + state + desc
+            self.cmbPort.addItem(text)
+            l = fm.horizontalAdvance(text)
+            if maxlen < l:
+                maxlen = l
+        self.cmbPort.view().setFixedWidth(maxlen*1.4)
+        # self.cmbPort.view().setFixedHeight(len(ports_lst) * 18)
         
         idx = self.cmbPort.findText(sel, Qt.MatchContains)
         if idx != -1:
             self.cmbPort.setCurrentIndex(idx)
-        else:
-            self.cmbPort.setCurrentText('')
-
-        return ports_cnt, ports_info
-
-    def isPortBusy(self, port):
-        try:
-            se = serial.Serial(port)
-        except IOError as e:
-            #print(e)
-            return True
-        else:
-            return False
 
     def onAbout(self):
         QMessageBox.about(self.defaultStyleWidget, "About UartVide", appInfo.aboutme)
@@ -1518,6 +1560,8 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
     def closeEvent(self, event):
         if self.serialport.isOpen():
             self.closePort()
+        
+        self.portMonitorThread.join()
         self.saveLayout()
         self.saveQuickSend()
         self.saveSettings()
@@ -1555,6 +1599,16 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
     def onViewModeChanged(self, sel):
         self._viewMode = sel
+
+
+def is_port_busy(port):
+    try:
+        se = serial.Serial(port)
+    except IOError as e:
+        #print(e)
+        return True
+    else:
+        return False
 
 def is_hex(s):
     try:
@@ -1645,17 +1699,14 @@ class ReaderThread(QThread):
         self._stopped = True
 
 class PortMonitorThread(QThread):
-    portPlugOut = Signal()
+    portsListChanged = Signal(list)
     exception = Signal(str)
-    
+
     def __init__(self, parent=None):
         super(PortMonitorThread, self).__init__(parent)
-        self._alive = False
+        self._alive = None
         self._stopped = True
-        self._serialport = None
-
-    def setPort(self, port):
-        self._serialport = port
+        self._ports_set = set()
 
     def start(self, priority = QThread.InheritPriority):
         if not self._alive:
@@ -1674,10 +1725,15 @@ class PortMonitorThread(QThread):
         self._stopped = False
         while self._alive:
             try:
-                port_lst = [port for port, desc, hwid in sorted(comports())]
-                if self._serialport.portstr not in port_lst:
-                    self.portPlugOut.emit()
-                sleep(0.5)
+                new_lst = [[port, desc, is_port_busy(port)] for port, desc, _ in sorted(comports())]
+                new_set = set([port for port, _, _ in new_lst])
+                if new_set != self._ports_set:
+                    increased = new_set - self._ports_set
+                    decreased = self._ports_set - new_set
+                    self.portsListChanged.emit([new_lst, increased, decreased])
+
+                    self._ports_set = new_set
+                sleep(1)
             except Exception as e:
                 self.exception.emit('{}'.format(e))
         self._stopped = True
