@@ -6,13 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>761</width>
+    <width>753</width>
     <height>612</height>
    </rect>
   </property>
   <property name="font">
    <font>
-    <family>Segoe UI</family>
+    <family>Tahoma</family>
+    <pointsize>10</pointsize>
     <stylestrategy>PreferAntialias</stylestrategy>
     <kerning>true</kerning>
    </font>
@@ -917,6 +918,7 @@
        <property name="font">
         <font>
          <family>Consolas</family>
+         <pointsize>10</pointsize>
          <stylestrategy>PreferAntialias</stylestrategy>
          <kerning>true</kerning>
         </font>

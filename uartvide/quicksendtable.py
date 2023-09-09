@@ -139,7 +139,7 @@ class QuickSendTable(QTableWidget):
         self.setCellWidget(row, 1, self._rowList[row].menu_btn)
         self.setCellWidget(row, 2, self._rowList[row].frame)
 
-    def setRow(self, row: int, text_lst: list[str]):
+    def setRow(self, row: int, text_lst):
         if len(text_lst) < 3:
             text_lst = text_lst + [''] * (3 - len(text_lst))
         name = text_lst[0]

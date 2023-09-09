@@ -19,9 +19,10 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(761, 612)
+        MainWindow.resize(753, 612)
         font = QFont()
-        font.setFamily(u"Segoe UI")
+        font.setFamily(u"Tahoma")
+        font.setPointSize(10)
         font.setKerning(True)
         font.setStyleStrategy(QFont.PreferAntialias)
         MainWindow.setFont(font)
@@ -388,6 +389,7 @@ class Ui_MainWindow(object):
         self.qckSndTbl.setObjectName(u"qckSndTbl")
         font1 = QFont()
         font1.setFamily(u"Consolas")
+        font1.setPointSize(10)
         font1.setKerning(True)
         font1.setStyleStrategy(QFont.PreferAntialias)
         self.qckSndTbl.setFont(font1)

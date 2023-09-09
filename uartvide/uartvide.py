@@ -43,22 +43,19 @@ if extension != '.py':
             #try:ctypes.WinDLL(app_path+"\\DLLs\\"+d)
             #except:pass
 
-# PySide2
 from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 from qfluentwidgets import *
 from qframelesswindow import *
-import resources
-from ui_mainwindow import Ui_MainWindow
+from res import resources_rc
+from ui.mainwindow_ui import Ui_MainWindow
 
 from functools import partial
 from combo import Combo
 from animationswitchbutton import AnimationSwitchButton
-from toolbutton import ToolButton
 from rename_dailog import RenameDailog
-from elidedlineedit import ElidedLineEdit
 
 import datetime
 import pickle
@@ -102,8 +99,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
         self.setCorner(Qt.BottomLeftCorner, Qt.LeftDockWidgetArea)
 
-        font1 = QFont()
-        font1.setFamily(UI_FONT)
+        font1 = QFont(family=UI_FONT, pointSize=10)
         font1.setKerning(True)
         font1.setStyleStrategy(QFont.PreferAntialias)
         self.setFont(font1)
@@ -113,9 +109,9 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.setupFlatUi()
         self.setupTitleBar()
 
-        font2 = QFont()
-        font2.setFamily(CODE_FONT)
-        font2.setPointSize(9)
+        font2 = QFont(family=CODE_FONT, pointSize=9)
+        font2.setKerning(True)
+        font2.setStyleStrategy(QFont.PreferAntialias)
         self.txtEdtOutput.setFont(font2)
         self.txtEdtInput.setFont(font2)
         #self.qckSndTbl.setFont(font2)
@@ -325,8 +321,8 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             QComboBox:on { padding-top: 3px; padding-left: 4px; font-size:10pt;}
             QComboBox::drop-down { subcontrol-origin: padding; subcontrol-position: top right; 
                 width: 16px; border: none; font-size: 10pt; }
-            QComboBox::down-arrow { image: url(:/downarrow.png); }
-            QComboBox::down-arrow:on { image: url(:/uparrow.png); }
+            QComboBox::down-arrow { image: url(:/images/downarrow.png); }
+            QComboBox::down-arrow:on { image: url(:/images/uparrow.png); }
             QComboBox QAbstractItemView { font-family:%(UIFont)s; outline: none; color:%(TextColor)s; 
                 background: white; font-size:10pt; margin-top: 2px; margin-bottom: 1px;
                 padding-left: 2px; padding-right: 2px; }
@@ -340,8 +336,8 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 font-size:10pt;
                 font-family:%(UIFont)s;
             }
-            QSpinBox::up-button { image: url(:/uparrow.png); height: 12px; }
-            QSpinBox::down-button { image: url(:/downarrow.png); height: 12px; }
+            QSpinBox::up-button { image: url(:/images/uparrow.png); height: 12px; }
+            QSpinBox::down-button { image: url(:/images/downarrow.png); height: 12px; }
             QSpinBox::up-button, QSpinBox::down-button { background: #62c7e0; }
             QSpinBox::up-button:hover, QSpinBox::down-button:hover { background: #c7eaf3; }
             QSpinBox::up-button:pressed, QSpinBox::down-button:pressed { background: #35b6d7; }
@@ -364,20 +360,20 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             }
             
             QCheckBox { color:%(TextColor)s; spacing: 5px; font-size:10pt; font-family:%(UIFont)s; }
-            QCheckBox::indicator:unchecked { image: url(:/checkbox_unchecked.png); }
-            QCheckBox::indicator:unchecked:hover { image: url(:/checkbox_unchecked_hover.png); }
-            QCheckBox::indicator:unchecked:pressed { image: url(:/checkbox_unchecked_pressed.png); }
-            QCheckBox::indicator:checked { image: url(:/checkbox_checked.png); }
-            QCheckBox::indicator:checked:hover { image: url(:/checkbox_checked_hover.png); }
-            QCheckBox::indicator:checked:pressed { image: url(:/checkbox_checked_pressed.png); }
+            QCheckBox::indicator:unchecked { image: url(:/images/checkbox_unchecked.png); }
+            QCheckBox::indicator:unchecked:hover { image: url(:/images/checkbox_unchecked_hover.png); }
+            QCheckBox::indicator:unchecked:pressed { image: url(:/images/checkbox_unchecked_pressed.png); }
+            QCheckBox::indicator:checked { image: url(:/images/checkbox_checked.png); }
+            QCheckBox::indicator:checked:hover { image: url(:/images/checkbox_checked_hover.png); }
+            QCheckBox::indicator:checked:pressed { image: url(:/images/checkbox_checked_pressed.png); }
             
             QRadioButton { color:%(TextColor)s; spacing: 4px; font-size:10pt; font-family:%(UIFont)s; }
-            QRadioButton::indicator:unchecked { image: url(:/radiobutton_unchecked.png); }
-            QRadioButton::indicator:unchecked:hover { image: url(:/radiobutton_unchecked_hover.png); }
-            QRadioButton::indicator:unchecked:pressed { image: url(:/radiobutton_unchecked_pressed.png); }
-            QRadioButton::indicator:checked { image: url(:/radiobutton_checked.png); }
-            QRadioButton::indicator:checked:hover { image: url(:/radiobutton_checked_hover.png); }
-            QRadioButton::indicator:checked:pressed { image: url(:/radiobutton_checked_pressed.png); }
+            QRadioButton::indicator:unchecked { image: url(:/images/radiobutton_unchecked.png); }
+            QRadioButton::indicator:unchecked:hover { image: url(:/images/radiobutton_unchecked_hover.png); }
+            QRadioButton::indicator:unchecked:pressed { image: url(:/images/radiobutton_unchecked_pressed.png); }
+            QRadioButton::indicator:checked { image: url(:/images/radiobutton_checked.png); }
+            QRadioButton::indicator:checked:hover { image: url(:/images/radiobutton_checked_hover.png); }
+            QRadioButton::indicator:checked:pressed { image: url(:/images/radiobutton_checked_pressed.png); }
             
             QScrollBar:horizontal {
                 background-color:%(BackgroundColor)s;
@@ -390,7 +386,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 min-width: 20px;
             }
             QScrollBar::add-line:horizontal {
-                image: url(:/rightarrow.png);
+                image: url(:/images/rightarrow.png);
                 border: none;
                 background: %(ScrollBar_Line)s;
                 width: 20px;
@@ -398,7 +394,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 subcontrol-origin: margin;
             }
             QScrollBar::sub-line:horizontal {
-                image: url(:/leftarrow.png);
+                image: url(:/images/leftarrow.png);
                 border: none;
                 background: %(ScrollBar_Line)s;
                 width: 20px;
@@ -417,7 +413,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 min-height: 20px;
             }
             QScrollBar::add-line::vertical {
-                image: url(:/downarrow.png);
+                image: url(:/images/downarrow.png);
                 border: none;
                 background: %(ScrollBar_Line)s;
                 height: 20px;
@@ -425,7 +421,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 subcontrol-origin: margin;
             }
             QScrollBar::sub-line::vertical {
-                image: url(:/uparrow.png);
+                image: url(:/images/uparrow.png);
                 border: none;
                 background: %(ScrollBar_Line)s;
                 height: 20px;
@@ -533,31 +529,31 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 max-height: 12px;
                 background-color:transparent;
                 border:none;
-                image: url(:/restore_inactive.png);
+                image: url(:/images/restore_inactive.png);
             }
             QDockWidget::float-button:hover {
                 background-color:#227582;
-                image: url(:/restore_active.png);
+                image: url(:/images/restore_active.png);
             }
             QDockWidget::float-button:pressed {
                 padding: 0;
                 background-color:#14464e;
-                image: url(:/restore_active.png);
+                image: url(:/images/restore_active.png);
             }
             QDockWidget::close-button {
                 max-width: 12px;
                 max-height: 12px;
                 background-color:transparent;
                 border:none;
-                image: url(:/close_inactive.png);
+                image: url(:/images/close_inactive.png);
             }
             QDockWidget::close-button:hover {
                 background-color:#ea5e00;
-                image: url(:/close_active.png);
+                image: url(:/images/close_active.png);
             }
             QDockWidget::close-button:pressed {
                 background-color:#994005;
-                image: url(:/close_active.png);
+                image: url(:/images/close_active.png);
                 padding: 0;
             }
             
@@ -593,7 +589,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         """
 
         self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
-        self.btnLoop.setIcon(QIcon(":/loop.png"))
+        self.btnLoop.setIcon(QIcon(":/images/loop.png"))
         self.btnLoop.setIconSize(QtCore.QSize(20, 20))
         self.btnLoop.clicked.connect(self.onLoopChanged)
         self.btnLoop.setToolTip("Loop Send")
@@ -646,7 +642,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { background-color:#b8e5f1; }
         """)
-        self.btnRefresh.setIcon(QIcon(":/refresh.png"))
+        self.btnRefresh.setIcon(QIcon(":/images/refresh.png"))
         self.btnRefresh.setIconSize(QtCore.QSize(24, 24))
         self.btnRefresh.setToolTip("Refresh Ports")
         self.btnRefresh.setCursor(Qt.PointingHandCursor)
@@ -670,7 +666,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.asbtnOpen.setCursor(Qt.PointingHandCursor)
 
         self.btnTogglePortCfgBar = QPushButton(self.titleBar)
-        self.btnTogglePortCfgBar.setIcon(QIcon(':/up.png'))
+        self.btnTogglePortCfgBar.setIcon(QIcon(':/images/up.png'))
         self.btnTogglePortCfgBar.setFixedSize(QSize(24, 24))
         self.btnTogglePortCfgBar.setIconSize(QtCore.QSize(23, 23))
         self.btnTogglePortCfgBar.setStyleSheet("""
@@ -693,7 +689,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnTimestamp = QPushButton(self.titleBar)
         self.btnTimestamp.setFixedSize(QSize(24, 24))
         self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
-        self.btnTimestamp.setIcon(QIcon(":/timestamp.png"))
+        self.btnTimestamp.setIcon(QIcon(":/images/timestamp.png"))
         self.btnTimestamp.setIconSize(QtCore.QSize(20, 20))
         self.btnTimestamp.clicked.connect(self.onTimestamp)
         self.btnTimestamp.setToolTip("Timestamp")
@@ -707,7 +703,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { background-color:#b8e5f1; }
         """)
-        self.btnSaveLog.setIcon(QIcon(":/save.png"))
+        self.btnSaveLog.setIcon(QIcon(":/images/save.png"))
         self.btnSaveLog.setIconSize(QtCore.QSize(20, 20))
         self.btnSaveLog.setToolTip("Save Log As")
         self.btnSaveLog.setCursor(Qt.PointingHandCursor)
@@ -720,7 +716,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { background-color:#b8e5f1; }
         """)
-        self.btnClear.setIcon(QIcon(":/eraser.png"))
+        self.btnClear.setIcon(QIcon(":/images/eraser.png"))
         self.btnClear.setIconSize(QtCore.QSize(20, 20))
         self.btnClear.setToolTip("Clear Log")
         self.btnClear.setCursor(Qt.PointingHandCursor)
@@ -735,7 +731,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { background-color:#b8e5f1; }
         """)
-        self.btnClearRxTxCnt.setIcon(QIcon(":/clear.png"))
+        self.btnClearRxTxCnt.setIcon(QIcon(":/images/clear.png"))
         self.btnClearRxTxCnt.setIconSize(QtCore.QSize(22, 22))
         self.btnClearRxTxCnt.setToolTip("Clear RX/TX counters")
         self.btnClearRxTxCnt.setCursor(Qt.PointingHandCursor)
@@ -763,7 +759,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             QPushButton:hover { background-color:#51c0d1; }
             QPushButton:pressed { background-color:#b8e5f1; }
         """)
-        self.btnMenu.setIcon(QIcon(":/menu.png"))
+        self.btnMenu.setIcon(QIcon(":/images/menu.png"))
         self.btnMenu.setIconSize(QtCore.QSize(24, 24))
         self.btnMenu.setToolTip("More Settings...")
         self.btnMenu.setCursor(Qt.PointingHandCursor)
@@ -813,7 +809,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnPin = TransparentToggleToolButton(self.titleBar)
         self.btnPin.setFixedSize(QSize(26, 26))
 
-        self.btnPin.setIcon(QIcon(":/pin.png"))
+        self.btnPin.setIcon(QIcon(":/images/pin.png"))
         self.btnPin.setIconSize(QtCore.QSize(24, 24))
         self.btnPin.setToolTip("Always On Top")
         self.btnPin.setCursor(Qt.PointingHandCursor)
@@ -880,10 +876,10 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
     def setPortCfgBarVisible(self, visible):
         if visible:
             self.frame_PortCfg.show()
-            self.btnTogglePortCfgBar.setIcon(QIcon(':/up.png'))
+            self.btnTogglePortCfgBar.setIcon(QIcon(':/images/up.png'))
         else:
             self.frame_PortCfg.hide()
-            self.btnTogglePortCfgBar.setIcon(QIcon(':/down.png'))
+            self.btnTogglePortCfgBar.setIcon(QIcon(':/images/down.png'))
 
     def onPortChanged(self, text):
         pos = text.find(' ')
