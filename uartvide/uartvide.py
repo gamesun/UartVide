@@ -99,7 +99,9 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
         self.setCorner(Qt.BottomLeftCorner, Qt.LeftDockWidgetArea)
 
-        font1 = QFont(family=UI_FONT, pointSize=10)
+        font1 = QFont()
+        font1.setFamily(UI_FONT)
+        font1.setPointSize(10)
         font1.setKerning(True)
         font1.setStyleStrategy(QFont.PreferAntialias)
         self.setFont(font1)
@@ -109,9 +111,12 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.setupFlatUi()
         self.setupTitleBar()
 
-        font2 = QFont(family=CODE_FONT, pointSize=9)
+        font2 = QFont()
+        font2.setFamily(CODE_FONT)
+        font2.setPointSize(9)
         font2.setKerning(True)
         font2.setStyleStrategy(QFont.PreferAntialias)
+        print(font2.family())
         self.txtEdtOutput.setFont(font2)
         self.txtEdtInput.setFont(font2)
         #self.qckSndTbl.setFont(font2)
@@ -648,13 +653,117 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnRefresh.setCursor(Qt.PointingHandCursor)
         self.btnRefresh.clicked.connect(self.onRefreshPorts)
         
-        self.cmbPort = Combo(self.titleBar)
-        self.cmbPort.setView(QListView())
-        self.cmbPort.view().setViewportMargins(5, 2, 5, 6)
-        self.cmbPort.setEditable(True)
+        # self.cmbPort = Combo(self.titleBar)
+        # self.cmbPort.setView(QListView())
+        # self.cmbPort.view().setViewportMargins(5, 2, 5, 6)
+        # self.cmbPort.setEditable(True)
+        # self.cmbPort.setCurrentText("")
+        # self.cmbPort.setFixedSize(QSize(90, 24))
+        # self.cmbPort.listShowEntered.connect(self.onEnumPorts)
+        # self.cmbPort.currentTextChanged.connect(self.onPortChanged)
+        # self.cmbPort.setToolTip("Select/Input Port")
+        # self.cmbPort.setCursor(Qt.PointingHandCursor)
+        
+        self.cmbPort = EditableComboBox(self.titleBar)
+        self.cmbPort.dropButton.setFixedSize(20, 20)
+        self.cmbPort.setTextMargins(0, 0, 24, 0)
+        self.cmbPort.setStyleSheet('''
+            
+
+
+            ComboBoxMenu>MenuActionListWidget {
+                border: 1px solid rgba(0, 0, 0, 0.1);
+                background-color: rgb(249, 249, 249);
+                outline: none;
+            }
+
+            ComboBoxMenu>MenuActionListWidget::item {
+                margin-top: 0px;
+                padding-left: 0px;
+                padding-right: 0px;
+                border: none;
+                color: black;
+            }
+
+            ComboBoxMenu>MenuActionListWidget::item:disabled {
+                padding-left: 0px;
+                padding-right: 0px;
+                border: none;
+                color: black;
+            }
+
+            ComboBoxMenu>MenuActionListWidget::item:hover {
+                background-color: rgba(0, 0, 0, 9);
+            }
+
+            ComboBoxMenu>MenuActionListWidget::item:selected {
+                background-color: rgba(0, 0, 0, 7);
+                color: black;
+            }
+
+            ComboBoxMenu>MenuActionListWidget::item:selected:active {
+                background-color: rgba(0, 0, 0, 0.06);
+                color: rgba(0, 0, 0, 0.7);
+            }
+            
+            LineEdit, TextEdit, PlainTextEdit {
+                color: black;
+                background-color: rgba(255, 255, 255, 0.7);
+                border: 1px solid rgba(0, 0, 0, 13);
+                padding: 0px 0px;
+                selection-background-color: --ThemeColorLight1;
+            }
+
+            TextEdit,
+            PlainTextEdit {
+                padding: 0px 0px 0px 0px;
+            }
+
+            LineEdit:hover, TextEdit:hover, PlainTextEdit:hover {
+                background-color: rgba(249, 249, 249, 0.5);
+                border: 1px solid rgba(0, 0, 0, 13);
+                border-bottom: 1px solid rgba(0, 0, 0, 100);
+            }
+
+            LineEdit:focus {
+                border-bottom: 1px solid rgba(0, 0, 0, 13);
+                background-color: white;
+            }
+
+            TextEdit:focus,
+            PlainTextEdit:focus {
+                border-bottom: 1px solid --ThemeColorPrimary;
+                background-color: white;
+            }
+
+            LineEdit:disabled, TextEdit:disabled,
+            PlainTextEdit:disabled {
+                color: rgba(0, 0, 0, 150);
+                background-color: rgba(249, 249, 249, 0.3);
+                border: 1px solid rgba(0, 0, 0, 13);
+                border-bottom: 1px solid rgba(0, 0, 0, 13);
+            }
+
+            #lineEditButton {
+                background-color: transparent;
+                margin: 0;
+            }
+
+            #lineEditButton:hover {
+                background-color: rgba(0, 0, 0, 9);
+            }
+
+            #lineEditButton:pressed {
+                background-color: rgba(0, 0, 0, 6);
+            }
+
+        ''')
+        # self.cmbPort.setView(QListView())
+        # self.cmbPort.view().setViewportMargins(5, 2, 5, 6)
+        # self.cmbPort.setEditable(True)
         self.cmbPort.setCurrentText("")
-        self.cmbPort.setFixedSize(QSize(90, 24))
-        self.cmbPort.listShowEntered.connect(self.onEnumPorts)
+        self.cmbPort.setFixedSize(QSize(90, 26))
+        # self.cmbPort.listShowEntered.connect(self.onEnumPorts)
         self.cmbPort.currentTextChanged.connect(self.onPortChanged)
         self.cmbPort.setToolTip("Select/Input Port")
         self.cmbPort.setCursor(Qt.PointingHandCursor)
@@ -1540,12 +1649,12 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             l = fm.horizontalAdvance(text)
             if maxlen < l:
                 maxlen = l
-        self.cmbPort.view().setFixedWidth(maxlen*1.4)
+        # self.cmbPort.view().setFixedWidth(maxlen*1.4)
         # self.cmbPort.view().setFixedHeight(len(ports_lst) * 18)
         
-        idx = self.cmbPort.findText(sel, Qt.MatchContains)
-        if idx != -1:
-            self.cmbPort.setCurrentIndex(idx)
+        # idx = self.cmbPort.findText(sel, Qt.MatchContains)
+        # if idx != -1:
+        #     self.cmbPort.setCurrentIndex(idx)
 
     def onAbout(self):
         QMessageBox.about(self.defaultStyleWidget, "About UartVide", appInfo.aboutme)
