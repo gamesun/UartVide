@@ -53,8 +53,8 @@ from res import resources_rc
 from ui.mainwindow_ui import Ui_MainWindow
 
 from functools import partial
-from combo import Combo
-from animationswitchbutton import AnimationSwitchButton
+from widgets.rightanglecombobox import RightAngleComboBox
+from widgets.animationswitchbutton import AnimationSwitchButton
 from rename_dailog import RenameDailog
 
 import datetime
