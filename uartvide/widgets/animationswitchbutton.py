@@ -23,24 +23,18 @@
 ##
 #############################################################################
 
-# PySide2
 from PySide2 import QtCore, QtGui, QtWidgets
-from PySide2.QtCore import Qt, Signal, QPoint, QVariantAnimation, QRect
-from PySide2.QtGui import QIcon, QPainter, QColor, QPen, QPainterPath, QRadialGradient
-signal = Signal
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
 
-# PyQt5
-# from PyQt5 import QtCore, QtGui, QtWidgets
-# from PyQt5.QtCore import Qt, pyqtSignal, QPoint, QVariantAnimation, QRect
-# from PyQt5.QtGui import QIcon, QPainter, QColor, QPen, QPainterPath, QRadialGradient
-# signal = pyqtSignal
 
 buttonStyle_Rect = 0
 buttonStyle_CircleIn = 1
 buttonStyle_CircleOut = 2
         
 class AnimationSwitchButton(QtWidgets.QToolButton):
-    stateChanged = signal(bool)
+    stateChanged = Signal(bool)
     
     def __init__(self, parent = None):
         super(AnimationSwitchButton, self).__init__(parent)

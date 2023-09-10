@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>753</width>
+    <width>766</width>
     <height>612</height>
    </rect>
   </property>
@@ -156,7 +156,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="cmbBaudRate">
+             <widget class="RightAngleComboBox" name="cmbBaudRate">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -183,9 +183,6 @@
               </property>
               <property name="statusTip">
                <string notr="true">Baud Rate</string>
-              </property>
-              <property name="editable">
-               <bool>true</bool>
               </property>
               <property name="currentIndex">
                <number>12</number>
@@ -377,7 +374,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="cmbDataBits">
+             <widget class="RightAngleComboBox" name="cmbDataBits">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -462,7 +459,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="cmbParity">
+             <widget class="RightAngleComboBox" name="cmbParity">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -552,7 +549,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="cmbStopBits">
+             <widget class="RightAngleComboBox" name="cmbStopBits">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -1013,7 +1010,12 @@
   <customwidget>
    <class>QuickSendTable</class>
    <extends>QTableWidget</extends>
-   <header location="global">quicksendtable.h</header>
+   <header>widgets/quicksendtable.h</header>
+  </customwidget>
+  <customwidget>
+   <class>RightAngleComboBox</class>
+   <extends>QComboBox</extends>
+   <header>widgets/rightanglecombobox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
