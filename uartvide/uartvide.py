@@ -116,7 +116,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         font2.setPointSize(9)
         font2.setKerning(True)
         font2.setStyleStrategy(QFont.PreferAntialias)
-        print(font2.family())
         self.txtEdtOutput.setFont(font2)
         self.txtEdtInput.setFont(font2)
         #self.qckSndTbl.setFont(font2)
@@ -621,10 +620,10 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             }
         """)
 
-        self.cmbBaudRate.setView(QListView())
-        self.cmbDataBits.setView(QListView())
-        self.cmbParity.setView(QListView())
-        self.cmbStopBits.setView(QListView())
+        # self.cmbBaudRate.setView(QListView())
+        # self.cmbDataBits.setView(QListView())
+        # self.cmbParity.setView(QListView())
+        # self.cmbStopBits.setView(QListView())
 
     def setupTitleBar(self):
         self.lblIcon = QLabel(self)
@@ -636,7 +635,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         
         self.lblTitle = QLabel(self)
         self.lblTitle.setText(appInfo.title)
-
 
         self.btnRefresh = QPushButton(self.titleBar)
         self.btnRefresh.setFixedSize(QSize(24, 24))
@@ -664,105 +662,17 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         # self.cmbPort.setToolTip("Select/Input Port")
         # self.cmbPort.setCursor(Qt.PointingHandCursor)
         
-        self.cmbPort = EditableComboBox(self.titleBar)
-        self.cmbPort.dropButton.setFixedSize(20, 20)
-        self.cmbPort.setTextMargins(0, 0, 24, 0)
-        self.cmbPort.setStyleSheet('''
-            
-
-
-            ComboBoxMenu>MenuActionListWidget {
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                background-color: rgb(249, 249, 249);
-                outline: none;
-            }
-
-            ComboBoxMenu>MenuActionListWidget::item {
-                margin-top: 0px;
-                padding-left: 0px;
-                padding-right: 0px;
-                border: none;
-                color: black;
-            }
-
-            ComboBoxMenu>MenuActionListWidget::item:disabled {
-                padding-left: 0px;
-                padding-right: 0px;
-                border: none;
-                color: black;
-            }
-
-            ComboBoxMenu>MenuActionListWidget::item:hover {
-                background-color: rgba(0, 0, 0, 9);
-            }
-
-            ComboBoxMenu>MenuActionListWidget::item:selected {
-                background-color: rgba(0, 0, 0, 7);
-                color: black;
-            }
-
-            ComboBoxMenu>MenuActionListWidget::item:selected:active {
-                background-color: rgba(0, 0, 0, 0.06);
-                color: rgba(0, 0, 0, 0.7);
-            }
-            
-            LineEdit, TextEdit, PlainTextEdit {
-                color: black;
-                background-color: rgba(255, 255, 255, 0.7);
-                border: 1px solid rgba(0, 0, 0, 13);
-                padding: 0px 0px;
-                selection-background-color: --ThemeColorLight1;
-            }
-
-            TextEdit,
-            PlainTextEdit {
-                padding: 0px 0px 0px 0px;
-            }
-
-            LineEdit:hover, TextEdit:hover, PlainTextEdit:hover {
-                background-color: rgba(249, 249, 249, 0.5);
-                border: 1px solid rgba(0, 0, 0, 13);
-                border-bottom: 1px solid rgba(0, 0, 0, 100);
-            }
-
-            LineEdit:focus {
-                border-bottom: 1px solid rgba(0, 0, 0, 13);
-                background-color: white;
-            }
-
-            TextEdit:focus,
-            PlainTextEdit:focus {
-                border-bottom: 1px solid --ThemeColorPrimary;
-                background-color: white;
-            }
-
-            LineEdit:disabled, TextEdit:disabled,
-            PlainTextEdit:disabled {
-                color: rgba(0, 0, 0, 150);
-                background-color: rgba(249, 249, 249, 0.3);
-                border: 1px solid rgba(0, 0, 0, 13);
-                border-bottom: 1px solid rgba(0, 0, 0, 13);
-            }
-
-            #lineEditButton {
-                background-color: transparent;
-                margin: 0;
-            }
-
-            #lineEditButton:hover {
-                background-color: rgba(0, 0, 0, 9);
-            }
-
-            #lineEditButton:pressed {
-                background-color: rgba(0, 0, 0, 6);
-            }
-
-        ''')
+        self.cmbPort = RightAngleComboBox(self.titleBar)
+        # self.cmbPort.dropButton.setFixedSize(20, 20)
+        # self.cmbPort.setTextMargins(0, 0, 24, 0)
+        
         # self.cmbPort.setView(QListView())
         # self.cmbPort.view().setViewportMargins(5, 2, 5, 6)
         # self.cmbPort.setEditable(True)
         self.cmbPort.setCurrentText("")
-        self.cmbPort.setFixedSize(QSize(90, 26))
+        # self.cmbPort.setFixedSize(QSize(80, 24))
+        self.cmbPort.setMinimumSize(QSize(0, 24))
+        self.cmbPort.setMaximumSize(QSize(150, 24))
         # self.cmbPort.listShowEntered.connect(self.onEnumPorts)
         self.cmbPort.currentTextChanged.connect(self.onPortChanged)
         self.cmbPort.setToolTip("Select/Input Port")
@@ -787,8 +697,8 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnTogglePortCfgBar.setToolTip("Toggle Port Config Bar")
         self.btnTogglePortCfgBar.setCursor(Qt.PointingHandCursor)
 
-        self.cmbViewMode = QComboBox(self.titleBar)
-        self.cmbViewMode.setView(QListView())
+        self.cmbViewMode = RightAngleComboBox(self.titleBar)
+        # self.cmbViewMode.setView(QListView())
         self.cmbViewMode.addItems(['Ascii', 'HEX', 'hex'])
         self.cmbViewMode.setFixedSize(QSize(60, 24))
         self.cmbViewMode.currentTextChanged.connect(self.onViewModeChanged)
@@ -874,46 +784,54 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnMenu.setCursor(Qt.PointingHandCursor)
         self.btnMenu.clicked.connect(self.onMoreSettings)
 
-        self.hBxLyt_tb_0 = QHBoxLayout()
-        self.hBxLyt_tb_0.setObjectName('hBxLyt_tb_0')
-        self.hBxLyt_tb_0.setSpacing(6)
-        self.hBxLyt_tb_0.setContentsMargins(6, 0, 0, 0)
-        self.hBxLyt_tb_0.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        self.hBxLyt_tb_1_1 = QHBoxLayout()
+        self.hBxLyt_tb_1_1.setObjectName('hBxLyt_tb_1_1')
+        self.hBxLyt_tb_1_1.setSpacing(0)
+        self.hBxLyt_tb_1_1.setContentsMargins(4, 0, 0, 0)
+        self.hBxLyt_tb_1_1.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
 
+        self.hBxLyt_tb_1_1.addWidget(self.lblIcon)
+        self.hBxLyt_tb_1_1.addWidget(self.lblTitle)
+
+        self.hBxLyt_tb_1_2 = QHBoxLayout()
+        self.hBxLyt_tb_1_2.setObjectName('hBxLyt_tb_1_2')
+        self.hBxLyt_tb_1_2.setSpacing(0)
+        self.hBxLyt_tb_1_2.setContentsMargins(4, 0, 0, 0)
+        self.hBxLyt_tb_1_2.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        
+        self.hBxLyt_tb_1_2.addWidget(self.btnRefresh, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_1_2.addWidget(self.cmbPort, 0, Qt.AlignLeft)
+        
+        self.hBxLyt_tb_1_3 = QHBoxLayout()
+        self.hBxLyt_tb_1_3.setObjectName('hBxLyt_tb_1_3')
+        self.hBxLyt_tb_1_3.setSpacing(0)
+        self.hBxLyt_tb_1_3.setContentsMargins(0, 0, 0, 0)
+        self.hBxLyt_tb_1_3.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        
+        self.hBxLyt_tb_1_3.addWidget(self.btnClearRxTxCnt, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_1_3.addWidget(self.lblRxTxCnt, 0, Qt.AlignLeft)
+        
         self.hBxLyt_tb_1 = QHBoxLayout()
         self.hBxLyt_tb_1.setObjectName('hBxLyt_tb_1')
-        self.hBxLyt_tb_1.setSpacing(0)
-        self.hBxLyt_tb_1.setContentsMargins(10, 0, 0, 0)
-        self.hBxLyt_tb_1.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
-        
-        self.hBxLyt_tb_1.addWidget(self.btnRefresh, 0, Qt.AlignLeft)
-        self.hBxLyt_tb_1.addWidget(self.cmbPort, 0, Qt.AlignLeft)
-        
-        self.hBxLyt_tb_2 = QHBoxLayout()
-        self.hBxLyt_tb_2.setObjectName('hBxLyt_tb_2')
-        self.hBxLyt_tb_2.setSpacing(0)
-        self.hBxLyt_tb_2.setContentsMargins(0, 0, 0, 0)
-        self.hBxLyt_tb_2.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
-        
-        self.hBxLyt_tb_2.addWidget(self.btnClearRxTxCnt, 0, Qt.AlignLeft)
-        self.hBxLyt_tb_2.addWidget(self.lblRxTxCnt, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_1.setSpacing(6)
+        self.hBxLyt_tb_1.setContentsMargins(6, 3, 0, 0)
+        self.hBxLyt_tb_1.setAlignment(Qt.AlignLeft)
 
-        self.hBxLyt_tb_0.addWidget(self.lblIcon, 0, Qt.AlignLeft)
-        self.hBxLyt_tb_0.addWidget(self.lblTitle, 0, Qt.AlignLeft)
-        self.hBxLyt_tb_0.addLayout(self.hBxLyt_tb_1)
-        self.hBxLyt_tb_0.addWidget(self.asbtnOpen, 0, Qt.AlignLeft)
-        self.hBxLyt_tb_0.addWidget(self.btnTogglePortCfgBar, 0, Qt.AlignLeft)
-        self.hBxLyt_tb_0.addWidget(self.cmbViewMode, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_1.addLayout(self.hBxLyt_tb_1_1)
+        self.hBxLyt_tb_1.addLayout(self.hBxLyt_tb_1_2)
+        self.hBxLyt_tb_1.addWidget(self.asbtnOpen, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_1.addWidget(self.btnTogglePortCfgBar, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_1.addWidget(self.cmbViewMode, 0, Qt.AlignLeft)
         
-        self.hBxLyt_tb_0.addWidget(self.btnTimestamp, 0, Qt.AlignLeft)
-        self.hBxLyt_tb_0.addWidget(self.btnSaveLog, 0, Qt.AlignLeft)
-        self.hBxLyt_tb_0.addWidget(self.btnClear, 0, Qt.AlignLeft)
-        self.hBxLyt_tb_0.addLayout(self.hBxLyt_tb_2)
-        self.hBxLyt_tb_0.addWidget(self.btnMenu, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_1.addWidget(self.btnTimestamp, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_1.addWidget(self.btnSaveLog, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_1.addWidget(self.btnClear, 0, Qt.AlignLeft)
+        self.hBxLyt_tb_1.addLayout(self.hBxLyt_tb_1_3)
+        self.hBxLyt_tb_1.addWidget(self.btnMenu, 0, Qt.AlignLeft)
 
-        self.hBxLyt_tb_0.addStretch(1)
+        self.hBxLyt_tb_1.addStretch(1)
 
-        self.titleBar.hBoxLayout.insertLayout(0, self.hBxLyt_tb_0, 0)
+        self.titleBar.hBoxLayout.insertLayout(0, self.hBxLyt_tb_1, 0)
 
         self.btnPin = TransparentToggleToolButton(self.titleBar)
         self.btnPin.setFixedSize(QSize(26, 26))
@@ -1639,22 +1557,22 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
     def updatePortComboText(self, ports_lst):
         # print(ports_lst)
         sel = self.cmbPort.currentText()
-        fm = QFontMetrics(self.cmbPort.fontMetrics())
-        maxlen = 0
+        # fm = QFontMetrics(self.cmbPort.fontMetrics())
+        # maxlen = 0
         self.cmbPort.clear()
         for port, desc, isbusy in ports_lst:
             state = '⛔ ' if isbusy else '🟢 '
             text = port + ' ' + state + desc
             self.cmbPort.addItem(text)
-            l = fm.horizontalAdvance(text)
-            if maxlen < l:
-                maxlen = l
+            # l = fm.horizontalAdvance(text)
+            # if maxlen < l:
+            #     maxlen = l
         # self.cmbPort.view().setFixedWidth(maxlen*1.4)
         # self.cmbPort.view().setFixedHeight(len(ports_lst) * 18)
         
-        # idx = self.cmbPort.findText(sel, Qt.MatchContains)
-        # if idx != -1:
-        #     self.cmbPort.setCurrentIndex(idx)
+        idx = self.cmbPort.findText(sel, Qt.MatchContains)
+        if idx != -1:
+            self.cmbPort.setCurrentIndex(idx)
 
     def onAbout(self):
         QMessageBox.about(self.defaultStyleWidget, "About UartVide", appInfo.aboutme)

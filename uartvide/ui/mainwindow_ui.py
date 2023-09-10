@@ -12,14 +12,15 @@ from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
-from quicksendtable import QuickSendTable
+from widgets.quicksendtable import QuickSendTable
+from widgets.rightanglecombobox import RightAngleComboBox
 
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(753, 612)
+        MainWindow.resize(766, 612)
         font = QFont()
         font.setFamily(u"Tahoma")
         font.setPointSize(10)
@@ -83,7 +84,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_4.addWidget(self.label_2)
 
-        self.cmbBaudRate = QComboBox(self.frame_PortCfg)
+        self.cmbBaudRate = RightAngleComboBox(self.frame_PortCfg)
         self.cmbBaudRate.addItem(u"50")
         self.cmbBaudRate.addItem(u"75")
         self.cmbBaudRate.addItem(u"110")
@@ -126,7 +127,6 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(statustip)
         self.cmbBaudRate.setStatusTip(u"Baud Rate")
 #endif // QT_CONFIG(statustip)
-        self.cmbBaudRate.setEditable(True)
         self.cmbBaudRate.setMaxVisibleItems(30)
 
         self.horizontalLayout_4.addWidget(self.cmbBaudRate)
@@ -147,7 +147,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_4.addWidget(self.label_3)
 
-        self.cmbDataBits = QComboBox(self.frame_PortCfg)
+        self.cmbDataBits = RightAngleComboBox(self.frame_PortCfg)
         self.cmbDataBits.addItem(u"8")
         self.cmbDataBits.addItem(u"7")
         self.cmbDataBits.addItem(u"6")
@@ -184,7 +184,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_4.addWidget(self.label_4)
 
-        self.cmbParity = QComboBox(self.frame_PortCfg)
+        self.cmbParity = RightAngleComboBox(self.frame_PortCfg)
         self.cmbParity.addItem(u"None")
         self.cmbParity.addItem(u"Even")
         self.cmbParity.addItem(u"Odd")
@@ -222,7 +222,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_4.addWidget(self.label_5)
 
-        self.cmbStopBits = QComboBox(self.frame_PortCfg)
+        self.cmbStopBits = RightAngleComboBox(self.frame_PortCfg)
         self.cmbStopBits.addItem(u"1")
         self.cmbStopBits.addItem(u"1.5")
         self.cmbStopBits.addItem(u"2")
