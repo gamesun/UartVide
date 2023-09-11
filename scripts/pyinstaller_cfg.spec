@@ -5,11 +5,11 @@ block_cipher = None
 
 import os
 if os.name == 'nt':
-    icon_file = '../res/uartvide-icon/uartvide.ico'
+    icon_file = '../uartvide/res/uartvide-icon/uartvide.ico'
 elif os.name == 'posix':
-    icon_file = '../res/uartvide-icon/uartvide_32.png'
+    icon_file = '../uartvide/res/uartvide-icon/uartvide_32.png'
 
-a = Analysis(['../src/uartvide.py'],
+a = Analysis(['../uartvide/uartvide.py'],
              pathex=[],
              binaries=[],
              datas=[],
@@ -41,5 +41,5 @@ coll = COLLECT(exe,
                a.datas,
                strip=False,
                upx=True,
-               upx_exclude=[],
+               upx_exclude=['qwindows.dll', 'qwindowsvistastyle.dll', 'qico.dll'],
                name='uartvide')
