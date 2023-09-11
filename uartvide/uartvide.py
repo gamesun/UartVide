@@ -90,7 +90,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.portMonitorThread.start()
         self.loopSendThread = LoopSendThread(self)
         self._is_always_on_top = False
-        self._viewMode = None
+        self._viewMode = 'HEX'
         self._is_loop_sending = False
         self._is_timestamp = False
         self._qckSnd_SelectingRow = 0
@@ -651,29 +651,11 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnRefresh.setCursor(Qt.PointingHandCursor)
         self.btnRefresh.clicked.connect(self.onRefreshPorts)
         
-        # self.cmbPort = Combo(self.titleBar)
-        # self.cmbPort.setView(QListView())
-        # self.cmbPort.view().setViewportMargins(5, 2, 5, 6)
-        # self.cmbPort.setEditable(True)
-        # self.cmbPort.setCurrentText("")
-        # self.cmbPort.setFixedSize(QSize(90, 24))
-        # self.cmbPort.listShowEntered.connect(self.onEnumPorts)
-        # self.cmbPort.currentTextChanged.connect(self.onPortChanged)
-        # self.cmbPort.setToolTip("Select/Input Port")
-        # self.cmbPort.setCursor(Qt.PointingHandCursor)
-        
         self.cmbPort = RightAngleComboBox(self.titleBar)
-        # self.cmbPort.dropButton.setFixedSize(20, 20)
-        # self.cmbPort.setTextMargins(0, 0, 24, 0)
-        
-        # self.cmbPort.setView(QListView())
-        # self.cmbPort.view().setViewportMargins(5, 2, 5, 6)
-        # self.cmbPort.setEditable(True)
         self.cmbPort.setCurrentText("")
-        # self.cmbPort.setFixedSize(QSize(80, 24))
         self.cmbPort.setMinimumSize(QSize(0, 24))
         self.cmbPort.setMaximumSize(QSize(150, 24))
-        # self.cmbPort.listShowEntered.connect(self.onEnumPorts)
+        self.cmbPort.listShowEntered.connect(self.onEnumPorts)
         self.cmbPort.currentTextChanged.connect(self.onPortChanged)
         self.cmbPort.setToolTip("Select/Input Port")
         self.cmbPort.setCursor(Qt.PointingHandCursor)
@@ -700,6 +682,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.cmbViewMode = RightAngleComboBox(self.titleBar)
         # self.cmbViewMode.setView(QListView())
         self.cmbViewMode.addItems(['Ascii', 'HEX', 'hex'])
+        self.cmbViewMode.setCurrentIndex(1)
         self.cmbViewMode.setFixedSize(QSize(60, 24))
         self.cmbViewMode.currentTextChanged.connect(self.onViewModeChanged)
         self.cmbViewMode.setToolTip("Select hexadecimal/ASCII")
