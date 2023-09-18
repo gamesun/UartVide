@@ -99,9 +99,14 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
         self.setCorner(Qt.BottomLeftCorner, Qt.LeftDockWidgetArea)
 
-        font1 = QFont()
-        font1.setFamily(UI_FONT)
-        font1.setPointSize(10)
+        # fdb=QFontDatabase()
+        # fontId = fdb.addApplicationFont(".ttf")
+        # print("fontId = ", fontId)
+        # fontFamily = QFontDatabase.applicationFontFamilies(fontId)[0]
+        # print("fontFamily = ", fontFamily)
+        # self.setFont(QFont(msyh))
+
+        font1 = QFont(UI_FONT, 10, QFont.Normal, False)
         font1.setKerning(True)
         font1.setStyleStrategy(QFont.PreferAntialias)
         self.setFont(font1)
@@ -111,9 +116,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.setupFlatUi()
         self.setupTitleBar()
 
-        font2 = QFont()
-        font2.setFamily(CODE_FONT)
-        font2.setPointSize(9)
+        font2 = QFont(CODE_FONT, 9, QFont.Normal, False)
         font2.setKerning(True)
         font2.setStyleStrategy(QFont.PreferAntialias)
         self.txtEdtOutput.setFont(font2)
@@ -770,7 +773,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.hBxLyt_tb_1_1 = QHBoxLayout()
         self.hBxLyt_tb_1_1.setObjectName('hBxLyt_tb_1_1')
         self.hBxLyt_tb_1_1.setSpacing(0)
-        self.hBxLyt_tb_1_1.setContentsMargins(4, 0, 0, 0)
+        self.hBxLyt_tb_1_1.setContentsMargins(1, 0, 0, 0)
         self.hBxLyt_tb_1_1.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
 
         self.hBxLyt_tb_1_1.addWidget(self.lblIcon)
