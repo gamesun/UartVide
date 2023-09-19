@@ -645,7 +645,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QTextEdit" name="txtEdtOutput">
+        <widget class="UVTextEdit" name="txtEdtOutput">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -856,7 +856,7 @@
       </layout>
      </item>
      <item>
-      <widget class="QTextEdit" name="txtEdtInput">
+      <widget class="UVTextEdit" name="txtEdtInput">
        <property name="mouseTracking">
         <bool>true</bool>
        </property>
@@ -1016,6 +1016,11 @@
    <class>RightAngleComboBox</class>
    <extends>QComboBox</extends>
    <header>widgets/rightanglecombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UVTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>widgets/uvtextedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

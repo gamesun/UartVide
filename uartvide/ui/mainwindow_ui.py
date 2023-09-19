@@ -14,6 +14,7 @@ from PySide2.QtWidgets import *
 
 from widgets.quicksendtable import QuickSendTable
 from widgets.rightanglecombobox import RightAngleComboBox
+from widgets.uvtextedit import UVTextEdit
 
 
 class Ui_MainWindow(object):
@@ -266,7 +267,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_2.addWidget(self.frame_PortCfg)
 
-        self.txtEdtOutput = QTextEdit(self.centerFrame)
+        self.txtEdtOutput = UVTextEdit(self.centerFrame)
         self.txtEdtOutput.setObjectName(u"txtEdtOutput")
         sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy2.setHorizontalStretch(0)
@@ -358,7 +359,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addLayout(self.horizontalLayout)
 
-        self.txtEdtInput = QTextEdit(self.dockWidgetContents_2)
+        self.txtEdtInput = UVTextEdit(self.dockWidgetContents_2)
         self.txtEdtInput.setObjectName(u"txtEdtInput")
         self.txtEdtInput.setMouseTracking(True)
         self.txtEdtInput.setFrameShape(QFrame.NoFrame)
