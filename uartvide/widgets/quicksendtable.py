@@ -28,6 +28,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
+from qfluentwidgets import *
 
 from .elidedlineedit import ElidedLineEdit
 import csv
@@ -70,6 +71,7 @@ class QuickSendTable(QTableWidget):
     
     def __init__(self, parent=None):
         super(QuickSendTable, self).__init__(parent)
+        self.scrollDelegate = SmoothScrollDelegate(self)
         self._rowList: list[QckSndRow] = []
         self._qckSnd_RawData = []
         self._send_func = None
