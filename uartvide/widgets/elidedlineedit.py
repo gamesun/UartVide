@@ -29,6 +29,8 @@ from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
+from qfluentwidgets.components.widgets.menu import LineEditMenu
+
 if os.name == 'nt':
     CODE_FONT = "Consolas"
     UI_FONT = "Segoe UI"
@@ -43,13 +45,11 @@ class ElidedLineEdit(QLineEdit):
         self.textEdited.connect(self.onTextEdited)
         self.installEventFilter(self)
 
-        self.setStyleSheet('''
-            QLineEdit {border: none;font-size:9pt;font-family:%(Code_Font)s;}
-            QMenu {margin: 2px;color: #202020;background: #eeeeee;}
-            QMenu::item {padding: 2px 12px 2px 12px;border: 1px solid transparent;}
-            QMenu::item:selected {background: #51c0d1;}
-            QMenu::icon {background: transparent;border: 2px inset transparent;}
-            QMenu::item:disabled {color: #808080;background: #eeeeee;}''' % dict(Code_Font = CODE_FONT))
+        self.setStyleSheet('QLineEdit {border: none;font-size:9pt;font-family:%(Code_Font)s;}' % dict(Code_Font = CODE_FONT))
+
+    def contextMenuEvent(self, e):
+        menu = LineEditMenu(self)
+        menu.exec(e.globalPos())
 
     def setText(self, text, elided = True):
         self.content = text
