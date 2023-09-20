@@ -1,29 +1,30 @@
 ; Inno setup Script
 ; 
 
-#define AppName "UartVide"
-#define AppVersion "2.5"
+#define Name "UartVide"
+#define Version "2.5.2"
+#define Copyright "Copyright (C) 2013-2023 gamesun"
 
 [Setup]
-AppName={#AppName} {#AppVersion}
-AppVersion={#AppVersion}
-AppVerName={#AppName} {#AppVersion}
-DefaultDirName={autopf32}\{#AppName} {#AppVersion}
-DefaultGroupName={#AppName} {#AppVersion}
-UninstallDisplayIcon={app}\{#AppName}.exe
-UninstallDisplayName={#AppName} {#AppVersion}
-VersionInfoVersion={#AppVersion}
+AppId={{642B6C19-ADA2-4C04-B1BF-49F7E88A4D0C}
+AppName={#Name}
+AppVersion={#Version}
+DefaultDirName={autopf}\{#Name}
+DefaultGroupName={#Name}
+UninstallDisplayIcon={app}\{#Name}.exe
+UninstallDisplayName={#Name} {#Version}
+VersionInfoVersion={#Version}
 AppPublisher=gamesun
 AppPublisherURL=http://sourceforge.net/projects/myterm/
-AppCopyright=Copyright (C) 2013-2023 gamesun
-OutputBaseFilename={#AppName}-{#AppVersion}-win64
+AppCopyright={#Copyright}
+OutputBaseFilename={#Name}-{#Version}-win64
 OutputDir=Release
 DisableDirPage=no
 DisableProgramGroupPage=no
 LicenseFile=..\LICENSE.txt
 ShowTasksTreeLines=yes
-AppMutex={#AppName}Mutex
-SetupMutex={#AppName}Mutex
+AppMutex={#Name}Mutex
+SetupMutex={#Name}Mutex
 WizardStyle=modern
 PrivilegesRequired=lowest
 DisableWelcomePage=no
@@ -39,12 +40,43 @@ Type: filesandordirs; Name: "{app}\Settings"
 
 [Icons]
 ; add icon to desktop
-Name: "{userdesktop}\{#AppName} {#AppVersion}"; Filename: "{app}\{#AppName}.exe"
+Name: "{autodesktop}\{#Name} {#Version}"; Filename: "{app}\{#Name}.exe"
 
 ; add icons to Start Menu/All Programs
-Name: "{userprograms}\{#AppName} {#AppVersion}\{#AppName} {#AppVersion}"; Filename: "{app}\{#AppName}.exe"; WorkingDir: "{app}"
-Name: "{userprograms}\{#AppName} {#AppVersion}\Uninstall {#AppName} {#AppVersion}"; Filename: "{uninstallexe}"
+Name: "{autoprograms}\{#Name} {#Version}\{#Name} {#Version}"; Filename: "{app}\{#Name}.exe"; WorkingDir: "{app}"
+Name: "{autoprograms}\{#Name} {#Version}\Uninstall {#Name} {#Version}"; Filename: "{uninstallexe}"
 
 [Run]
-Filename: "{app}\{#AppName}.exe"; Description: "Launch application"; \
+Filename: "{app}\{#Name}.exe"; Description: "Launch application"; \
     Flags: postinstall nowait skipifsilent
+
+
+[code]
+
+function IsAppRunning(const FileName: string): Boolean;
+var
+  FWMIService: Variant;
+  FSWbemLocator: Variant;
+  FWbemObjectSet: Variant;
+begin
+  Result := false;
+  FSWbemLocator := CreateOleObject('WBEMScripting.SWBEMLocator');
+  FWMIService := FSWbemLocator.ConnectServer('', 'root\CIMV2', '', '');
+  FWbemObjectSet := FWMIService.ExecQuery(Format('SELECT Name FROM Win32_Process Where Name="%s"',[FileName]));
+  Result := (FWbemObjectSet.Count > 0);
+  FWbemObjectSet := Unassigned;
+  FWMIService := Unassigned;
+  FSWbemLocator := Unassigned;
+end;
+
+function InitializeUninstall(): Boolean;
+begin
+  if IsAppRunning('{#Name}.exe') then
+    begin
+      MsgBox('checked APP({#Name}.exe) is running, Please close it and retry!', mbError, MB_OK);
+    end
+  else
+    begin
+      Result := MsgBox('Uninstall:' #13#13 'Do you really want to start Uninstall?', mbConfirmation, MB_YESNO) = idYes;
+    end
+end;
