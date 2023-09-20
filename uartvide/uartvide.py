@@ -131,17 +131,9 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.defaultStyleWidget.setWindowIcon(icon)
 
         # bind events
-        self.actionOpen_Cmd_File.triggered.connect(self.openQuickSendFile)
-        self.actionSave_Log.triggered.connect(self.onSaveLog)
-        self.actionExit.triggered.connect(self.close)   # -> closeEvent
-
-        self.actionQuick_Send_Panel.triggered.connect(self.onToggleQckSndPnl)
-        self.actionSend_Panel.triggered.connect(self.onToggleSndPnl)
         self.dockWidget_QuickSend.visibilityChanged.connect(self.onVisibleQckSndPnl)
         self.dockWidget_Send.visibilityChanged.connect(self.onVisibleSndPnl)
         # self.dockWidget_QuickSend.dockLocationChanged.connect(self.onDockLocationChanged)
-
-        self.actionAbout.triggered.connect(self.onAbout)
 
         self.cmbBaudRate.currentTextChanged.connect(self.onBaudRateChanged)
         self.cmbDataBits.currentTextChanged.connect(self.onDataBitsChanged)
@@ -222,13 +214,25 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
     def initMoreSettingsMenu(self):
         self.actionSave_Log = Action(FluentIcon.SAVE, self.tr('Save Log'))
+        self.actionSave_Log.triggered.connect(self.onSaveLog)
+
         self.actionExit = Action(FluentIcon.CLOSE, self.tr('Exit'))
+        self.actionExit.triggered.connect(self.close)   # -> closeEvent
+
         self.actionSend_Panel = Action(FluentIcon.VIEW, self.tr('Send Panel'))
         self.actionSend_Panel.setCheckable(True)
+        self.actionSend_Panel.triggered.connect(self.onToggleSndPnl)
+
         self.actionAbout = Action(self.tr('About'))
-        self.actionOpen_Cmd_File = Action(FluentIcon.EDIT, self.tr('Open Cmd File'))
+        self.actionAbout.triggered.connect(self.onAbout)
+
+        self.actionOpen_Cmd_File = Action(FluentIcon.EDIT, self.tr('Load Quick Send CSV'))
+        self.actionOpen_Cmd_File.triggered.connect(self.openQuickSendFile)
+
         self.actionQuick_Send_Panel = Action(FluentIcon.VIEW, self.tr('Quick Send Panel'))
         self.actionQuick_Send_Panel.setCheckable(True)
+        self.actionQuick_Send_Panel.triggered.connect(self.onToggleQckSndPnl)
+        
         # self.actionParse_Panel = Action(FluentIcon., self.tr('Parse Panel'))
 
         self.menuMoreSettings = CheckableMenu(self.titleBar)

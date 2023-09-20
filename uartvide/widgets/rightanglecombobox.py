@@ -141,6 +141,7 @@ class RightAngleComboBox(ComboBox):
         super(RightAngleComboBox, self).mousePressEvent(event)
 
     def setCurrentText(self, text):
+        super().setCurrentText(text)
         self.setText(text)
 
     def currentText(self):
