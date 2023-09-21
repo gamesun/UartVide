@@ -1,4 +1,6 @@
-lxml==4.9.1
 defusedxml==0.7.1
+lxml==4.9.3
 pyserial==3.5
-PySide2==5.15.2
+PySide2==5.15.2.1
+PySide2_Fluent_Widgets==1.2.0
+PySide2_Frameless_Window==0.3.2
