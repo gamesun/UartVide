@@ -33,16 +33,16 @@
      <number>0</number>
     </property>
     <property name="leftMargin">
-     <number>3</number>
+     <number>2</number>
     </property>
     <property name="topMargin">
      <number>0</number>
     </property>
     <property name="rightMargin">
-     <number>1</number>
+     <number>2</number>
     </property>
     <property name="bottomMargin">
-     <number>5</number>
+     <number>3</number>
     </property>
     <item>
      <widget class="QFrame" name="centerFrame">
@@ -693,10 +693,10 @@
       <number>2</number>
      </property>
      <property name="rightMargin">
-      <number>3</number>
+      <number>0</number>
      </property>
      <property name="bottomMargin">
-      <number>5</number>
+      <number>3</number>
      </property>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
@@ -905,10 +905,10 @@
       <number>0</number>
      </property>
      <property name="rightMargin">
-      <number>4</number>
+      <number>0</number>
      </property>
      <property name="bottomMargin">
-      <number>5</number>
+      <number>3</number>
      </property>
      <item>
       <widget class="QuickSendTable" name="qckSndTbl">

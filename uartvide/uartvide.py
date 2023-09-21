@@ -55,7 +55,8 @@ from ui.mainwindow_ui import Ui_MainWindow
 from functools import partial
 from widgets.rightanglecombobox import RightAngleComboBox
 from widgets.animationswitchbutton import AnimationSwitchButton
-from rename_dailog import RenameDailog
+from widgets.dialog import *
+from widgets.rename_dailog import RenameDailog
 
 import datetime
 import pickle
@@ -1565,10 +1566,9 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             self.cmbPort.setCurrentIndex(idx)
 
     def onAbout(self):
-        QMessageBox.about(self.defaultStyleWidget, "About UartVide", appInfo.aboutme)
-
-    def onAboutQt(self):
-        QMessageBox.aboutQt(self.defaultStyleWidget)
+        # QMessageBox.about(self.defaultStyleWidget, "About UartVide", appInfo.aboutme)
+        ad = AboutDialog(self, "About UartVide", appInfo.aboutme)
+        ad.show()
 
     def closeEvent(self, event):
         if self.serialport.isOpen():

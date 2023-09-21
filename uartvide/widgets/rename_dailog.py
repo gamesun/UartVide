@@ -29,31 +29,34 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
+from qfluentwidgets import *
+from qframelesswindow import *
 
 theSolitaryRenameDailog = None
 
-class RenameDailog(QDialog):
+class RenameDailog(FramelessDialog):
 
     def __init__(self, *args, **kwargs):
         super(RenameDailog, self).__init__(*args, **kwargs)
 
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.Popup)
+        self.titleBar.closeBtn.hide()
+
         self.setAttribute(Qt.WA_DeleteOnClose)
         self.destroyed.connect(self.close)
 
         self.newname = None
 
-        self.__edt = QLineEdit()
-        self.__edt.setMinimumSize(QSize(200, 24))
-        self.__edt.setMaximumSize(QSize(16777215, 24))
+        self.__edt = LineEdit()
         
-        vLayout = QVBoxLayout()
+        vLayout = QVBoxLayout(self)
         vLayout.addWidget(self.__edt)
 
-        btnOK = QPushButton('OK')
+        btnOK = PushButton('OK')
+        btnOK.setFixedSize(QSize(70, 28))
         btnOK.clicked.connect(self.onOK)
         
-        btnCancel = QPushButton('Cancel')
+        btnCancel = PushButton('Cancel')
+        btnCancel.setFixedSize(QSize(70, 28))
         btnCancel.clicked.connect(self.onCancel)
 
         spacer_1 = QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -69,12 +72,8 @@ class RenameDailog(QDialog):
 
         vLayout.addLayout(hLayout)
 
-        self.setLayout(vLayout)
-
-        pal = self.palette()
-        pal.setColor(QPalette.Window, QColor('#b8e5f1'))
-        pal.setColor(QPalette.WindowText, QColor('#202020'))
-        self.setPalette(pal)
+        self.setStyleSheet('QWidget { background-color: white; outline: none; border: 1px solid rgba(0, 0, 0, 0.1); }')
+        self.setFixedSize(QSize(250, 100))
 
     def onOK(self):
         self.newname = self.__edt.text()
