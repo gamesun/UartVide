@@ -39,7 +39,7 @@ elif os.name == 'posix':
     UI_FONT = "Ubuntu"
 
 class ElidedLineEdit(QLineEdit):
-    def __init__(self, text='', parent = None):
+    def __init__(self, parent = None, text=''):
         super(ElidedLineEdit, self).__init__(text, parent)
         self.content = text
         self.textEdited.connect(self.onTextEdited)

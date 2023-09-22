@@ -52,11 +52,9 @@ from qframelesswindow import *
 from res import resources_rc
 from ui.mainwindow_ui import Ui_MainWindow
 
-from functools import partial
 from widgets.rightanglecombobox import RightAngleComboBox
 from widgets.animationswitchbutton import AnimationSwitchButton
 from widgets.dialog import *
-from widgets.rename_dailog import RenameDailog
 
 import datetime
 import pickle
@@ -113,7 +111,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.setFont(font1)
 
         self.initMoreSettingsMenu()
-        self.initQckSndOptMenu()
         self.setupFlatUi()
         self.setupTitleBar()
 
@@ -253,59 +250,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         #     QMenu::icon {background: transparent;border: 2px inset transparent;}
         #     QMenu::item:disabled {color: #808080;background: #eeeeee;}''')
 
-    def initQckSndOptMenu(self):
-        self.actionRename = QtWidgets.QAction("Rename", self)
-        self.actionRename.triggered.connect(self.onQckSnd_Rename)
 
-        self.actionInsertRow = QtWidgets.QAction("Insert row", self)
-        self.actionInsertRow.triggered.connect(self.onQckSnd_InsertRow)
-
-        self.actionDeleteRow = QtWidgets.QAction("Delete row", self)
-        self.actionDeleteRow.triggered.connect(self.onQckSnd_RemoveRow)
-
-        self.actionSend_Hex = QtWidgets.QAction("HEX", self)
-        self.actionSend_Hex.triggered.connect(partial(self.onQckSnd_SelectFormat, 'H'))
-
-        self.actionSend_Asc = QtWidgets.QAction("ASCII", self)
-        self.actionSend_Asc.triggered.connect(partial(self.onQckSnd_SelectFormat, 'A'))
-
-        self.actionSend_AscS = QtWidgets.QAction(r"ASCII and \n \r \t...", self)
-        self.actionSend_AscS.triggered.connect(partial(self.onQckSnd_SelectFormat, 'AS'))
-        
-        self.actionSend_HF = QtWidgets.QAction(self)
-        self.actionSend_HF.setText("HEX text File")
-        self.actionSend_HF.setStatusTip('Send text file in HEX form("31 32 FF ...")')
-        self.actionSend_HF.triggered.connect(partial(self.onQckSnd_SelectFormat, 'HF'))
-        
-        self.actionSend_AF = QtWidgets.QAction(self)
-        self.actionSend_AF.setText("ASCII text file")
-        self.actionSend_AF.setStatusTip('Send text file in ASCII form("abc123...")')
-        self.actionSend_AF.triggered.connect(partial(self.onQckSnd_SelectFormat, 'AF'))
-        
-        self.actionSend_BF = QtWidgets.QAction("Bin file; All file", self)
-        self.actionSend_BF.triggered.connect(partial(self.onQckSnd_SelectFormat, 'BF'))
-
-        # self.actSendFormat = RoundMenu('Send Format', parent=self)
-
-        # self.actSendFormat.addAction(self.actionSend_Hex)
-        # self.actSendFormat.addAction(self.actionSend_Asc)
-        # self.actSendFormat.addAction(self.actionSend_AscS)
-        # self.actSendFormat.addAction(self.actionSend_HF)
-        # self.actSendFormat.addAction(self.actionSend_AF)
-        # self.actSendFormat.addAction(self.actionSend_BF)
-
-        self.menuSendOpt = RoundMenu(parent=self)
-        self.menuSendOpt.addAction(self.actionRename)
-        self.menuSendOpt.addAction(self.actionInsertRow)
-        self.menuSendOpt.addAction(self.actionDeleteRow)
-        
-        self.menuSendOpt.addSeparator()
-        self.menuSendOpt.addAction(self.actionSend_Hex)
-        self.menuSendOpt.addAction(self.actionSend_Asc)
-        self.menuSendOpt.addAction(self.actionSend_AscS)
-        self.menuSendOpt.addAction(self.actionSend_HF)
-        self.menuSendOpt.addAction(self.actionSend_AF)
-        self.menuSendOpt.addAction(self.actionSend_BF)
 
     def setupFlatUi(self):
         self._dragPos = self.pos()
@@ -607,20 +552,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnLoop.setToolTip("Loop Send")
         self.btnLoop.setCursor(Qt.PointingHandCursor)
 
-        self.dockWidget_QuickSend.setStyleSheet("""
-            QToolButton, QPushButton {
-                background-color:#27b798;
-                font-family:Tahoma;
-                font-size:10pt;
-                /*min-width:46px;*/
-            }
-            QToolButton:hover, QPushButton:hover {
-                background-color:#3bd5b4;
-            }
-            QToolButton:pressed, QPushButton:pressed {
-                background-color:#1d8770;
-            }
-        """)
+
         self.dockWidgetContents_2.setStyleSheet("""
             QPushButton {
                 min-height:23px;
@@ -1000,8 +932,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
     def initQuickSend(self):
         self.qckSndTbl.setSendFunc(self.onQuickSend)
-        self.qckSndTbl.setMenuFunc(self.onQuickSendOptions)
-        self.qckSndTbl.setPathFunc(self.onQuickSendSelectFile)
 
         if os.path.isfile(get_config_path('QuickSend.csv')):
             self.loadQuickSendByFile(get_config_path('QuickSend.csv'))
@@ -1010,21 +940,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
         self.qckSndTbl.resizeColumnsToContents()
         self.qckSndTbl.update()
-
-    def onQckSnd_SelectFormat(self, fmt):
-        self.qckSndTbl.setText(self._qckSnd_SelectingRow, 1, fmt)
-
-    def onQuickSendOptions(self, row):
-        self._qckSnd_SelectingRow = row
-        item = self.qckSndTbl.cellWidget(row, 1)
-        self.menuSendOpt.popup(item.mapToGlobal(QPoint(item.size().width(), item.size().height())))
-
-    def onQuickSendSelectFile(self, row):
-        old_path = self.qckSndTbl.text(row, 2)
-        fileName = QFileDialog.getOpenFileName(self.defaultStyleWidget, "Select a file",
-            old_path, "All Files (*.*)")[0]
-        if fileName:
-            self.qckSndTbl.setText(row, 2, fileName)
 
     def openQuickSendFile(self):
         fileName = QFileDialog.getOpenFileName(self.defaultStyleWidget, "Select a file",
@@ -1049,7 +964,8 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 QMessageBox.critical(self.defaultStyleWidget, "Load failed",
                     str(e), QMessageBox.Close)
 
-    def onQuickSend(self, row):
+    def onQuickSend(self, indexClickEvent):
+        row = indexClickEvent.index()
         try:
             if self.serialport.isOpen():
                 data = self.qckSndTbl.text(row, 2)
@@ -1073,24 +989,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 duration=2000,
                 parent=self
             )
-    
-    def onQuickSendRightClick(self, row):
-        item = self.qckSndTbl.cellWidget(row, 0)
-        oldname = item.text()
-        pos = item.mapToGlobal(QPoint(30, 10))
-        newname = RenameDailog.getNewName(oldname, pos)
-        if newname:
-            item.setText(newname)
-            self.qckSndTbl.resizeColumnsToContents()
-
-    def onQckSnd_Rename(self):
-        self.onQuickSendRightClick(self._qckSnd_SelectingRow)
-
-    def onQckSnd_InsertRow(self):
-        self.qckSndTbl.insertRow(self._qckSnd_SelectingRow)
-
-    def onQckSnd_RemoveRow(self):
-        self.qckSndTbl.removeRow(self._qckSnd_SelectingRow)
 
     def transmitFile(self, filepath, form):
         try:
