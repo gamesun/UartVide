@@ -2,7 +2,7 @@
 ; 
 
 #define Name "UartVide"
-#define Version "2.5.2"
+#define Version "2.6"
 #define Copyright "Copyright (C) 2013-2023 gamesun"
 
 [Setup]
