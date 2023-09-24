@@ -15,6 +15,7 @@ from PySide2.QtWidgets import *
 from widgets.quicksendtable import QuickSendTable
 from widgets.rightanglecombobox import RightAngleComboBox
 from widgets.uvtextedit import UVTextEdit
+from widgets.uvtogglebutton import UVToggleButton
 
 
 class Ui_MainWindow(object):
@@ -339,7 +340,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.spnPeriod)
 
-        self.btnLoop = QToolButton(self.dockWidgetContents_2)
+        self.btnLoop = UVToggleButton(self.dockWidgetContents_2)
         self.btnLoop.setObjectName(u"btnLoop")
         self.btnLoop.setMinimumSize(QSize(26, 22))
         self.btnLoop.setMaximumSize(QSize(26, 22))

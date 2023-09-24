@@ -55,6 +55,7 @@ from ui.mainwindow_ui import Ui_MainWindow
 from widgets.rightanglecombobox import RightAngleComboBox
 from widgets.animationswitchbutton import AnimationSwitchButton
 from widgets.dialog import *
+from widgets.uvtogglebutton import UVToggleButton
 
 import datetime
 import pickle
@@ -92,7 +93,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self._viewMode = 'HEX'
         self._is_loop_sending = False
         self._is_timestamp = False
-        self._qckSnd_SelectingRow = 0
 
         self.setupUi(self)
         self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
@@ -243,14 +243,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.menuMoreSettings.addAction(self.actionAbout)
         self.menuMoreSettings.addSeparator()
         self.menuMoreSettings.addAction(self.actionExit)
-        # self.menuMoreSettings.setStyleSheet('''
-        #     QMenu {margin: 2px;color: #202020;background: #eeeeee;}
-        #     /*QMenu::item {padding: 2px 22px 2px 2px;border: 1px solid transparent;}*/
-        #     QMenu::item:selected {background: #51c0d1;}
-        #     QMenu::icon {background: transparent;border: 2px inset transparent;}
-        #     QMenu::item:disabled {color: #808080;background: #eeeeee;}''')
-
-
 
     def setupFlatUi(self):
         self._dragPos = self.pos()
@@ -545,12 +537,12 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             QPushButton:pressed, QToolButton:pressed { background-color:#b8e5f1; }
         """
 
-        self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
+        # self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
         self.btnLoop.setIcon(QIcon(":/images/loop.png"))
-        self.btnLoop.setIconSize(QtCore.QSize(20, 20))
+        # self.btnLoop.setIconSize(QtCore.QSize(20, 20))
         self.btnLoop.clicked.connect(self.onLoopChanged)
         self.btnLoop.setToolTip("Loop Send")
-        self.btnLoop.setCursor(Qt.PointingHandCursor)
+        # self.btnLoop.setCursor(Qt.PointingHandCursor)
 
 
         self.dockWidgetContents_2.setStyleSheet("""
@@ -628,14 +620,16 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.cmbViewMode.setToolTip("Select hexadecimal/ASCII")
         self.cmbViewMode.setCursor(Qt.PointingHandCursor)
 
-        self.btnTimestamp = QPushButton(self.titleBar)
-        self.btnTimestamp.setFixedSize(QSize(24, 24))
-        self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
-        self.btnTimestamp.setIcon(QIcon(":/images/timestamp.png"))
-        self.btnTimestamp.setIconSize(QtCore.QSize(20, 20))
+        # self.btnTimestamp = QPushButton(self.titleBar)
+        # self.btnTimestamp.setFixedSize(QSize(24, 24))
+        # self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
+        # self.btnTimestamp.setIcon(QIcon(":/images/timestamp.png"))
+        # self.btnTimestamp.setIconSize(QtCore.QSize(20, 20))
+        # self.btnTimestamp.clicked.connect(self.onTimestamp)
+        # self.btnTimestamp.setToolTip("Timestamp")
+        # self.btnTimestamp.setCursor(Qt.PointingHandCursor)
+        self.btnTimestamp = UVToggleButton(self.titleBar, QIcon(":/images/timestamp.png"))
         self.btnTimestamp.clicked.connect(self.onTimestamp)
-        self.btnTimestamp.setToolTip("Timestamp")
-        self.btnTimestamp.setCursor(Qt.PointingHandCursor)
 
         self.btnSaveLog = QPushButton(self.titleBar)
         self.btnSaveLog.setParent(self)
@@ -756,13 +750,13 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
         self.titleBar.hBoxLayout.insertLayout(0, self.hBxLyt_tb_1, 0)
 
-        self.btnPin = TransparentToggleToolButton(self.titleBar)
-        self.btnPin.setFixedSize(QSize(26, 26))
+        self.btnPin = UVToggleButton(self.titleBar, QIcon(":/images/pin.png"))
+        # self.btnPin.setFixedSize(QSize(26, 26))
 
-        self.btnPin.setIcon(QIcon(":/images/pin.png"))
-        self.btnPin.setIconSize(QtCore.QSize(24, 24))
-        self.btnPin.setToolTip("Always On Top")
-        self.btnPin.setCursor(Qt.PointingHandCursor)
+        # self.btnPin.setIcon(QIcon(":/images/pin.png"))
+        # self.btnPin.setIconSize(QtCore.QSize(24, 24))
+        # self.btnPin.setToolTip("Always On Top")
+        # self.btnPin.setCursor(Qt.PointingHandCursor)
         self.btnPin.clicked.connect(self.onAlwaysOnTop)
 
         self.titleBar.hBoxLayout.insertWidget(2, self.btnPin, 0, Qt.AlignRight)
@@ -804,16 +798,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
     def onTimestamp(self):
         self._is_timestamp = not self._is_timestamp
-        self.setTimestampEnabled(self._is_timestamp)
-    
-    def setTimestampEnabled(self, enabled):
-        if enabled:
-            self._is_timestamp = True
-            self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'#3a9ecc', 'HBG':'#51c0d1'})
-        else:
-            self._is_timestamp = False
-            self.btnTimestamp.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
-        
         self.readerThread.setTimestampEnable(self._is_timestamp)
 
     def onTogglePortCfgBar(self):
@@ -918,7 +902,9 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                     self.cmbViewMode.setCurrentIndex(id)
 
                 ts = tree.findtext('GUISettings/Timestamp', default='on')
-                self.setTimestampEnabled(True if ts == "on" else False)
+                self._is_timestamp = True if ts == "on" else False
+                self.btnTimestamp.setChecked(self._is_timestamp)
+                self.readerThread.setTimestampEnable(self._is_timestamp)
 
                 sah = tree.findtext('GUISettings/SendAsHex', default='off')
                 self.rdoHEX.setChecked(True if sah == "on" else False)
@@ -942,7 +928,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.qckSndTbl.update()
 
     def openQuickSendFile(self):
-        fileName = QFileDialog.getOpenFileName(self.defaultStyleWidget, "Select a file",
+        fileName = QFileDialog.getOpenFileName(self, "Select a file",
             os.getcwd(), "CSV Files (*.csv)")[0]
         if fileName:
             self.loadQuickSendByFile(fileName, notifyExcept = True)
@@ -959,7 +945,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             self.qckSndTbl.loadFromCSV(path)
         except Exception as e:
             print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
-            raise
             if notifyExcept:
                 QMessageBox.critical(self.defaultStyleWidget, "Load failed",
                     str(e), QMessageBox.Close)
@@ -995,7 +980,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             with open(filepath, 'rb' if 'BF' == form else 'rt') as f:
                 content = f.read()
         except Exception as e:
-            #QMessageBox.critical(self.defaultStyleWidget, "Open failed", str(e), QMessageBox.Close)
             raise e
         else:
             self.appendOutput(self.timestamp(), "sending %s [%s]" % (filepath, form))
@@ -1016,11 +1000,11 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             if self._is_loop_sending:
                 self.stopLoopSend()
             self._is_loop_mode = False
-            self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
+            # self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
             self.btnSend.setText('Send')
         else:
             self._is_loop_mode = True
-            self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'#0072BB', 'HBG':'#51c0d1'})
+            # self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'#0072BB', 'HBG':'#51c0d1'})
             self.btnSend.setText('Start')
         self.spnPeriod.setEnabled(self._is_loop_mode)
 
@@ -1127,10 +1111,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             try:
                 self.serialport.write(byteArray)
             except Exception as e:
-                #QMessageBox.critical(self.defaultStyleWidget,
-                #    "Exception in transmit", str(e), QMessageBox.Close)
-                #print("Exception in transmitBytearray(%s)" % byteArray)
-                #return 0
                 raise e
             else:
                 self.RxTxCnt[1] = self.RxTxCnt[1] + len(byteArray)
@@ -1372,7 +1352,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.txtEdtOutput.clear()
 
     def onSaveLog(self):
-        fileName = QFileDialog.getSaveFileName(self.defaultStyleWidget, "Save log as", os.getcwd(),
+        fileName = QFileDialog.getSaveFileName(self, "Save log as", os.getcwd(),
             "Log files (*.log);;Text files (*.txt);;All files (*.*)")[0]
         if fileName:
             import codecs
@@ -1390,9 +1370,9 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         screenH = screen.height()
         self.setGeometry((screenW-w)//2, (screenH-h)//2, w, h)
 
-        w = self.defaultStyleWidget.frameGeometry().width()
-        h = self.defaultStyleWidget.frameGeometry().height()
-        self.defaultStyleWidget.setGeometry((screenW-w)//2, (screenH-h)//2, w, h)
+        w = self.frameGeometry().width()
+        h = self.frameGeometry().height()
+        self.setGeometry((screenW-w)//2, (screenH-h)//2, w, h)
 
     def onPortMonitorExcept(self, e):
         print('PortMonitorExcept', str(e))
@@ -1464,7 +1444,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             self.cmbPort.setCurrentIndex(idx)
 
     def onAbout(self):
-        # QMessageBox.about(self.defaultStyleWidget, "About UartVide", appInfo.aboutme)
         ad = AboutDialog(self, "About UartVide", appInfo.aboutme)
         ad.show()
 

@@ -29,16 +29,28 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
+from qfluentwidgets import *
 
-
-class ToolButton(QToolButton):
-    rightClicked = Signal()
+class UVToggleButton(TransparentToggleToolButton):
+    # rightClicked = Signal()
     
-    def __init__(self, *args, **kwargs):
-        super(ToolButton, self).__init__(*args, **kwargs)
+    def __init__(self, parent=None, icon=None):
+        super(UVToggleButton, self).__init__(parent)
+        
+        self.setFixedSize(QSize(24, 24))
+        self.setStyleSheet("""
+            UVToggleButton { background-color: transparent; border:none; border-radius: 6px; }
+            UVToggleButton:hover { background-color:#51c0d1; }
+            UVToggleButton:pressed { background-color:#b8e5f1; }
+            UVToggleButton:checked { background-color: #51c0d1; }
+        """)
+        self.setIcon(icon)
+        self.setIconSize(QtCore.QSize(20, 20))
+        self.setToolTip("Timestamp")
+        self.setCursor(Qt.PointingHandCursor)
 
-    def mousePressEvent(self, event):
-        if event.button() == Qt.RightButton:
-            self.rightClicked.emit()
-        super(ToolButton, self).mousePressEvent(event)
+    # def mousePressEvent(self, event):
+    #     if event.button() == Qt.RightButton:
+    #         self.rightClicked.emit()
+    #     super(UVToggleButton, self).mousePressEvent(event)
 

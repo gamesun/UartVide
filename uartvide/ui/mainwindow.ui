@@ -813,7 +813,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="btnLoop">
+        <widget class="UVToggleButton" name="btnLoop">
          <property name="minimumSize">
           <size>
            <width>26</width>
@@ -1021,6 +1021,11 @@
    <class>UVTextEdit</class>
    <extends>QTextEdit</extends>
    <header>widgets/uvtextedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UVToggleButton</class>
+   <extends>QToolButton</extends>
+   <header>widgets/uvtogglebutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -80,3 +80,70 @@ class AboutDialog(FramelessDialog):
         self.hBxLyt.addWidget(self.lblContent)
 
         self.setFixedSize(QSize(460, 200))
+
+
+theSolitaryRenameDailog = None
+
+class RenameDailog(FramelessDialog):
+
+    def __init__(self, *args, **kwargs):
+        super(RenameDailog, self).__init__(*args, **kwargs)
+
+        self.titleBar.closeBtn.hide()
+
+        self.setAttribute(Qt.WA_DeleteOnClose)
+        self.destroyed.connect(self.close)
+
+        self.newname = None
+
+        self.__edt = LineEdit()
+        
+        vLayout = QVBoxLayout(self)
+        vLayout.addWidget(self.__edt)
+
+        btnOK = PushButton('OK')
+        btnOK.setFixedSize(QSize(70, 28))
+        btnOK.clicked.connect(self.onOK)
+        
+        btnCancel = PushButton('Cancel')
+        btnCancel.setFixedSize(QSize(70, 28))
+        btnCancel.clicked.connect(self.onCancel)
+
+        spacer_1 = QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        spacer_2 = QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        spacer_3 = QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        
+        hLayout = QHBoxLayout()
+        hLayout.addItem(spacer_1)
+        hLayout.addWidget(btnOK)
+        hLayout.addItem(spacer_2)
+        hLayout.addWidget(btnCancel)
+        hLayout.addItem(spacer_3)
+
+        vLayout.addLayout(hLayout)
+
+        self.setStyleSheet('QWidget { background-color: white; outline: none; border: 1px solid rgba(0, 0, 0, 0.1); }')
+        self.setFixedSize(QSize(250, 100))
+
+    def onOK(self):
+        self.newname = self.__edt.text()
+        self.close()
+
+    def onCancel(self):
+        self.close()
+
+    @staticmethod
+    def getNewName(oldname, pos):
+        global theSolitaryRenameDailog
+        theSolitaryRenameDailog = RenameDailog()
+        theSolitaryRenameDailog.__renamedailog(oldname, pos)
+        return theSolitaryRenameDailog.newname
+    
+    def __renamedailog(self, oldname, pos):
+        self.move(pos.x(), pos.y())
+        self.__edt.setText(oldname)
+        self.__edt.selectAll()
+        self.__edt.setFocus()
+
+        self.exec()
+
