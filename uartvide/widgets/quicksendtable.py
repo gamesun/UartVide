@@ -99,6 +99,7 @@ class IndexButton(ToolButton):
 
 class FormatComboBox(RightAngleComboBox):
     rightClicked = Signal(IndexClickEvent)
+    formatChanged = Signal(str, int)
     dictFormat = {
         'HEX':'H', 
         'Ascii':'A', 
@@ -111,6 +112,7 @@ class FormatComboBox(RightAngleComboBox):
     def __init__(self, parent=None, index: int=0, text: str=''):
         super().__init__(parent)
         self._index = index
+        self.currentTextChanged.connect(self.onCurrentTextChanged)
         self.setStyleSheet('''
             ComboBox {
                 padding: 2px 2px 3px 4px;
@@ -174,7 +176,7 @@ class FormatComboBox(RightAngleComboBox):
         ''')
 
         self.addItems(list(self.dictFormat.keys()))
-        self.setMaximumWidth(36)
+        self.setFixedWidth(24)
     
     def setIndex(self, index: int):
         self._index = index
@@ -190,6 +192,9 @@ class FormatComboBox(RightAngleComboBox):
                         idx = i
             super().setCurrentIndex(idx)
             super().setText(text)
+        
+    def onCurrentTextChanged(self, text):
+        self.formatChanged.emit(text, self._index)
 
     def mousePressEvent(self, mouseEvent):
         if mouseEvent.button() == Qt.RightButton:
@@ -314,6 +319,12 @@ class QuickSendTable(QTableWidget):
         self._selectingRow = indexClickEvent.index()
         self.menuRightClick.popup(indexClickEvent.pos())
 
+    def onFormatChanged(self, text, row):
+        if 'F' in text:
+            self._rowList[row].path_btn.show()
+        else:
+            self._rowList[row].path_btn.hide()
+
     def onSelectFile(self, indexClickEvent):
         old_path = self.text(indexClickEvent.index(), 2)
         fileName = QFileDialog.getOpenFileName(self, "Select a file",
@@ -364,6 +375,7 @@ class QuickSendTable(QTableWidget):
             self._rowList[row].send_btn.clicked.connect(self._send_func)
             self._rowList[row].send_btn.rightClicked.connect(self.onRightClicked)
             self._rowList[row].fmt_cmb.rightClicked.connect(self.onRightClicked)
+            self._rowList[row].fmt_cmb.formatChanged.connect(self.onFormatChanged)
             self._rowList[row].path_btn.clicked.connect(self.onSelectFile)
 
             self.setCellWidget(row, 0, self._rowList[row].send_btn)
