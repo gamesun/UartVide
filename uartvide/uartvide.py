@@ -1424,24 +1424,17 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.updatePortComboText(ports_lst)
 
     def updatePortComboText(self, ports_lst):
-        # print(ports_lst)
-        sel = self.cmbPort.currentText()
-        # fm = QFontMetrics(self.cmbPort.fontMetrics())
-        # maxlen = 0
+        current_text = self.cmbPort.currentText()
         self.cmbPort.clear()
-        for port, desc, isbusy in ports_lst:
+        index = 0
+        for idx, (port, desc, isbusy) in enumerate(ports_lst):
             state = '⛔ ' if isbusy else '🟢 '
             text = port + ' ' + state + desc
             self.cmbPort.addItem(text)
-            # l = fm.horizontalAdvance(text)
-            # if maxlen < l:
-            #     maxlen = l
-        # self.cmbPort.view().setFixedWidth(maxlen*1.4)
-        # self.cmbPort.view().setFixedHeight(len(ports_lst) * 18)
+            if port == current_text:
+                index = idx
         
-        idx = self.cmbPort.findText(sel, Qt.MatchContains)
-        if idx != -1:
-            self.cmbPort.setCurrentIndex(idx)
+        self.cmbPort.setCurrentIndex(index)
 
     def onAbout(self):
         ad = AboutDialog(self, "About UartVide", appInfo.aboutme)
