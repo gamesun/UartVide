@@ -174,7 +174,7 @@ class FormatComboBox(RightAngleComboBox):
         ''')
 
         self.addItems(list(self.dictFormat.keys()))
-        self.setMaximumWidth(30)
+        self.setMaximumWidth(36)
     
     def setIndex(self, index: int):
         self._index = index
