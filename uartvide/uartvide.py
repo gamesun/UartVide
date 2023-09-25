@@ -1514,6 +1514,109 @@ def string_to_hex(hexstring):
                 raise Exception("'%s' is not hexadecimal." % (word))
     return hexarray
 
+class CommandParser(QObject):
+    commandDetected = Signal(bytes)
+    pilogDetected = Signal(bytes)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self._basic_status = 'h1'  # h1,h2,h3,l1,l2,typ,pld
+        self._basic_len = 0
+        self._basic_typ = 0
+        self._basic_len_cnt = 0
+        self._basic_buf = b''
+
+        self._log_status = 'ph'    # ph,l1,l2,typ,pld
+        self._log_len = 0
+        self._log_typ = 0
+        self._log_len_cnt = 0
+        self._log_buf = b''
+
+    def setHeader(self, basic_header, log_header):
+        self._basic_header = basic_header
+        self._log_header = log_header
+
+    def parse(self, bytes):
+        for b in bytes:
+            self.__parse_basic(b)
+
+    def __parse_basic(self, byte):
+        byte = byte.to_bytes(1, 'big')
+        if 'h1' == self._basic_status:
+            if byte == self._basic_header[0]:
+                self._basic_status = 'h2'
+                self._basic_buf = byte
+                self._basic_len_cnt = 0
+        elif 'h2' == self._basic_status:
+            if byte == self._basic_header[1]:
+                self._basic_status = 'h3'
+                self._basic_buf = self._basic_buf + byte
+        elif 'h3' == self._basic_status:
+            if byte == self._basic_header[2]:
+                self._basic_status = 'l1'
+                self._basic_buf = self._basic_buf + byte
+        elif 'l1' == self._basic_status:
+            self._basic_status = 'l2'
+            self._basic_buf = self._basic_buf + byte
+        elif 'l2' == self._basic_status:
+            self._basic_status = 'typ'
+            self._basic_buf = self._basic_buf + byte
+            self._basic_len = int.from_bytes(self._basic_buf[-2:], byteorder='big', signed=False)
+            if self._basic_len % 2:
+                self._basic_len = self._basic_len + 1
+            self._basic_len = self._basic_len + 6
+            self._basic_len_cnt = 6
+        elif 'typ' == self._basic_status:
+            self._basic_status = 'pld'
+            self._basic_buf = self._basic_buf + byte
+            self._basic_typ = byte
+        elif 'pld' == self._basic_status:    # payload
+            self._basic_buf = self._basic_buf + byte
+            self._basic_len_cnt = self._basic_len_cnt + 1
+            if self._basic_len <= self._basic_len_cnt:
+                self.commandDetected.emit(self._basic_buf)
+                # print('parser end', 'Rx:'+''.join('%02X ' % t for t in self._parser_buf))
+                self._basic_status = 'h1'
+                self._basic_buf = b''
+                self._basic_len_cnt = 0
+        else:
+            self._basic_status = 'h1'
+    
+    def __parse_pilog(self, byte):
+        byte = byte.to_bytes(1, 'big')
+        if 'ph' == self._log_status:
+            if byte == self._log_header:
+                self._log_status = 'l1'
+                self._log_buf = byte
+                self._log_len_cnt = 0
+        elif 'l1' == self._log_status:
+            self._log_status = 'l2'
+            self._log_buf = self._log_buf + byte
+        elif 'l2' == self._log_status:
+            self._log_status = 'typ'
+            self._log_buf = self._log_buf + byte
+            self._log_len = int.from_bytes(self._log_buf[-2:], byteorder='big', signed=False)
+            if self._log_len % 2:
+                self._log_len = self._log_len + 1
+            self._log_len = self._log_len + 6
+            self._log_len_cnt = 6
+        elif 'typ' == self._log_status:
+            self._log_status = 'pld'
+            self._log_buf = self._log_buf + byte
+            self._log_typ = byte
+        elif 'pld' == self._log_status:    # payload
+            self._log_buf = self._log_buf + byte
+            self._log_len_cnt = self._log_len_cnt + 1
+            if self._log_len <= self._log_len_cnt:
+                self.pilogDetected.emit(self._log_buf)
+                self._log_status = 'ph'
+                self._log_buf = b''
+                self._log_len_cnt = 0
+        else:
+            self._log_status = 'ph'
+
+
 class ReaderThread(QThread):
     """loop and copy serial->GUI"""
     read = Signal(list)
@@ -1525,6 +1628,12 @@ class ReaderThread(QThread):
         self._stopped = True
         self._serialport = None
         self._ts_enabled = False
+
+        self.cmdParser = CommandParser()
+        self.cmdParser.commandDetected.connect(self.onCommandDetected)
+
+    def onCommandDetected(self, bytes):
+        self.read.emit(bytes)
 
     def setPort(self, port):
         self._serialport = port
@@ -1576,7 +1685,8 @@ class ReaderThread(QThread):
                     sleep(wait_time)
                     
                 if bytes_data:
-                    self.read.emit([ts, bytes_data])
+                    # self.read.emit([ts, bytes_data])
+                    self.cmdParser.parse(bytes_data)
         except Exception as e:
             self.exception.emit('{}'.format(e))
         self._stopped = True
