@@ -35,7 +35,7 @@ class UVTextEdit(QTextEdit):
     
     def __init__(self, *args, **kwargs):
         super(UVTextEdit, self).__init__(*args, **kwargs)
-        self.scrollDelegate = SmoothScrollDelegate(self, True)
+        self.scrollDelegate = SmoothScrollDelegate(self)
         self.setStyleSheet('''
             TextEdit {
                 background-color:white;

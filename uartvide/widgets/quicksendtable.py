@@ -81,7 +81,6 @@ class IndexButton(ToolButton):
         self._index = index
 
     def mousePressEvent(self, mouseEvent):
-        print('press')
         if mouseEvent.button() == Qt.LeftButton:
             self.clicked.emit(IndexClickEvent(mouseEvent.globalPos(), self._index))
         if mouseEvent.button() == Qt.RightButton:

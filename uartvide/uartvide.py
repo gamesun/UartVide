@@ -69,7 +69,7 @@ import serial
 from serial.tools.list_ports import comports
 from time import sleep
 import re
-
+from logparser import LogParser
 
 if os.name == 'nt':
     CODE_FONT = "Consolas"
@@ -89,6 +89,9 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.portMonitorThread = PortMonitorThread(self)
         self.portMonitorThread.start()
         self.loopSendThread = LoopSendThread(self)
+
+        self.logParser = LogParser()
+
         self._is_always_on_top = False
         self._viewMode = 'HEX'
         self._is_loop_sending = False
@@ -144,7 +147,8 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         
         self.loopSendThread.trigger.connect(self.onPeriodTrigger)
 
-        self.readerThread.read.connect(self.onReceive)
+        self.readerThread.receiveCommand.connect(self.onReceiveCommand)
+        self.readerThread.receiveUnknownData.connect(self.onReceiveUnknownData)
         self.readerThread.exception.connect(self.onReaderExcept)
 
         self.portMonitorThread.portsListChanged.connect(self.onPortsListChanged)
@@ -798,7 +802,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
     def onTimestamp(self):
         self._is_timestamp = not self._is_timestamp
-        self.readerThread.setTimestampEnable(self._is_timestamp)
 
     def onTogglePortCfgBar(self):
         #self.pos_animation.start()
@@ -904,7 +907,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 ts = tree.findtext('GUISettings/Timestamp', default='on')
                 self._is_timestamp = True if ts == "on" else False
                 self.btnTimestamp.setChecked(self._is_timestamp)
-                self.readerThread.setTimestampEnable(self._is_timestamp)
 
                 sah = tree.findtext('GUISettings/SendAsHex', default='off')
                 self.rdoHEX.setChecked(True if sah == "on" else False)
@@ -1119,6 +1121,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
     def onReaderExcept(self, e):
         self.closePort()
+        print(str(e))
         InfoBar.warning(
             title='Read Failed',
             content=str(e),
@@ -1154,15 +1157,22 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         #     self.lblRxTxCnt.setGeometry(rect)
         # self.lblRxTxCnt.setText(cnt_text)
         # self.lblRxTxCnt_textlen = textlen
+    
+    def onReceiveUnknownData(self, data):
+        self.onReceive(data)
 
-    def onReceive(self, data):
-        ts = data[0]
-        ts_text = ''
-        if type(ts) == datetime.time:
-            if ts.microsecond:
-                ts_text = ts.isoformat()[:-3]+':'
-            else:
-                ts_text = ts.isoformat() + '.000:'
+    def onReceiveCommand(self, data):
+        self.onReceive(data, True)
+
+    def onReceive(self, data, isCmd = False):
+        ts_text = None
+        if self._is_timestamp:
+            ts = data[0]
+            if type(ts) == datetime.time:
+                if ts.microsecond:
+                    ts_text = ts.isoformat()[:-3]+':'
+                else:
+                    ts_text = ts.isoformat() + '.000:'
 
         self.RxTxCnt[0] = self.RxTxCnt[0] + len(data[1])
         self.updateRxTxCnt()
@@ -1175,32 +1185,47 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             text = ''.join('%02X ' % b for b in data[1])
 
         self.appendOutput(ts_text, text, 'R')
+        
+        if isCmd:
+            cmdId = data[1][6:8]
+            if cmdId == b'\x43\x40':       # start
+                self._logBuf = ''
+            elif cmdId == b'\x43\x42':     # end
+                self.appendOutputText(self._logBuf, BgColor='lemonchiffon')
+            elif cmdId == b'\x43\x41':     # content
+                self._logBuf = self._logBuf + self.logParser.parse(data[1])
 
     def appendOutput(self, ts_text, data_text, data_type = 'T'):
         self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
+        self.txtEdtOutput.setTextBackgroundColor(QColor(Qt.white))
         if data_type == 'R':
-            self.txtEdtOutput.setTextColor(QtGui.QColor('#800000'))
-            self.txtEdtOutput.insertPlainText(ts_text)
+            if ts_text:
+                self.txtEdtOutput.setTextColor(QtGui.QColor('#800000'))
+                self.txtEdtOutput.insertPlainText(ts_text)
             self.txtEdtOutput.setTextColor(QtGui.QColor('#000000'))
             self.txtEdtOutput.insertPlainText(data_text)
         elif data_type == 'T':
-            self.txtEdtOutput.setTextColor(QtGui.QColor('#800000'))
-            self.txtEdtOutput.insertPlainText(ts_text)
+            if ts_text:
+                self.txtEdtOutput.setTextColor(QtGui.QColor('#800000'))
+                self.txtEdtOutput.insertPlainText(ts_text)
             self.txtEdtOutput.setTextColor(QtGui.QColor('#0000ff'))
             self.txtEdtOutput.insertPlainText(data_text)
         self.txtEdtOutput.insertPlainText('\n')
         self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
 
-    def appendOutputText(self, data, color=Qt.black):
+    def appendOutputText(self, data, color=Qt.black, BgColor=Qt.white):
         # the qEditText's "append" methon will add a unnecessary newline.
         # self.txtEdtOutput.append(data.decode('utf-8'))
 
-        tc = self.txtEdtOutput.textColor()
         self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
-        self.txtEdtOutput.setTextColor(QtGui.QColor(color))
+        self.txtEdtOutput.setTextColor(QColor(color))
+        self.txtEdtOutput.setTextBackgroundColor(QColor(BgColor))
+
         self.txtEdtOutput.insertPlainText(data)
+
         self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
-        self.txtEdtOutput.setTextColor(tc)
+        self.txtEdtOutput.setTextColor(QColor(Qt.black))
+        self.txtEdtOutput.setTextBackgroundColor(QColor(Qt.white))
 
     def getPort(self):
         return self.cmbPort.currentText()
@@ -1515,8 +1540,9 @@ def string_to_hex(hexstring):
     return hexarray
 
 class CommandParser(QObject):
-    commandDetected = Signal(bytes)
-    pilogDetected = Signal(bytes)
+    commandDetected = Signal(list)
+    unknownData = Signal(list)
+    # pilogDetected = Signal(list)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -1526,36 +1552,48 @@ class CommandParser(QObject):
         self._basic_typ = 0
         self._basic_len_cnt = 0
         self._basic_buf = b''
+        self._basic_header = b'\x84\xa9\x61'
 
         self._log_status = 'ph'    # ph,l1,l2,typ,pld
         self._log_len = 0
         self._log_typ = 0
         self._log_len_cnt = 0
         self._log_buf = b''
+        self._log_header = ''
 
     def setHeader(self, basic_header, log_header):
         self._basic_header = basic_header
         self._log_header = log_header
 
     def parse(self, bytes):
+        parse_succeed = True
         for b in bytes:
-            self.__parse_basic(b)
+            parse_succeed = self.__parse_basic(b)
+        if not parse_succeed:
+            self.unknownData.emit([datetime.datetime.now().time(), bytes])
 
     def __parse_basic(self, byte):
+        parse_succeed = True
         byte = byte.to_bytes(1, 'big')
         if 'h1' == self._basic_status:
-            if byte == self._basic_header[0]:
+            if byte == self._basic_header[0:1]:
                 self._basic_status = 'h2'
                 self._basic_buf = byte
                 self._basic_len_cnt = 0
+            else:
+                parse_succeed = False
         elif 'h2' == self._basic_status:
-            if byte == self._basic_header[1]:
+            if byte == self._basic_header[1:2]:
                 self._basic_status = 'h3'
                 self._basic_buf = self._basic_buf + byte
+            else:
+                parse_succeed = False
         elif 'h3' == self._basic_status:
-            if byte == self._basic_header[2]:
+            if byte == self._basic_header[2:3]:
                 self._basic_status = 'l1'
                 self._basic_buf = self._basic_buf + byte
+            else:
+                parse_succeed = False
         elif 'l1' == self._basic_status:
             self._basic_status = 'l2'
             self._basic_buf = self._basic_buf + byte
@@ -1575,51 +1613,57 @@ class CommandParser(QObject):
             self._basic_buf = self._basic_buf + byte
             self._basic_len_cnt = self._basic_len_cnt + 1
             if self._basic_len <= self._basic_len_cnt:
-                self.commandDetected.emit(self._basic_buf)
+                self.commandDetected.emit([datetime.datetime.now().time(), self._basic_buf])
                 # print('parser end', 'Rx:'+''.join('%02X ' % t for t in self._parser_buf))
                 self._basic_status = 'h1'
                 self._basic_buf = b''
                 self._basic_len_cnt = 0
         else:
             self._basic_status = 'h1'
+            parse_succeed = False
+        
+        return parse_succeed
+
+        # print(byte, self._basic_header[0], byte == self._basic_header[0])
     
-    def __parse_pilog(self, byte):
-        byte = byte.to_bytes(1, 'big')
-        if 'ph' == self._log_status:
-            if byte == self._log_header:
-                self._log_status = 'l1'
-                self._log_buf = byte
-                self._log_len_cnt = 0
-        elif 'l1' == self._log_status:
-            self._log_status = 'l2'
-            self._log_buf = self._log_buf + byte
-        elif 'l2' == self._log_status:
-            self._log_status = 'typ'
-            self._log_buf = self._log_buf + byte
-            self._log_len = int.from_bytes(self._log_buf[-2:], byteorder='big', signed=False)
-            if self._log_len % 2:
-                self._log_len = self._log_len + 1
-            self._log_len = self._log_len + 6
-            self._log_len_cnt = 6
-        elif 'typ' == self._log_status:
-            self._log_status = 'pld'
-            self._log_buf = self._log_buf + byte
-            self._log_typ = byte
-        elif 'pld' == self._log_status:    # payload
-            self._log_buf = self._log_buf + byte
-            self._log_len_cnt = self._log_len_cnt + 1
-            if self._log_len <= self._log_len_cnt:
-                self.pilogDetected.emit(self._log_buf)
-                self._log_status = 'ph'
-                self._log_buf = b''
-                self._log_len_cnt = 0
-        else:
-            self._log_status = 'ph'
+    # def __parse_pilog(self, byte):
+    #     byte = byte.to_bytes(1, 'big')
+    #     if 'ph' == self._log_status:
+    #         if byte == self._log_header:
+    #             self._log_status = 'l1'
+    #             self._log_buf = byte
+    #             self._log_len_cnt = 0
+    #     elif 'l1' == self._log_status:
+    #         self._log_status = 'l2'
+    #         self._log_buf = self._log_buf + byte
+    #     elif 'l2' == self._log_status:
+    #         self._log_status = 'typ'
+    #         self._log_buf = self._log_buf + byte
+    #         self._log_len = int.from_bytes(self._log_buf[-2:], byteorder='big', signed=False)
+    #         if self._log_len % 2:
+    #             self._log_len = self._log_len + 1
+    #         self._log_len = self._log_len + 6
+    #         self._log_len_cnt = 6
+    #     elif 'typ' == self._log_status:
+    #         self._log_status = 'pld'
+    #         self._log_buf = self._log_buf + byte
+    #         self._log_typ = byte
+    #     elif 'pld' == self._log_status:    # payload
+    #         self._log_buf = self._log_buf + byte
+    #         self._log_len_cnt = self._log_len_cnt + 1
+    #         if self._log_len <= self._log_len_cnt:
+    #             self.pilogDetected.emit(self._log_buf)
+    #             self._log_status = 'ph'
+    #             self._log_buf = b''
+    #             self._log_len_cnt = 0
+    #     else:
+    #         self._log_status = 'ph'
 
 
 class ReaderThread(QThread):
     """loop and copy serial->GUI"""
-    read = Signal(list)
+    receiveCommand = Signal(list)
+    receiveUnknownData = Signal(list)
     exception = Signal(str)
 
     def __init__(self, parent=None):
@@ -1627,19 +1671,19 @@ class ReaderThread(QThread):
         self._alive = False
         self._stopped = True
         self._serialport = None
-        self._ts_enabled = False
 
         self.cmdParser = CommandParser()
         self.cmdParser.commandDetected.connect(self.onCommandDetected)
+        self.cmdParser.unknownData.connect(self.onUnknownData)
 
-    def onCommandDetected(self, bytes):
-        self.read.emit(bytes)
+    def onCommandDetected(self, data):
+        self.receiveCommand.emit(data)
+
+    def onUnknownData(self, data):
+        self.receiveUnknownData.emit(data)
 
     def setPort(self, port):
         self._serialport = port
-
-    def setTimestampEnable(self, enabled):
-        self._ts_enabled = enabled
 
     def calcWaitTime(self):
         bits = 1 + self._serialport.bytesize + (0 if self._serialport.parity == 'N' else 1) + self._serialport.stopbits
@@ -1670,10 +1714,6 @@ class ReaderThread(QThread):
             while self._alive:
                 bytes_data = self._serialport.read(self._serialport.inWaiting() or 1)
                 wait_time = self.calcWaitTime()
-                if self._ts_enabled:
-                    ts = datetime.datetime.now().time()
-                else:
-                    ts = None
                 if not self._alive:
                     return
                 else:
