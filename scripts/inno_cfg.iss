@@ -1,12 +1,12 @@
 ; Inno setup Script
 ; 
 
-#define Name "UartVide"
-#define Version "2.6"
+#define Name "UartVide-SCM"
+#define Version "1.0"
 #define Copyright "Copyright (C) 2013-2023 gamesun"
 
 [Setup]
-AppId={{642B6C19-ADA2-4C04-B1BF-49F7E88A4D0C}
+AppId={{48E4C77E-F19E-44F1-98CC-F4F3F466637B}
 AppName={#Name}
 AppVersion={#Version}
 DefaultDirName={autopf}\{#Name}
@@ -31,7 +31,7 @@ DisableWelcomePage=no
 CloseApplicationsFilter=*.*
 
 [Files]
-Source: "dist\uartvide\*"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "dist\uartvide-scm\*"; DestDir: "{app}"; Flags: recursesubdirs
 Source: "..\LICENSE.txt"; DestDir: "{app}"
 Source: "..\readme.htm"; DestDir: "{app}"
 

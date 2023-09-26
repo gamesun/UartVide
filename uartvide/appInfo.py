@@ -24,9 +24,9 @@
 #############################################################################
 
 
-title = 'UartVide'
-version = '2.6'
-url = 'http://sourceforge.net/projects/myterm/'
+title = 'UartVide-SCM'
+version = '1.0'
+url = 'https://github.com/gamesun/UartVide'
 author = 'gamesun'
 copyright = 'Copyright (C) 2013-2023, gamesun'
 aboutme = """
@@ -34,7 +34,7 @@ aboutme = """
 <div>%(copyright)s</div></p>
 
 <p><div><a href='https://github.com/gamesun/UartVide'>Homepage on GitHub</a></div>
-<div><a href='http://sourceforge.net/projects/myterm/'>Download from SourceForge</a></div></p>
+</p>
 
 <p><div>%(title)s is licensed under the GNU GPL v3 or later.<br>
 For detail see LICENSE.txt. </div></p>
