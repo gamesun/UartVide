@@ -1,4 +1,4 @@
-# UartVide ![logo](res/uartvide-icon/uartvide_48.png)   
+# UartVide ![logo](uartvide/res/uartvide-icon/uartvide_48.png)   
 
 ![](https://img.shields.io/badge/platform-win--7%20|%20win--8%20|%20win--10-lightgrey)  
 ![](https://img.shields.io/badge/platform-win--64%20|%20linux--64-lightgrey)  

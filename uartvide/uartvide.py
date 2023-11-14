@@ -167,7 +167,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.spnPeriod.setEnabled(False)
 
         self.loadSettings()
-        self.onEnumPorts()
+        self.onPortComboListShow()
         # self.onClearRxTxCnt()
 
         self.titleBar.raise_()
@@ -591,7 +591,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.cmbPort.setCurrentText("")
         self.cmbPort.setMinimumSize(QSize(0, 24))
         self.cmbPort.setMaximumSize(QSize(150, 24))
-        self.cmbPort.listShowEntered.connect(self.onEnumPorts)
+        self.cmbPort.listShowEntered.connect(self.onPortComboListShow)
         self.cmbPort.currentTextChanged.connect(self.onPortChanged)
         self.cmbPort.setToolTip("Select/Input Port")
         self.cmbPort.setCursor(Qt.PointingHandCursor)
@@ -1403,7 +1403,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         print('PortMonitorExcept', str(e))
 
     def onPortsListChanged(self, ports_lst):
-        self.updatePortComboText(ports_lst[0])
 
         for inc in ports_lst[1]:
             InfoBar.success(
@@ -1444,11 +1443,11 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             parent=self
         )
 
-    def onEnumPorts(self):
+    def onPortComboListShow(self):
         ports_lst = [[port, desc, is_port_busy(port)] for port, desc, _ in sorted(comports())]
-        self.updatePortComboText(ports_lst)
+        self.setPortComboItems(ports_lst)
 
-    def updatePortComboText(self, ports_lst):
+    def setPortComboItems(self, ports_lst):
         current_text = self.cmbPort.currentText()
         self.cmbPort.clear()
         index = 0
