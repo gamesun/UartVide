@@ -24,8 +24,8 @@
 #############################################################################
 
 
-title = 'UartVide-SCM'
-version = '1.0'
+title = 'UartVide-SCT'
+version = '1.1'
 url = 'https://github.com/gamesun/UartVide'
 author = 'gamesun'
 copyright = 'Copyright (C) 2013-2023, gamesun'

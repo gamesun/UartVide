@@ -1,8 +1,8 @@
 ; Inno setup Script
 ; 
 
-#define Name "UartVide-SCM"
-#define Version "1.0"
+#define Name "UartVide-SCT"
+#define Version "1.1"
 #define Copyright "Copyright (C) 2013-2023 gamesun"
 
 [Setup]
@@ -31,12 +31,15 @@ DisableWelcomePage=no
 CloseApplicationsFilter=*.*
 
 [Files]
-Source: "dist\uartvide-scm\*"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "dist\uartvide-sct\*"; DestDir: "{app}"; Flags: recursesubdirs
 Source: "..\LICENSE.txt"; DestDir: "{app}"
 Source: "..\readme.htm"; DestDir: "{app}"
 
-[UninstallDelete]
-Type: filesandordirs; Name: "{app}\Settings"
+[Dirs]
+Name: "{app}\Settings"; Flags: uninsneveruninstall
+
+; [UninstallDelete]
+; Type: filesandordirs; Name: "{app}\Settings"
 
 [Icons]
 ; add icon to desktop
