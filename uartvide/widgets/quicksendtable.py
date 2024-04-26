@@ -346,6 +346,8 @@ class QuickSendTable(QTableWidget):
                 self.setRowContent(i, ['%d' % i, 'H', ''])
         elif rows < len(self._rowList):
             del self._rowList[rows:]
+        
+        self.resizeColumnsToContents()
 
     def refreshWidgets(self, row):
         self.removeCellWidget(row, 0)
@@ -389,6 +391,15 @@ class QuickSendTable(QTableWidget):
             self.setRowHeight(row, 20)
 
             self._rowList[row].has_setup = True
+        else:
+            self._rowList[row].send_btn.setText(name)
+            self._rowList[row].fmt_cmb.setText(fmt)
+            self._rowList[row].data_edt.setText(data)
+
+            if 'F' in fmt:
+                self._rowList[row].path_btn.show()
+            else:
+                self._rowList[row].path_btn.hide()
     
     def refreshButtonIndex(self, row):
             self._rowList[row].send_btn.setIndex(row)
@@ -422,6 +433,7 @@ class QuickSendTable(QTableWidget):
                     if 3 < len(one_line):
                         one_line = one_line[:3]
                     self.setRowContent(i, text_lst=one_line)
+        self.resizeColumnsToContents()
 
     def saveToCSV(self, fileName: str):
         rows = self.rowCount()

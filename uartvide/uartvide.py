@@ -926,9 +926,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         else:
             self.qckSndTbl.setRowCount(10)
 
-        self.qckSndTbl.resizeColumnsToContents()
-        self.qckSndTbl.update()
-
     def openQuickSendFile(self):
         fileName = QFileDialog.getOpenFileName(self, "Select a file",
             os.getcwd(), "CSV Files (*.csv)")[0]
@@ -948,8 +945,15 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         except Exception as e:
             print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
             if notifyExcept:
-                QMessageBox.critical(self.defaultStyleWidget, "Load failed",
-                    str(e), QMessageBox.Close)
+                InfoBar.warning(
+                    title='Load failed',
+                    content=str(e),
+                    orient=Qt.Horizontal,
+                    isClosable=True,
+                    position=InfoBarPosition.BOTTOM_LEFT,
+                    duration=3000,
+                    parent=self
+                )
 
     def onQuickSend(self, indexClickEvent):
         row = indexClickEvent.index()
