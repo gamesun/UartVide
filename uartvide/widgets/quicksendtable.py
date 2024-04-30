@@ -257,13 +257,13 @@ class QuickSendTable(QTableWidget):
         """)
 
     def initMenu(self):
-        self.actionRename = QtWidgets.QAction("Rename", self)
+        self.actionRename = Action(FluentIcon.EDIT, "Rename", self)
         self.actionRename.triggered.connect(self.onRename)
 
-        self.actionInsertRow = QtWidgets.QAction("Insert row", self)
+        self.actionInsertRow = Action(FluentIcon.ADD, "Insert row", self)
         self.actionInsertRow.triggered.connect(self.onInsertRow)
 
-        self.actionDeleteRow = QtWidgets.QAction("Delete row", self)
+        self.actionDeleteRow = Action(FluentIcon.DELETE, "Delete row", self)
         self.actionDeleteRow.triggered.connect(self.onRemoveRow)
 
         self.menuRightClick = RoundMenu(parent=self)
