@@ -2,7 +2,7 @@
 ; 
 
 #define Name "UartVide-SCT"
-#define Version "1.1"
+#define Version "1.2"
 #define Copyright "Copyright (C) 2013-2024 gamesun"
 
 [Setup]

@@ -25,7 +25,7 @@
 
 
 title = 'UartVide-SCT'
-version = '1.1'
+version = '1.2'
 url = 'https://github.com/gamesun/UartVide'
 author = 'gamesun'
 copyright = 'Copyright (C) 2013-2024, gamesun'
