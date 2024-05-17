@@ -3,7 +3,7 @@
 
 #define Name "UartVide"
 #define Version "2.6"
-#define Copyright "Copyright (C) 2013-2023 gamesun"
+#define Copyright "Copyright (C) 2013-2024 gamesun"
 
 [Setup]
 AppId={{642B6C19-ADA2-4C04-B1BF-49F7E88A4D0C}
