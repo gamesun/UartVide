@@ -1198,6 +1198,21 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 self.appendOutputText(self._logBuf, BgColor='lemonchiffon')
             elif cmdId == b'\x43\x41':     # content
                 self._logBuf = self._logBuf + self.logParser.parse(data[1])
+            elif cmdId[0] in [0x30, 0x31, 0x32]:
+                asc_str_len = cmdId[1]
+                asc_str = data[1][8:8 + asc_str_len]
+                asc_str = ''.join(chr(b) if b != 0 else ' ' for b in asc_str) + '\n'
+                self.appendOutputText(asc_str, BgColor='lemonchiffon')
+            elif cmdId[0] in [0x34]:
+                asc_str_len = data[1][4] - 1
+                asc_str = data[1][7:7 + asc_str_len]
+                asc_str = ''.join(chr(b) if b != 0 else ' ' for b in asc_str) + '\n'
+                self.appendOutputText(asc_str, BgColor='lemonchiffon')
+        else:
+            if self._viewMode != 'Ascii':
+                if data[1][0:2] == b'AT':
+                    asc_str = ''.join(chr(b) if b != 0 else ' ' for b in data[1])
+                    self.appendOutputText(asc_str, BgColor='lemonchiffon')
 
     def appendOutput(self, ts_text, data_text, data_type = 'T'):
         self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
