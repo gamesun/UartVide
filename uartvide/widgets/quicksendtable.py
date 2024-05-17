@@ -3,7 +3,7 @@
 #
 #############################################################################
 ##
-## Copyright (c) 2013-2023, gamesun
+## Copyright (c) 2013-2024, gamesun
 ## All right reserved.
 ##
 ## This file is part of UartVide(MyTerm).
