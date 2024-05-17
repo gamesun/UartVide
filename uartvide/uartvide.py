@@ -1584,34 +1584,28 @@ class CommandParser(QObject):
         self._log_header = log_header
 
     def parse(self, bytes):
-        parse_succeed = True
         for b in bytes:
-            parse_succeed = self.__parse_basic(b)
-        if not parse_succeed:
-            self.unknownData.emit([datetime.datetime.now().time(), bytes])
+            self.__parse_basic(b)
+        self.__flush_buff()
 
     def __parse_basic(self, byte):
-        parse_succeed = True
         byte = byte.to_bytes(1, 'big')
         if 'h1' == self._basic_status:
             if byte == self._basic_header[0:1]:
+                self.__flush_buff()
                 self._basic_status = 'h2'
                 self._basic_buf = byte
                 self._basic_len_cnt = 0
             else:
-                parse_succeed = False
+                self._basic_buf = self._basic_buf + byte
         elif 'h2' == self._basic_status:
             if byte == self._basic_header[1:2]:
                 self._basic_status = 'h3'
                 self._basic_buf = self._basic_buf + byte
-            else:
-                parse_succeed = False
         elif 'h3' == self._basic_status:
             if byte == self._basic_header[2:3]:
                 self._basic_status = 'l1'
                 self._basic_buf = self._basic_buf + byte
-            else:
-                parse_succeed = False
         elif 'l1' == self._basic_status:
             self._basic_status = 'l2'
             self._basic_buf = self._basic_buf + byte
@@ -1638,11 +1632,11 @@ class CommandParser(QObject):
                 self._basic_len_cnt = 0
         else:
             self._basic_status = 'h1'
-            parse_succeed = False
-        
-        return parse_succeed
-
-        # print(byte, self._basic_header[0], byte == self._basic_header[0])
+    
+    def __flush_buff(self):
+        if len(self._basic_buf):
+            self.unknownData.emit([datetime.datetime.now().time(), self._basic_buf])
+            self._basic_buf = b''
     
     # def __parse_pilog(self, byte):
     #     byte = byte.to_bytes(1, 'big')
