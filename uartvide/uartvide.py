@@ -1560,7 +1560,6 @@ def string_to_hex(hexstring):
 class CommandParser(QObject):
     commandDetected = Signal(list)
     unknownData = Signal(list)
-    # pilogDetected = Signal(list)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -1572,16 +1571,8 @@ class CommandParser(QObject):
         self._basic_buf = b''
         self._basic_header = b'\x84\xa9\x61'
 
-        self._log_status = 'ph'    # ph,l1,l2,typ,pld
-        self._log_len = 0
-        self._log_typ = 0
-        self._log_len_cnt = 0
-        self._log_buf = b''
-        self._log_header = ''
-
     def setHeader(self, basic_header, log_header):
         self._basic_header = basic_header
-        self._log_header = log_header
 
     def parse(self, bytes):
         for b in bytes:
@@ -1637,39 +1628,7 @@ class CommandParser(QObject):
         if len(self._basic_buf):
             self.unknownData.emit([datetime.datetime.now().time(), self._basic_buf])
             self._basic_buf = b''
-    
-    # def __parse_pilog(self, byte):
-    #     byte = byte.to_bytes(1, 'big')
-    #     if 'ph' == self._log_status:
-    #         if byte == self._log_header:
-    #             self._log_status = 'l1'
-    #             self._log_buf = byte
-    #             self._log_len_cnt = 0
-    #     elif 'l1' == self._log_status:
-    #         self._log_status = 'l2'
-    #         self._log_buf = self._log_buf + byte
-    #     elif 'l2' == self._log_status:
-    #         self._log_status = 'typ'
-    #         self._log_buf = self._log_buf + byte
-    #         self._log_len = int.from_bytes(self._log_buf[-2:], byteorder='big', signed=False)
-    #         if self._log_len % 2:
-    #             self._log_len = self._log_len + 1
-    #         self._log_len = self._log_len + 6
-    #         self._log_len_cnt = 6
-    #     elif 'typ' == self._log_status:
-    #         self._log_status = 'pld'
-    #         self._log_buf = self._log_buf + byte
-    #         self._log_typ = byte
-    #     elif 'pld' == self._log_status:    # payload
-    #         self._log_buf = self._log_buf + byte
-    #         self._log_len_cnt = self._log_len_cnt + 1
-    #         if self._log_len <= self._log_len_cnt:
-    #             self.pilogDetected.emit(self._log_buf)
-    #             self._log_status = 'ph'
-    #             self._log_buf = b''
-    #             self._log_len_cnt = 0
-    #     else:
-    #         self._log_status = 'ph'
+
 
 
 class ReaderThread(QThread):
