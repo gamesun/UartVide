@@ -95,6 +95,8 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self._is_always_on_top = False
         self._viewMode = 'HEX'
         self._is_loop_sending = False
+        self._loopCntLst = []
+        self._loopCntIdx = 0
         self._is_timestamp = False
 
         self.setupUi(self)
@@ -1033,6 +1035,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             }''' % dict(UIFont = 'Microsoft YaHei UI'))
         self.btnSend.setText('Stop')
         self._is_loop_sending = True
+        self._loopCntIdx = 0
 
     def stopLoopSend(self):
         self.loopSendThread.join()
@@ -1070,6 +1073,25 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         try:
             if self.serialport.isOpen():
                 sendstring = self.txtEdtInput.toPlainText()
+                if 'range' in sendstring:
+                    try:
+                        self._loopCntLst = eval(sendstring)
+                        # print(self._loopCntLst)
+                        sendstring = self._loopCntLst[self._loopCntIdx]
+                        self._loopCntIdx = self._loopCntIdx + 1
+                        if self._loopCntIdx >= len(self._loopCntLst):
+                            self._loopCntIdx = 0
+                    except Exception as e:
+                        InfoBar.warning(
+                            title='Parse counter failed',
+                            content=str(e),
+                            orient=Qt.Horizontal,
+                            isClosable=True,
+                            position=InfoBarPosition.BOTTOM,
+                            duration=2000,
+                            parent=self
+                        )
+                        return
                 if self.rdoHEX.isChecked():
                     self.transmitHex(sendstring)
                 else:

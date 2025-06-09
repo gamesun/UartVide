@@ -348,6 +348,16 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.btnLoop)
 
+        self.rdoCnt = QRadioButton(self.dockWidgetContents_2)
+        self.rdoCnt.setObjectName(u"rdoCnt")
+        self.rdoCnt.setMinimumSize(QSize(0, 22))
+        self.rdoCnt.setMaximumSize(QSize(16777215, 22))
+        self.rdoCnt.setMouseTracking(True)
+        self.rdoCnt.setText(u"Cnt")
+        self.rdoCnt.setAutoExclusive(False)
+
+        self.horizontalLayout.addWidget(self.rdoCnt)
+
         self.btnSend = QToolButton(self.dockWidgetContents_2)
         self.btnSend.setObjectName(u"btnSend")
         self.btnSend.setMinimumSize(QSize(50, 22))
