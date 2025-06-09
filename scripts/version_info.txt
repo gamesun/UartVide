@@ -33,7 +33,7 @@ VSVersionInfo(
         StringStruct(u'FileDescription', u'uartvide-sct'),
         StringStruct(u'FileVersion', u'1.2.0.0'),
         StringStruct(u'InternalName', u'uartvide-sct'),
-        StringStruct(u'LegalCopyright', u'Copyright © 2013-2024 gamesun'),
+        StringStruct(u'LegalCopyright', u'Copyright © 2013-2025 gamesun'),
         StringStruct(u'OriginalFilename', u'uartvide-sct.exe'),
         StringStruct(u'ProductName', u'uartvide-sct'),
         StringStruct(u'ProductVersion', u'1.2.0.0')])
