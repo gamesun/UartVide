@@ -22,7 +22,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(766, 612)
+        MainWindow.resize(884, 612)
         font = QFont()
         font.setFamily(u"Tahoma")
         font.setPointSize(10)
@@ -348,6 +348,16 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.btnLoop)
 
+        self.chkLoopCnt = QCheckBox(self.dockWidgetContents_2)
+        self.chkLoopCnt.setObjectName(u"chkLoopCnt")
+        self.chkLoopCnt.setMinimumSize(QSize(0, 22))
+        self.chkLoopCnt.setMaximumSize(QSize(16777215, 22))
+        self.chkLoopCnt.setMouseTracking(True)
+        self.chkLoopCnt.setText(u"Cnt")
+        self.chkLoopCnt.setAutoExclusive(False)
+
+        self.horizontalLayout.addWidget(self.chkLoopCnt)
+
         self.btnSend = QToolButton(self.dockWidgetContents_2)
         self.btnSend.setObjectName(u"btnSend")
         self.btnSend.setMinimumSize(QSize(50, 22))
@@ -360,6 +370,79 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addLayout(self.horizontalLayout)
 
+        self.frame_LoopCounter = QFrame(self.dockWidgetContents_2)
+        self.frame_LoopCounter.setObjectName(u"frame_LoopCounter")
+        self.frame_LoopCounter.setMouseTracking(True)
+        self.frame_LoopCounter.setFrameShape(QFrame.StyledPanel)
+        self.frame_LoopCounter.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_5 = QHBoxLayout(self.frame_LoopCounter)
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.horizontalLayout_5.setContentsMargins(2, 0, 2, 0)
+        self.label = QLabel(self.frame_LoopCounter)
+        self.label.setObjectName(u"label")
+
+        self.horizontalLayout_5.addWidget(self.label)
+
+        self.spnFrom = QSpinBox(self.frame_LoopCounter)
+        self.spnFrom.setObjectName(u"spnFrom")
+        self.spnFrom.setAlignment(Qt.AlignCenter)
+        self.spnFrom.setButtonSymbols(QAbstractSpinBox.NoButtons)
+        self.spnFrom.setMinimum(-99999)
+        self.spnFrom.setMaximum(99999)
+
+        self.horizontalLayout_5.addWidget(self.spnFrom)
+
+        self.label_6 = QLabel(self.frame_LoopCounter)
+        self.label_6.setObjectName(u"label_6")
+
+        self.horizontalLayout_5.addWidget(self.label_6)
+
+        self.spnTo = QSpinBox(self.frame_LoopCounter)
+        self.spnTo.setObjectName(u"spnTo")
+        self.spnTo.setAlignment(Qt.AlignCenter)
+        self.spnTo.setButtonSymbols(QAbstractSpinBox.NoButtons)
+        self.spnTo.setMinimum(-99999)
+        self.spnTo.setMaximum(99999)
+        self.spnTo.setValue(100)
+
+        self.horizontalLayout_5.addWidget(self.spnTo)
+
+        self.label_7 = QLabel(self.frame_LoopCounter)
+        self.label_7.setObjectName(u"label_7")
+
+        self.horizontalLayout_5.addWidget(self.label_7)
+
+        self.spnStep = QSpinBox(self.frame_LoopCounter)
+        self.spnStep.setObjectName(u"spnStep")
+        self.spnStep.setAlignment(Qt.AlignCenter)
+        self.spnStep.setButtonSymbols(QAbstractSpinBox.NoButtons)
+        self.spnStep.setMinimum(-99999)
+        self.spnStep.setMaximum(99999)
+        self.spnStep.setValue(1)
+
+        self.horizontalLayout_5.addWidget(self.spnStep)
+
+        self.label_8 = QLabel(self.frame_LoopCounter)
+        self.label_8.setObjectName(u"label_8")
+
+        self.horizontalLayout_5.addWidget(self.label_8)
+
+        self.spnNext = QSpinBox(self.frame_LoopCounter)
+        self.spnNext.setObjectName(u"spnNext")
+        self.spnNext.setAlignment(Qt.AlignCenter)
+        self.spnNext.setButtonSymbols(QAbstractSpinBox.NoButtons)
+        self.spnNext.setMinimum(-99999)
+        self.spnNext.setMaximum(99999)
+
+        self.horizontalLayout_5.addWidget(self.spnNext)
+
+        self.horizontalLayout_5.setStretch(1, 1)
+        self.horizontalLayout_5.setStretch(3, 1)
+        self.horizontalLayout_5.setStretch(5, 1)
+        self.horizontalLayout_5.setStretch(7, 1)
+
+        self.verticalLayout.addWidget(self.frame_LoopCounter)
+
         self.txtEdtInput = UVTextEdit(self.dockWidgetContents_2)
         self.txtEdtInput.setObjectName(u"txtEdtInput")
         self.txtEdtInput.setMouseTracking(True)
@@ -369,7 +452,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addWidget(self.txtEdtInput)
 
-        self.verticalLayout.setStretch(1, 1)
+        self.verticalLayout.setStretch(2, 1)
         self.dockWidget_Send.setWidget(self.dockWidgetContents_2)
         MainWindow.addDockWidget(Qt.RightDockWidgetArea, self.dockWidget_Send)
         self.dockWidget_QuickSend = QDockWidget(MainWindow)
@@ -438,6 +521,10 @@ class Ui_MainWindow(object):
 
 
 
+        self.label.setText(QCoreApplication.translate("MainWindow", u"From", None))
+        self.label_6.setText(QCoreApplication.translate("MainWindow", u"To", None))
+        self.label_7.setText(QCoreApplication.translate("MainWindow", u"Step", None))
+        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Next", None))
         pass
     # retranslateUi
 
