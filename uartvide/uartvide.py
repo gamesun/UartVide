@@ -146,6 +146,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.chkXonXoff.stateChanged.connect(self.onXonXoffChanged)
         
         self.btnSend.clicked.connect(self.onSend)
+        self.chkLoopCnt.stateChanged.connect(self.onLoopCntChanged)
         
         self.loopSendThread.trigger.connect(self.onPeriodTrigger)
 
@@ -163,6 +164,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.moveScreenCenter()
         self.syncMenu()
         self.setPortCfgBarVisible(False)
+        self.setLoopCounterBarVisible(False)
         
         self.rdoHEX.setChecked(True)
         self._is_loop_mode = False
@@ -416,7 +418,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 color: %(TextColor)s;
                 background-color: %(TableView_Header)s;
             }
-            QTextEdit {
+            QTextEdit, QLineEdit {
                 background-color:white;
                 color:%(TextColor)s;
                 border-top: none;
@@ -820,6 +822,15 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             self.frame_PortCfg.hide()
             self.btnTogglePortCfgBar.setIcon(QIcon(':/images/down.png'))
 
+    def setLoopCounterBarVisible(self, visible):
+        if visible:
+            self.frame_LoopCounter.show()
+        else:
+            self.frame_LoopCounter.hide()
+
+    def onLoopCntChanged(self, state):
+        self.setLoopCounterBarVisible(state)
+
     def onPortChanged(self, text):
         pos = text.find(' ')
         if 0 < pos:
@@ -1073,14 +1084,23 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         try:
             if self.serialport.isOpen():
                 sendstring = self.txtEdtInput.toPlainText()
-                if 'range' in sendstring:
+                if self.chkLoopCnt.isChecked():
                     try:
-                        self._loopCntLst = eval(sendstring)
-                        # print(self._loopCntLst)
-                        sendstring = self._loopCntLst[self._loopCntIdx]
-                        self._loopCntIdx = self._loopCntIdx + 1
-                        if self._loopCntIdx >= len(self._loopCntLst):
-                            self._loopCntIdx = 0
+                        lc_from = self.spnFrom.value()
+                        lc_to = self.spnTo.value()
+                        lc_step = self.spnStep.value()
+                        lc_next = self.spnNext.value()
+
+                        sendstring = eval("'" + sendstring + "'%(lc_next)")
+                        
+                        lc_next = lc_next + lc_step
+                        if 0 < lc_step:
+                            if lc_to < lc_next:
+                                lc_next = lc_from
+                        else:
+                            if lc_next < lc_to:
+                                lc_next = lc_from
+                        self.spnNext.setValue(lc_next)
                     except Exception as e:
                         InfoBar.warning(
                             title='Parse counter failed',
@@ -1092,6 +1112,26 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                             parent=self
                         )
                         return
+
+                    # if 'range' in sendstring:
+                    #     try:
+                    #         self._loopCntLst = eval(sendstring)
+                    #         # print(self._loopCntLst)
+                    #         sendstring = self._loopCntLst[self._loopCntIdx]
+                    #         self._loopCntIdx = self._loopCntIdx + 1
+                    #         if self._loopCntIdx >= len(self._loopCntLst):
+                    #             self._loopCntIdx = 0
+                    #     except Exception as e:
+                    #         InfoBar.warning(
+                    #             title='Parse counter failed',
+                    #             content=str(e),
+                    #             orient=Qt.Horizontal,
+                    #             isClosable=True,
+                    #             position=InfoBarPosition.BOTTOM,
+                    #             duration=2000,
+                    #             parent=self
+                    #         )
+                    #         return
                 if self.rdoHEX.isChecked():
                     self.transmitHex(sendstring)
                 else:
