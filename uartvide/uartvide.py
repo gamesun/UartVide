@@ -144,8 +144,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.chkXonXoff.stateChanged.connect(self.onXonXoffChanged)
         
         self.btnSend.clicked.connect(self.onSend)
-        self.chkLoopCnt.stateChanged.connect(self.onLoopCntChanged)
-        
+
         self.loopSendThread.trigger.connect(self.onPeriodTrigger)
 
         self.readerThread.receiveCommand.connect(self.onReceiveCommand)
@@ -165,7 +164,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.setLoopCounterBarVisible(False)
         
         self.rdoHEX.setChecked(True)
-        self._is_loop_mode = False
         self.spnPeriod.setEnabled(False)
 
         self.loadSettings()
@@ -550,6 +548,10 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.btnLoop.setToolTip("Loop Send")
         # self.btnLoop.setCursor(Qt.PointingHandCursor)
 
+        self.btnLoopCnt.setIcon(QIcon(":/images/counter.png"))
+        self.btnLoopCnt.clicked.connect(self.onLoopCntChanged)
+        self.btnLoopCnt.setToolTip("Counter")
+
 
         self.dockWidgetContents_2.setStyleSheet("""
             QPushButton {
@@ -826,8 +828,8 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         else:
             self.frame_LoopCounter.hide()
 
-    def onLoopCntChanged(self, state):
-        self.setLoopCounterBarVisible(state)
+    def onLoopCntChanged(self):
+        self.setLoopCounterBarVisible(self.btnLoopCnt.isChecked())
 
     def onPortChanged(self, text):
         pos = text.find(' ')
@@ -1013,17 +1015,13 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             self.appendOutput(self.timestamp(), "%d bytes sent" % (sent_len))
 
     def onLoopChanged(self):
-        if self._is_loop_mode:
+        if self.btnLoop.isChecked():
+            self.btnSend.setText('Start')
+        else:
             if self._is_loop_sending:
                 self.stopLoopSend()
-            self._is_loop_mode = False
-            # self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'transparent', 'HBG':'#51c0d1'})
             self.btnSend.setText('Send')
-        else:
-            self._is_loop_mode = True
-            # self.btnLoop.setStyleSheet(self.chkbtn_SSTemplate % {'BG':'#0072BB', 'HBG':'#51c0d1'})
-            self.btnSend.setText('Start')
-        self.spnPeriod.setEnabled(self._is_loop_mode)
+        self.spnPeriod.setEnabled(self.btnLoop.isChecked())
 
     def startLoopSend(self):
         period_spacing = self.spnPeriod.value() / 1000.0
@@ -1069,7 +1067,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
     def onSend(self):
         if self.serialport.isOpen():
-            if self._is_loop_mode:
+            if self.btnLoop.isChecked():
                 if self._is_loop_sending:
                     self.stopLoopSend()
                 else:
@@ -1081,7 +1079,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         try:
             if self.serialport.isOpen():
                 sendstring = self.txtEdtInput.toPlainText()
-                if self.chkLoopCnt.isChecked():
+                if self.btnLoopCnt.isChecked():
                     try:
                         lc_from = self.spnFrom.value()
                         lc_to = self.spnTo.value()

@@ -348,15 +348,13 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.btnLoop)
 
-        self.chkLoopCnt = QCheckBox(self.dockWidgetContents_2)
-        self.chkLoopCnt.setObjectName(u"chkLoopCnt")
-        self.chkLoopCnt.setMinimumSize(QSize(0, 22))
-        self.chkLoopCnt.setMaximumSize(QSize(16777215, 22))
-        self.chkLoopCnt.setMouseTracking(True)
-        self.chkLoopCnt.setText(u"Cnt")
-        self.chkLoopCnt.setAutoExclusive(False)
+        self.btnLoopCnt = UVToggleButton(self.dockWidgetContents_2)
+        self.btnLoopCnt.setObjectName(u"btnLoopCnt")
+        self.btnLoopCnt.setMinimumSize(QSize(26, 22))
+        self.btnLoopCnt.setMaximumSize(QSize(26, 22))
+        self.btnLoopCnt.setMouseTracking(True)
 
-        self.horizontalLayout.addWidget(self.chkLoopCnt)
+        self.horizontalLayout.addWidget(self.btnLoopCnt)
 
         self.btnSend = QToolButton(self.dockWidgetContents_2)
         self.btnSend.setObjectName(u"btnSend")
