@@ -97,6 +97,8 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self._is_loop_sending = False
         self._is_timestamp = False
 
+        self._recvRecord = []
+
         self.setupUi(self)
         self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
         self.setCorner(Qt.BottomLeftCorner, Qt.LeftDockWidgetArea)
@@ -1205,28 +1207,38 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
     def onReceiveCommand(self, data):
         self.onReceive(data, True)
 
-    def onReceive(self, data, isCmd = False):
-        ts_text = None
-        if self._is_timestamp:
-            ts = data[0]
-            if type(ts) == datetime.time:
-                if ts.microsecond:
-                    ts_text = ts.isoformat()[:-3]+':'
-                else:
-                    ts_text = ts.isoformat() + '.000:'
+    def refreshRecord(self):
+        self.txtEdtOutput.clear()
 
+        for line in self._recvRecord:
+            self.appendOutput(line[0], self.ConvTextByViewMode(line[1]), 'R')
+
+    def ConvTextByViewMode(self, data):
+        text = ''
+        if self._viewMode == 'Ascii':
+            text = ''.join(chr(b) if b != 0 else ' ' for b in data)
+        elif self._viewMode == 'hex':
+            text = ''.join('%02x ' % b for b in data)
+        elif self._viewMode == 'HEX':
+            text = ''.join('%02X ' % b for b in data)
+        
+        return text
+
+    def onReceive(self, data, isCmd = False):
+        ts = data[0]
+        ts_text = ''
+        if type(ts) == datetime.time:
+            if ts.microsecond:
+                ts_text = ts.isoformat()[:-3]+':'
+            else:
+                ts_text = ts.isoformat() + '.000:'
+
+        self._recvRecord.append((ts_text, data[1]))
         self.RxTxCnt[0] = self.RxTxCnt[0] + len(data[1])
         self.updateRxTxCnt()
 
-        if self._viewMode == 'Ascii':
-            text = ''.join(chr(b) if b != 0 else ' ' for b in data[1])
-        elif self._viewMode == 'hex':
-            text = ''.join('%02x ' % b for b in data[1])
-        elif self._viewMode == 'HEX':
-            text = ''.join('%02X ' % b for b in data[1])
+        self.appendOutput(ts_text, self.ConvTextByViewMode(data[1]), 'R')
 
-        self.appendOutput(ts_text, text, 'R')
-        
         if isCmd:
             cmdId = data[1][6:8]
             if cmdId == b'\x43\x40':       # start
@@ -1430,6 +1442,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 self.closePort()
 
     def onClear(self):
+        self._recvRecord.clear()
         self.txtEdtOutput.clear()
 
     def onSaveLog(self):
@@ -1562,6 +1575,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
     def onViewModeChanged(self, sel):
         self._viewMode = sel
+        self.refreshRecord()
 
 
 def is_port_busy(port):
