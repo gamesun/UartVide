@@ -44,9 +44,8 @@ if extension != '.py':
             #except:pass
 
 from PySide2 import QtCore, QtGui, QtWidgets
-from PySide2.QtCore import *
-from PySide2.QtGui import *
-from PySide2.QtWidgets import *
+from PySide2.QtCore import Qt, QTimer, QObject, Signal, Slot  # only the ones you use
+from PySide2.QtWidgets import QMainWindow, QWidget, QLabel, QPushButton  # only what you use
 from qfluentwidgets import *
 from qframelesswindow import *
 from res import resources_rc
@@ -100,8 +99,8 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self._recvRecord = []
 
         self.setupUi(self)
-        self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
-        self.setCorner(Qt.BottomLeftCorner, Qt.LeftDockWidgetArea)
+        self.setCorner(Qt.Corner.TopLeftCorner, Qt.DockWidgetArea.LeftDockWidgetArea)
+        self.setCorner(Qt.Corner.BottomLeftCorner, Qt.DockWidgetArea.LeftDockWidgetArea)
 
         # fdb=QFontDatabase()
         # fontId = fdb.addApplicationFont(".ttf")
@@ -112,7 +111,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
         font1 = QFont(UI_FONT, 10, QFont.Normal, False)
         font1.setKerning(True)
-        font1.setStyleStrategy(QFont.PreferAntialias)
+        font1.setStyleStrategy(QFont.StyleStrategy.PreferAntialias)
         self.setFont(font1)
 
         self.initMoreSettingsMenu()
@@ -121,7 +120,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
         font2 = QFont(CODE_FONT, 9, QFont.Normal, False)
         font2.setKerning(True)
-        font2.setStyleStrategy(QFont.PreferAntialias)
+        font2.setStyleStrategy(QFont.StyleStrategy.PreferAntialias)
         self.txtEdtOutput.setFont(font2)
         self.txtEdtInput.setFont(font2)
         #self.qckSndTbl.setFont(font2)
@@ -192,7 +191,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
     def onBaudRateChanged(self, text):
         try:
             prev_baudrate = self.serialport.baudrate
-            self.serialport.baudrate = self.cmbBaudRate.currentText()
+            self.serialport.baudrate = int(self.cmbBaudRate.currentText())
         except Exception as e:
             self.cmbBaudRate.setCurrentText(str(prev_baudrate))
         
@@ -239,7 +238,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         
         # self.actionParse_Panel = Action(FluentIcon., self.tr('Parse Panel'))
 
-        self.menuMoreSettings = CheckableMenu(self.titleBar)
+        self.menuMoreSettings = CheckableMenu(parent=self.titleBar)
         self.menuMoreSettings.addAction(self.actionOpen_Cmd_File)
         self.menuMoreSettings.addAction(self.actionSave_Log)
         self.menuMoreSettings.addSeparator()
@@ -1264,7 +1263,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                     self.appendOutputText(asc_str, BgColor='lemonchiffon')
 
     def appendOutput(self, ts_text, data_text, data_type = 'T'):
-        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
+        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.MoveOperation.End)
         self.txtEdtOutput.setTextBackgroundColor(QColor(Qt.white))
         if data_type == 'R':
             if ts_text:
@@ -1279,19 +1278,19 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             self.txtEdtOutput.setTextColor(QtGui.QColor('#0000ff'))
             self.txtEdtOutput.insertPlainText(data_text)
         self.txtEdtOutput.insertPlainText('\n')
-        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
+        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.MoveOperation.End)
 
     def appendOutputText(self, data, color=Qt.black, BgColor=Qt.white):
         # the qEditText's "append" methon will add a unnecessary newline.
         # self.txtEdtOutput.append(data.decode('utf-8'))
 
-        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
+        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.MoveOperation.End)
         self.txtEdtOutput.setTextColor(QColor(color))
         self.txtEdtOutput.setTextBackgroundColor(QColor(BgColor))
 
         self.txtEdtOutput.insertPlainText(data)
 
-        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.End)
+        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.MoveOperation.End)
         self.txtEdtOutput.setTextColor(QColor(Qt.black))
         self.txtEdtOutput.setTextBackgroundColor(QColor(Qt.white))
 
@@ -1830,10 +1829,10 @@ class LoopSendThread(QThread):
 if __name__ == '__main__':
     QApplication.setHighDpiScaleFactorRoundingPolicy(
             Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
+    QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)
+    QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
     app = QApplication(sys.argv)
-    app.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)
+    app.setAttribute(Qt.ApplicationAttribute.AA_DontCreateNativeWidgetSiblings)
     frame = MainWindow()
     frame.show()
     app.exec_()
