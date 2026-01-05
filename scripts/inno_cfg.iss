@@ -3,7 +3,7 @@
 
 #define Name "UartVide-SCT"
 #define Version "1.2"
-#define Copyright "Copyright (C) 2013-2025 gamesun"
+#define Copyright "Copyright (C) 2013-2026 gamesun"
 
 [Setup]
 AppId={{48E4C77E-F19E-44F1-98CC-F4F3F466637B}

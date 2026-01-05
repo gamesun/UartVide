@@ -3,7 +3,7 @@
 #
 #############################################################################
 ##
-## Copyright (c) 2013-2025, gamesun
+## Copyright (c) 2013-2026, gamesun
 ## All right reserved.
 ##
 ## This file is part of UartVide(MyTerm).
@@ -31,7 +31,7 @@ class LogParser:
         pass
 
     def parse(self, bytes):
-        out = None
+        out = ''
         if 18 <= len(bytes):
             if bytes[6:8] == b'\x43\x41':     # content
                 isReport = True if bytes[8] == 1 else False

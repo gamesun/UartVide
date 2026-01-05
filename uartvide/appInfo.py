@@ -3,7 +3,7 @@
 #
 #############################################################################
 ##
-## Copyright (c) 2013-2025, gamesun
+## Copyright (c) 2013-2026, gamesun
 ## All right reserved.
 ##
 ## This file is part of UartVide(MyTerm).
@@ -28,7 +28,7 @@ title = 'UartVide-SCT'
 version = '1.2'
 url = 'https://github.com/gamesun/UartVide'
 author = 'gamesun'
-copyright = 'Copyright (C) 2013-2025, gamesun'
+copyright = 'Copyright (C) 2013-2026, gamesun'
 aboutme = """
 <p><div>%(title)s %(ver)s</div>
 <div>%(copyright)s</div></p>
