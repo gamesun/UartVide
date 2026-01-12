@@ -68,7 +68,7 @@ import serial
 from serial.tools.list_ports import comports
 from time import sleep
 import re
-from logparser import LogParser
+from logparser import LogParser, CommandDetector
 
 if os.name == 'nt':
     CODE_FONT = "Consolas"
@@ -1607,79 +1607,6 @@ def string_to_hex(hexstring):
                 raise Exception("'%s' is not hexadecimal." % (word))
     return hexarray
 
-class CommandParser(QObject):
-    commandDetected = Signal(list)
-    unknownData = Signal(list)
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-        self._basic_status = 'h1'  # h1,h2,h3,l1,l2,typ,pld
-        self._basic_len = 0
-        self._basic_typ = 0
-        self._basic_len_cnt = 0
-        self._basic_buf = b''
-        self._basic_header = b'\x84\xa9\x61'
-
-    def setHeader(self, basic_header, log_header):
-        self._basic_header = basic_header
-
-    def parse(self, bytes):
-        for b in bytes:
-            self.__parse_basic(b)
-        self.__flush_buff()
-
-    def __parse_basic(self, byte):
-        byte = byte.to_bytes(1, 'big')
-        if 'h1' == self._basic_status:
-            if byte == self._basic_header[0:1]:
-                self.__flush_buff()
-                self._basic_status = 'h2'
-                self._basic_buf = byte
-                self._basic_len_cnt = 0
-            else:
-                self._basic_buf = self._basic_buf + byte
-        elif 'h2' == self._basic_status:
-            if byte == self._basic_header[1:2]:
-                self._basic_status = 'h3'
-                self._basic_buf = self._basic_buf + byte
-        elif 'h3' == self._basic_status:
-            if byte == self._basic_header[2:3]:
-                self._basic_status = 'l1'
-                self._basic_buf = self._basic_buf + byte
-        elif 'l1' == self._basic_status:
-            self._basic_status = 'l2'
-            self._basic_buf = self._basic_buf + byte
-        elif 'l2' == self._basic_status:
-            self._basic_status = 'typ'
-            self._basic_buf = self._basic_buf + byte
-            self._basic_len = int.from_bytes(self._basic_buf[-2:], byteorder='big', signed=False)
-            if self._basic_len % 2:
-                self._basic_len = self._basic_len + 1
-            self._basic_len = self._basic_len + 6
-            self._basic_len_cnt = 6
-        elif 'typ' == self._basic_status:
-            self._basic_status = 'pld'
-            self._basic_buf = self._basic_buf + byte
-            self._basic_typ = byte
-        elif 'pld' == self._basic_status:    # payload
-            self._basic_buf = self._basic_buf + byte
-            self._basic_len_cnt = self._basic_len_cnt + 1
-            if self._basic_len <= self._basic_len_cnt:
-                self.commandDetected.emit([datetime.datetime.now().time(), self._basic_buf])
-                # print('parser end', 'Rx:'+''.join('%02X ' % t for t in self._parser_buf))
-                self._basic_status = 'h1'
-                self._basic_buf = b''
-                self._basic_len_cnt = 0
-        else:
-            self._basic_status = 'h1'
-    
-    def __flush_buff(self):
-        if len(self._basic_buf):
-            self.unknownData.emit([datetime.datetime.now().time(), self._basic_buf])
-            self._basic_buf = b''
-
-
 
 class ReaderThread(QThread):
     """loop and copy serial->GUI"""
@@ -1693,9 +1620,9 @@ class ReaderThread(QThread):
         self._stopped = True
         self._serialport = None
 
-        self.cmdParser = CommandParser()
-        self.cmdParser.commandDetected.connect(self.onCommandDetected)
-        self.cmdParser.unknownData.connect(self.onUnknownData)
+        self.cmdDetector = CommandDetector()
+        self.cmdDetector.commandDetected.connect(self.onCommandDetected)
+        self.cmdDetector.unknownData.connect(self.onUnknownData)
 
     def onCommandDetected(self, data):
         self.receiveCommand.emit(data)
@@ -1747,7 +1674,7 @@ class ReaderThread(QThread):
                     
                 if bytes_data:
                     # self.read.emit([ts, bytes_data])
-                    self.cmdParser.parse(bytes_data)
+                    self.cmdDetector.parse(bytes_data)
         except Exception as e:
             self.exception.emit('{}'.format(e))
         self._stopped = True
