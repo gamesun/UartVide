@@ -1,5 +1,7 @@
 @echo off
 
+@REM if "%~d0" == "E:" () else ()
+
 set PY_PATH=?\Python39
 rem set PY310_PATH=?\Python310
 rem set PY311_PATH=?\Python311
