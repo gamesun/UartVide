@@ -29,22 +29,39 @@ from PySide2.QtCore import QObject, Signal
 class LogParser:
 
     def __init__(self) -> None:
-        pass
+        self._pilogBuf = ''
 
-    def parse(self, bytes):
+    def parse(self, data) -> str:
         out = ''
-        if 18 <= len(bytes):
-            if bytes[6:8] == b'\x43\x41':     # content
-                isReport = True if bytes[8] == 1 else False
-                ts_20ms = int.from_bytes(bytes[9:13], byteorder='big', signed=False)
-                d = datetime.datetime.fromtimestamp(ts_20ms / 50, datetime.timezone.utc)
-                time_str = d.strftime("%H:%M:%S.%f")[:-3]
-                cmd_str = ' '.join(['%02X' % b for b in bytes[13:17]])
-                # print(isReport, ts, cmd)
-                if isReport:
-                    out = f'[{time_str}]\t\t\t\t<---- {cmd_str}\n'
-                else:
-                    out = f'[{time_str}]\t{cmd_str} ---->\n'
+
+        cmdId = data[6:8]
+        if cmdId == b'\x43\x40':       # start
+            self._pilogBuf = ''
+        elif cmdId == b'\x43\x42':     # end
+            out = self._pilogBuf
+        elif cmdId == b'\x43\x41':     # content
+            isReport = True if data[8] == 1 else False
+            ts_20ms = int.from_bytes(data[9:13], byteorder='big', signed=False)
+            d = datetime.datetime.fromtimestamp(ts_20ms / 50, datetime.timezone.utc)
+            time_str = d.strftime("%H:%M:%S.%f")[:-3]
+            cmd_str = ' '.join(['%02X' % b for b in data[13:17]])
+            # print(isReport, ts, cmd)
+            if isReport:
+                tmp = f'[{time_str}]\t\t\t\t<---- {cmd_str}\n'
+            else:
+                tmp = f'[{time_str}]\t{cmd_str} ---->\n'
+            self._pilogBuf = self._pilogBuf + tmp
+        elif cmdId[0] in [0x30, 0x31, 0x32]:
+            asc_str_len = cmdId[1]
+            asc_str = data[8:8 + asc_str_len]
+            asc_str = ''.join(chr(b) if b != 0 else ' ' for b in asc_str) + '\n'
+            out = asc_str
+        elif cmdId[0] in [0x34]:
+            asc_str_len = data[4] - 1
+            asc_str = data[7:7 + asc_str_len]
+            asc_str = ''.join(chr(b) if b != 0 else ' ' for b in asc_str) + '\n'
+            out = asc_str
+
         return out
 
 
