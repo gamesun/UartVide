@@ -93,7 +93,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self._is_loop_sending = False
         self._is_timestamp = False
 
-        self._recvRecord = []
+        self._logRecord = []
 
         self.setupUi(self)
         self.setCorner(Qt.Corner.TopLeftCorner, Qt.DockWidgetArea.LeftDockWidgetArea)
@@ -1000,7 +1000,9 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         except Exception as e:
             raise e
         else:
-            self.appendOutput(self.timestamp(), "sending %s [%s]" % (filepath, form))
+            txt = "sending %s [%s]" % (filepath, form)
+            self.appendOutput(self.timestamp(), txt)
+            self._logRecord.append(('msg', self.timestamp(), txt))
             self.repaint()
             
             sent_len = 0
@@ -1011,7 +1013,9 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             elif 'BF' == form:
                 sent_len = self.transmitBytearray(content)
             
-            self.appendOutput(self.timestamp(), "%d bytes sent" % (sent_len))
+            txt = "sent %d bytes" % (sent_len)
+            self._logRecord.append(('msg', self.timestamp(), txt))
+            self.appendOutput(self.timestamp(), txt)
 
     def onLoopChanged(self):
         if self.btnLoop.isChecked():
@@ -1129,6 +1133,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             if echo:
                 text = ''.join('%02X ' % t for t in hexarray)
                 self.appendOutput(self.timestamp(), text)
+                self._logRecord.append(('T', self.timestamp(), bytes(hexarray)))
             return self.transmitBytearray(bytearray(hexarray))
 
     def transmitAsc(self, text, echo = True):
@@ -1136,6 +1141,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             byteArray = [ord(char) for char in text]
             if echo:
                 self.appendOutput(self.timestamp(), text)
+                self._logRecord.append(('T', self.timestamp(), bytes(byteArray)))
             return self.transmitBytearray(bytearray(byteArray))
 
     def transmitAscS(self, text, echo = True):
@@ -1200,8 +1206,13 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
     def refreshRecord(self):
         self.txtEdtOutput.clear()
 
-        for line in self._recvRecord:
-            self.appendOutput(line[0], self.ConvTextByViewMode(line[1]), 'R')
+        for line in self._logRecord:
+            if line[0] == 'msg':
+                self.appendOutput(line[1], line[2])
+            elif line[0] == 'T':
+                self.appendOutput(line[1], self.ConvTextByViewMode(line[2]))
+            elif line[0] == 'R':
+                self.appendOutput(line[1], self.ConvTextByViewMode(line[2]), 'R')
 
     def ConvTextByViewMode(self, data):
         text = ''
@@ -1223,7 +1234,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             else:
                 ts_text = ts.isoformat() + '.000:'
 
-        self._recvRecord.append((ts_text, data[1]))
+        self._logRecord.append(('R', ts_text, data[1]))
         self.RxTxCnt[0] = self.RxTxCnt[0] + len(data[1])
         self.updateRxTxCnt()
 
@@ -1402,7 +1413,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 self.closePort()
 
     def onClear(self):
-        self._recvRecord.clear()
+        self._logRecord.clear()
         self.txtEdtOutput.clear()
 
     def onSaveLog(self):
@@ -1580,7 +1591,7 @@ class ReaderThread(QThread):
         self._serialport = None
         self._ts_enabled = False
 
-    def setPort(self, port):
+    def setPort(self, port: serial.Serial):
         self._serialport = port
 
     def setTimestampEnable(self, enabled):
