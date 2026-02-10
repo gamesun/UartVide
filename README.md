@@ -1,7 +1,10 @@
 # UartVide ![logo](uartvide/res/uartvide-icon/uartvide_48.png)   
 
-![](https://img.shields.io/badge/platform-win--7%20|%20win--8%20|%20win--10-lightgrey)  
-![](https://img.shields.io/badge/platform-win--64%20|%20linux--64-lightgrey)  
+![GitHub License](https://img.shields.io/github/license/gamesun/uartvide)
+![SourceForge Platform](https://img.shields.io/sourceforge/platform/myterm)
+![GitHub Release](https://img.shields.io/github/v/release/gamesun/uartvide)
+![GitHub Created At](https://img.shields.io/github/created-at/gamesun/uartvide)
+![SourceForge Downloads](https://img.shields.io/sourceforge/dt/myterm)
 
 UartVide is a flat-UI and lightweight RS232 serial port communication utility.  
 Its features including
