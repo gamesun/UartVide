@@ -35,6 +35,7 @@ from qfluentwidgets import *
 from .elidedlineedit import ElidedLineEdit
 from .dialog import RenameDailog
 from .rightanglecombobox import RightAngleComboBox
+from .uvcolorpicker import UVColorPicker
 import csv
 from functools import partial
 
@@ -56,27 +57,32 @@ class IndexButton(ToolButton):
     clicked = Signal(IndexClickEvent)
     rightClicked = Signal(IndexClickEvent)
 
-    def __init__(self, parent=None, index: int=0, text: str=''):
+    def __init__(self, parent=None, index: int=0, text: str='', color=QColor("#27b798")):
         super(IndexButton, self).__init__(parent)
         self._index = index
         self.setText(text)
         # self.setMouseTracking(True)
-        self.setStyleSheet('''
-            QToolButton, QPushButton {
-                background-color:#27b798;
+        self.setColor(color)
+    
+    def setColor(self, color: QColor):
+        text_color = QColor(255, 255, 255) if color.lightness() < 128 else QColor(0, 0, 0)
+        self.setStyleSheet(f'''
+            QToolButton {{
+                background-color: {color.name()};
+                color: {text_color.name()};
                 font-family:Tahoma;
                 font-size:10pt;
-            }
-            QToolButton:hover, QPushButton:hover {
-                background-color:#3bd5b4;
-            }
-            QToolButton:pressed, QPushButton:pressed {
-                background-color:#1d8770;
+            }}
+            QToolButton:hover {{
+                background-color: {color.lighter(120).name()};
+            }}
+            QToolButton:pressed {{
+                background-color: {color.darker(120).name()};
                 padding-top: 2px;
                 padding-left: 2px;
-            }
+            }}
         ''')
-       
+
     def setIndex(self, index: int):
         self._index = index
 
@@ -213,9 +219,9 @@ class FormatComboBox(RightAngleComboBox):
         # FIF.ARROW_DOWN.render(painter, rect)
 
 class QckSndRow():
-    def __init__(self, parent=None, row: int=0,  name='', fmt='', data=''):
+    def __init__(self, parent=None, row: int=0,  name='', fmt='', data='', color=QColor("#27b798")):
         self.has_setup = False
-        self.send_btn = IndexButton(parent, row, name)
+        self.send_btn = IndexButton(parent, row, name, color)
         self.fmt_cmb = FormatComboBox(parent, row, fmt)
         self.data_edt = ElidedLineEdit(parent, data)
         self.path_btn = IndexButton(parent, row, '...')
@@ -265,10 +271,14 @@ class QuickSendTable(QTableWidget):
         self.actionDeleteRow = Action(FluentIcon.DELETE, "Delete row", self)
         self.actionDeleteRow.triggered.connect(self.onRemoveRow)
 
+        self.actionChgBtnColor = Action(FluentIcon.PALETTE, "Change color", self)
+        self.actionChgBtnColor.triggered.connect(self.onChgBtnColor)
+
         self.menuRightClick = RoundMenu(parent=self)
         self.menuRightClick.addAction(self.actionRename)
         self.menuRightClick.addAction(self.actionInsertRow)
         self.menuRightClick.addAction(self.actionDeleteRow)
+        self.menuRightClick.addAction(self.actionChgBtnColor)
 
     def onRename(self):
         item = self._rowList[self._selectingRow].send_btn
@@ -284,6 +294,13 @@ class QuickSendTable(QTableWidget):
 
     def onRemoveRow(self):
         self.removeRow(self._selectingRow)
+
+    def onChgBtnColor(self):
+        item = self._rowList[self._selectingRow].send_btn
+        cp = UVColorPicker(True, False)
+        new_color = cp.getColor(item.palette().button().color().getRgb()[:3])
+        new_qcolor = QColor(int(new_color[0]), int(new_color[1]), int(new_color[2]))
+        item.setColor(new_qcolor)
 
     def text(self, row: int, column: int):
         if column == 0:
@@ -343,7 +360,7 @@ class QuickSendTable(QTableWidget):
         if len(self._rowList) < rows:
             for i in range(len(self._rowList), rows):
                 self._rowList.append(QckSndRow(parent=self, row=i))
-                self.setRowContent(i, ['%d' % i, 'H', ''])
+                self.setRowContent(i, ['%d' % i, 'H', '', "#27b798"])
         elif rows < len(self._rowList):
             del self._rowList[rows:]
         
@@ -358,14 +375,22 @@ class QuickSendTable(QTableWidget):
         self.setCellWidget(row, 2, self._rowList[row].frame)
 
     def setRowContent(self, row: int, text_lst):
-        if len(text_lst) < 3:
-            text_lst = text_lst + [''] * (3 - len(text_lst))
+        if len(text_lst) < 4:
+            text_lst = text_lst + [''] * (4 - len(text_lst))
         name = text_lst[0]
         fmt = text_lst[1]
         data = text_lst[2]
+        color_str = text_lst[3]
+        try:
+            if len(color_str) == 7 and color_str[0] == '#':
+                color = QColor(color_str)
+            else:
+                color = QColor("#27b798")
+        except:
+            color = QColor("#27b798")
 
         if len(self._rowList) <= row:
-            self._rowList.append(QckSndRow(parent=self, row=row, name=name, fmt=fmt, data=data))
+            self._rowList.append(QckSndRow(parent=self, row=row, name=name, fmt=fmt, data=data, color=color))
             super(QuickSendTable, self).setRowCount(len(self._rowList))
 
         if not self._rowList[row].has_setup:
@@ -409,7 +434,7 @@ class QuickSendTable(QTableWidget):
     def insertRow(self, row):
         super(QuickSendTable, self).insertRow(row)
         self._rowList.insert(row, QckSndRow(parent=self, row = row))
-        self.setRowContent(row, ['new', 'H', ''])
+        self.setRowContent(row, ['new', 'H', '', "#27b798"])
         rowCnt = len(self._rowList)
         super(QuickSendTable, self).setRowCount(rowCnt)
         for i in range(row, rowCnt):
@@ -428,18 +453,21 @@ class QuickSendTable(QTableWidget):
             csvData = csv.reader(csvfile)
             if csvData:
                 for i, one_line in enumerate(csvData):
-                    if len(one_line) < 3:
-                        one_line = one_line + [''] * (3 - len(one_line))
-                    if 3 < len(one_line):
-                        one_line = one_line[:3]
+                    if len(one_line) < 4:
+                        one_line = one_line + [''] * (4 - len(one_line))
+                    if 4 < len(one_line):
+                        one_line = one_line[:4]
                     self.setRowContent(i, text_lst=one_line)
         self.resizeColumnsToContents()
 
     def saveToCSV(self, fileName: str):
         rows = self.rowCount()
 
-        save_data = [[self._rowList[row].send_btn.text(), self._rowList[row].fmt_cmb.text(),
-                        self._rowList[row].data_edt.text()] for row in range(rows)]
+        save_data = [[self._rowList[row].send_btn.text(), 
+                      self._rowList[row].fmt_cmb.text(),
+                      self._rowList[row].data_edt.text(),
+                      self._rowList[row].send_btn.palette().button().color().name()
+                     ] for row in range(rows)]
 
         #import pprint
         #pprint.pprint(save_data, width=120, compact=True)
