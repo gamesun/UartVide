@@ -126,8 +126,8 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.setWindowIcon(icon)
         self.actionAbout.setIcon(icon)
 
-        self.defaultStyleWidget = QWidget()
-        self.defaultStyleWidget.setWindowIcon(icon)
+        # self.defaultStyleWidget = QWidget()
+        # self.defaultStyleWidget.setWindowIcon(icon)
 
         # bind events
         self.dockWidget_QuickSend.visibilityChanged.connect(self.onVisibleQckSndPnl)
