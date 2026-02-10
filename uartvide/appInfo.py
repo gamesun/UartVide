@@ -37,6 +37,6 @@ aboutme = """
 </p>
 
 <p><div>%(title)s is licensed under the GNU GPL v3 or later.<br>
-For detail see LICENSE.txt. </div></p>
+For detail see LICENSE. </div></p>
 """ % dict(title=title, ver=version, copyright=copyright)
 

@@ -21,7 +21,7 @@ OutputBaseFilename={#Name}-{#Version}-win64
 OutputDir=Release
 DisableDirPage=no
 DisableProgramGroupPage=no
-LicenseFile=..\LICENSE.txt
+LicenseFile=..\LICENSE
 ShowTasksTreeLines=yes
 AppMutex={#Name}Mutex
 SetupMutex={#Name}Mutex
@@ -32,7 +32,7 @@ CloseApplicationsFilter=*.*
 
 [Files]
 Source: "dist\uartvide-sct\*"; DestDir: "{app}"; Flags: recursesubdirs
-Source: "..\LICENSE.txt"; DestDir: "{app}"
+Source: "..\LICENSE"; DestDir: "{app}"
 Source: "..\readme.htm"; DestDir: "{app}"
 
 [Dirs]

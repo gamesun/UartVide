@@ -34,7 +34,8 @@ exe = EXE(pyz,
           upx=False,
           console=False,
           version='version_info.txt',
-          icon=icon_file)
+          icon=icon_file,
+          contents_directory='.')
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
