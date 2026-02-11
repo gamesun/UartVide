@@ -68,7 +68,7 @@ import serial
 from serial.tools.list_ports import comports
 from time import sleep
 import re
-from logparser import LogParser, CommandDetector
+from logparser import CommandDetector
 
 if os.name == 'nt':
     CODE_FONT = "Consolas"
@@ -88,8 +88,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.portMonitorThread = PortMonitorThread(self)
         self.portMonitorThread.start()
         self.loopSendThread = LoopSendThread(self)
-
-        self.logParser = LogParser()
 
         self._is_always_on_top = False
         self._viewMode = 'HEX'
