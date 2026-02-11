@@ -967,8 +967,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                     parent=self
                 )
 
-    def onQuickSend(self, indexClickEvent):
-        row = indexClickEvent.index()
+    def onQuickSend(self, row: int):
         try:
             if self.serialport.isOpen():
                 data = self.qckSndTbl.text(row, 2)
