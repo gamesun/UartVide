@@ -1240,30 +1240,66 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.appendOutput(ts_text, self.ConvTextByViewMode(data[1]), 'R')
 
     def appendOutput(self, ts_text, data_text, data_type = 'T'):
-        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+        vsb = self.txtEdtOutput.verticalScrollBar()
+        prev_v = vsb.value()
+        at_bottom = (prev_v >= vsb.maximum() - 2)
+        prev_cursor = self.txtEdtOutput.textCursor()
+
+        cursor = self.txtEdtOutput.textCursor()
+        cursor.movePosition(QtGui.QTextCursor.End)
+        self.txtEdtOutput.setTextCursor(cursor)
+        self.txtEdtOutput.setTextBackgroundColor(QtGui.QColor(Qt.white))
+
         if data_type == 'R':
-            self.txtEdtOutput.setTextColor(QtGui.QColor('#800000'))
-            self.txtEdtOutput.insertPlainText(ts_text)
+            if ts_text:
+                self.txtEdtOutput.setTextColor(QtGui.QColor('#800000'))
+                self.txtEdtOutput.insertPlainText(ts_text)
             self.txtEdtOutput.setTextColor(QtGui.QColor('#000000'))
             self.txtEdtOutput.insertPlainText(data_text)
         elif data_type == 'T':
-            self.txtEdtOutput.setTextColor(QtGui.QColor('#800000'))
-            self.txtEdtOutput.insertPlainText(ts_text)
+            if ts_text:
+                self.txtEdtOutput.setTextColor(QtGui.QColor('#800000'))
+                self.txtEdtOutput.insertPlainText(ts_text)
             self.txtEdtOutput.setTextColor(QtGui.QColor('#0000ff'))
             self.txtEdtOutput.insertPlainText(data_text)
-        self.txtEdtOutput.insertPlainText('\n')
-        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.MoveOperation.End)
 
-    def appendOutputText(self, data, color=Qt.black):
+        self.txtEdtOutput.insertPlainText('\n')
+
+        if at_bottom:
+            vsb.setValue(vsb.maximum())
+            self.txtEdtOutput.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+        else:
+            # restore previous view/cursor so user stays where they were
+            self.txtEdtOutput.setTextCursor(prev_cursor)
+            vsb.setValue(prev_v)
+
+    def appendOutputText(self, data, color=Qt.black, BgColor=Qt.white):
         # the qEditText's "append" methon will add a unnecessary newline.
         # self.txtEdtOutput.append(data.decode('utf-8'))
+        prev_color = self.txtEdtOutput.textColor()
 
-        tc = self.txtEdtOutput.textColor()
-        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+        vsb = self.txtEdtOutput.verticalScrollBar()
+        prev_v = vsb.value()
+        at_bottom = (prev_v >= vsb.maximum() - 2)
+        prev_cursor = self.txtEdtOutput.textCursor()
+
+        cursor = self.txtEdtOutput.textCursor()
+        cursor.movePosition(QtGui.QTextCursor.End)
+        self.txtEdtOutput.setTextCursor(cursor)
         self.txtEdtOutput.setTextColor(QtGui.QColor(color))
+        self.txtEdtOutput.setTextBackgroundColor(QtGui.QColor(BgColor))
+
         self.txtEdtOutput.insertPlainText(data)
-        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.MoveOperation.End)
-        self.txtEdtOutput.setTextColor(tc)
+
+        if at_bottom:
+            vsb.setValue(vsb.maximum())
+            self.txtEdtOutput.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+        else:
+            self.txtEdtOutput.setTextCursor(prev_cursor)
+            vsb.setValue(prev_v)
+
+        self.txtEdtOutput.setTextColor(prev_color)
+        self.txtEdtOutput.setTextBackgroundColor(QtGui.QColor(Qt.white))
 
     def getPort(self):
         return self.cmbPort.currentText()
