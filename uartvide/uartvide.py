@@ -1243,16 +1243,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             else:
                 ts_text = ts.isoformat() + '.000:'
 
-        comments = None
-        if isCmd:
-            try:
-                comments = self.logParser.parse(data[1])
-            except Exception as e:
-                print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
-        else:
-            if self._viewMode != 'Ascii':
-                if data[1][0:2] == b'AT':
-                    comments = ''.join(chr(b) if b != 0 else ' ' for b in data[1])
+        comments = data[2] if len(data) > 2 else ''
 
         self._logRecord.append(('R', ts_text, data[1], comments))
         self.RxTxCnt[0] = self.RxTxCnt[0] + len(data[1])

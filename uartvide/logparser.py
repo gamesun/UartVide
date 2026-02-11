@@ -24,6 +24,7 @@
 #############################################################################
 
 import datetime
+import sys
 from PySide2.QtCore import QObject, Signal
 
 class LogParser:
@@ -79,6 +80,8 @@ class CommandDetector(QObject):
         self._basic_buf = b''
         self._basic_header = b'\x84\xa9\x61'
 
+        self.logParser = LogParser()
+
     def setHeader(self, basic_header, log_header):
         self._basic_header = basic_header
 
@@ -86,6 +89,20 @@ class CommandDetector(QObject):
         for b in bytes:
             self.__parse_basic(b)
         self.__flush_buff()
+
+    def cmdDetected(self, data):
+        comments = None
+        try:
+            comments = self.logParser.parse(data[1])
+        except Exception as e:
+            print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
+        self.commandDetected.emit([data[0], data[1], comments])
+
+    def unknownDataDetected(self, data):
+        comments = None
+        if data[1][0:2] == b'AT':
+            comments = ''.join(chr(b) if b != 0 else ' ' for b in data[1])
+        self.unknownData.emit([data[0], data[1], comments])
 
     def __parse_basic(self, byte):
         byte = byte.to_bytes(1, 'big')
@@ -124,7 +141,7 @@ class CommandDetector(QObject):
             self._basic_buf = self._basic_buf + byte
             self._basic_len_cnt = self._basic_len_cnt + 1
             if self._basic_len <= self._basic_len_cnt:
-                self.commandDetected.emit([datetime.datetime.now().time(), self._basic_buf])
+                self.cmdDetected([datetime.datetime.now().time(), self._basic_buf])
                 # print('parser end', 'Rx:'+''.join('%02X ' % t for t in self._parser_buf))
                 self._basic_status = 'h1'
                 self._basic_buf = b''
@@ -134,6 +151,6 @@ class CommandDetector(QObject):
     
     def __flush_buff(self):
         if len(self._basic_buf):
-            self.unknownData.emit([datetime.datetime.now().time(), self._basic_buf])
+            self.unknownDataDetected([datetime.datetime.now().time(), self._basic_buf])
             self._basic_buf = b''
 
