@@ -1251,8 +1251,16 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.appendOutputText(comments, BgColor='lemonchiffon')
 
     def appendOutput(self, ts_text, data_text, data_type = 'T'):
-        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+        vsb = self.txtEdtOutput.verticalScrollBar()
+        prev_v = vsb.value()
+        at_bottom = (prev_v >= vsb.maximum() - 2)
+        prev_cursor = self.txtEdtOutput.textCursor()
+
+        cursor = self.txtEdtOutput.textCursor()
+        cursor.movePosition(QtGui.QTextCursor.End)
+        self.txtEdtOutput.setTextCursor(cursor)
         self.txtEdtOutput.setTextBackgroundColor(QColor(Qt.white))
+
         if data_type == 'R':
             if ts_text:
                 self.txtEdtOutput.setTextColor(QtGui.QColor('#800000'))
@@ -1265,20 +1273,41 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
                 self.txtEdtOutput.insertPlainText(ts_text)
             self.txtEdtOutput.setTextColor(QtGui.QColor('#0000ff'))
             self.txtEdtOutput.insertPlainText(data_text)
+
         self.txtEdtOutput.insertPlainText('\n')
-        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+
+        if at_bottom:
+            vsb.setValue(vsb.maximum())
+            self.txtEdtOutput.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+        else:
+            # restore previous view/cursor so user stays where they were
+            self.txtEdtOutput.setTextCursor(prev_cursor)
+            vsb.setValue(prev_v)
 
     def appendOutputText(self, data, color=Qt.black, BgColor=Qt.white):
         # the qEditText's "append" methon will add a unnecessary newline.
         # self.txtEdtOutput.append(data.decode('utf-8'))
 
-        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+        vsb = self.txtEdtOutput.verticalScrollBar()
+        prev_v = vsb.value()
+        at_bottom = (prev_v >= vsb.maximum() - 2)
+        prev_cursor = self.txtEdtOutput.textCursor()
+
+        cursor = self.txtEdtOutput.textCursor()
+        cursor.movePosition(QtGui.QTextCursor.End)
+        self.txtEdtOutput.setTextCursor(cursor)
         self.txtEdtOutput.setTextColor(QColor(color))
         self.txtEdtOutput.setTextBackgroundColor(QColor(BgColor))
 
         self.txtEdtOutput.insertPlainText(data)
 
-        self.txtEdtOutput.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+        if at_bottom:
+            vsb.setValue(vsb.maximum())
+            self.txtEdtOutput.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+        else:
+            self.txtEdtOutput.setTextCursor(prev_cursor)
+            vsb.setValue(prev_v)
+
         self.txtEdtOutput.setTextColor(QColor(Qt.black))
         self.txtEdtOutput.setTextBackgroundColor(QColor(Qt.white))
 
