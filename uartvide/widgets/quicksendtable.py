@@ -41,21 +41,9 @@ from functools import partial
 
 
 
-class IndexClickEvent():
-    
-    def __init__(self, pos: QPoint, index: int) -> None:
-        self._pos = pos
-        self._index = index
-    
-    def pos(self):
-        return self._pos
-    
-    def index(self):
-        return self._index
-
 class IndexButton(ToolButton):
-    clicked = Signal(IndexClickEvent)
-    rightClicked = Signal(IndexClickEvent)
+    clicked = Signal(int)
+    rightClicked = Signal(QPoint, int)
 
     def __init__(self, parent=None, index: int=0, text: str='', color=QColor("#27b798")):
         super(IndexButton, self).__init__(parent)
@@ -88,9 +76,9 @@ class IndexButton(ToolButton):
 
     def mousePressEvent(self, mouseEvent):
         if mouseEvent.button() == Qt.LeftButton:
-            self.clicked.emit(IndexClickEvent(mouseEvent.globalPos(), self._index))
+            self.clicked.emit(self._index)
         if mouseEvent.button() == Qt.RightButton:
-            self.rightClicked.emit(IndexClickEvent(mouseEvent.globalPos(), self._index))
+            self.rightClicked.emit(mouseEvent.globalPos(), self._index)
         
         super().mousePressEvent(mouseEvent)
 
@@ -103,7 +91,7 @@ class IndexButton(ToolButton):
         return super().leaveEvent(arg__1)
 
 class FormatComboBox(RightAngleComboBox):
-    rightClicked = Signal(IndexClickEvent)
+    rightClicked = Signal(QPoint, int)
     formatChanged = Signal(str, int)
     dictFormat = {
         'HEX':'H', 
@@ -203,7 +191,7 @@ class FormatComboBox(RightAngleComboBox):
 
     def mousePressEvent(self, mouseEvent):
         if mouseEvent.button() == Qt.RightButton:
-            self.rightClicked.emit(IndexClickEvent(mouseEvent.globalPos(), self._index))
+            self.rightClicked.emit(mouseEvent.globalPos(), self._index)
         super().mousePressEvent(mouseEvent)
 
     def paintEvent(self, e):
@@ -331,9 +319,9 @@ class QuickSendTable(QTableWidget):
         for r in self._rowList:
             r.send_btn.clicked.connect(self._send_func)
 
-    def onRightClicked(self, indexClickEvent):
-        self._selectingRow = indexClickEvent.index()
-        self.menuRightClick.popup(indexClickEvent.pos())
+    def onRightClicked(self, pos: QPoint, row: int):
+        self._selectingRow = row
+        self.menuRightClick.popup(pos)
 
     def onFormatChanged(self, text, row):
         if 'F' in text:
@@ -341,12 +329,12 @@ class QuickSendTable(QTableWidget):
         else:
             self._rowList[row].path_btn.hide()
 
-    def onSelectFile(self, indexClickEvent):
-        old_path = self.text(indexClickEvent.index(), 2)
+    def onSelectFile(self, row: int):
+        old_path = self.text(row, 2)
         fileName = QFileDialog.getOpenFileName(self, "Select a file",
             old_path, "All Files (*.*)")[0]
         if fileName:
-            self.setText(indexClickEvent.index(), 2, fileName)
+            self.setText(row, 2, fileName)
 
     def setPathButtonHidden(self, row, hidden: bool):
         if hidden:
