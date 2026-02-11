@@ -262,11 +262,15 @@ class QuickSendTable(QTableWidget):
         self.actionChgBtnColor = Action(FluentIcon.PALETTE, "Change color", self)
         self.actionChgBtnColor.triggered.connect(self.onChgBtnColor)
 
+        self.actionRstBtnColor = Action(FluentIcon.PALETTE, "Reset color", self)
+        self.actionRstBtnColor.triggered.connect(self.onRstBtnColor)
+
         self.menuRightClick = RoundMenu(parent=self)
         self.menuRightClick.addAction(self.actionRename)
         self.menuRightClick.addAction(self.actionInsertRow)
         self.menuRightClick.addAction(self.actionDeleteRow)
         self.menuRightClick.addAction(self.actionChgBtnColor)
+        self.menuRightClick.addAction(self.actionRstBtnColor)
 
     def onRename(self):
         item = self._rowList[self._selectingRow].send_btn
@@ -289,6 +293,10 @@ class QuickSendTable(QTableWidget):
         new_color = cp.getColor(item.palette().button().color().getRgb()[:3])
         new_qcolor = QColor(int(new_color[0]), int(new_color[1]), int(new_color[2]))
         item.setColor(new_qcolor)
+
+    def onRstBtnColor(self):
+        item = self._rowList[self._selectingRow].send_btn
+        item.setColor(QColor("#27b798"))
 
     def text(self, row: int, column: int):
         if column == 0:
