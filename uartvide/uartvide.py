@@ -1437,6 +1437,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         if os.name == 'posix':
             self.destroy()
             self.create()
+        self.updateFrameless()
         self.show()
 
     def onOpen(self, state):
