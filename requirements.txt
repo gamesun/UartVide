@@ -1,6 +1,6 @@
 defusedxml==0.7.1
-lxml==4.9.3
 pyserial==3.5
-PySide2==5.15.2.1
-PySide2_Fluent_Widgets==1.2.0
-PySide2_Frameless_Window==0.3.2
+pyside2_fluent_widgets==1.11.1
+pyside2_frameless_window==0.8.0
+QtPy==2.4.3
+vcolorpicker==1.4.4
