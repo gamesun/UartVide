@@ -57,7 +57,7 @@ class LogParser:
             asc_str = data[8:8 + asc_str_len]
             asc_str = ''.join(chr(b) if b != 0 else ' ' for b in asc_str) + '\n'
             out = asc_str
-        elif cmdId[0] in [0x34]:
+        elif cmdId[0] in [0x34, 0xAC]:
             asc_str_len = data[4] - 1
             asc_str = data[7:7 + asc_str_len]
             asc_str = ''.join(chr(b) if b != 0 else ' ' for b in asc_str) + '\n'
