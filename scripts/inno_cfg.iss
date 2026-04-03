@@ -31,7 +31,7 @@ DisableWelcomePage=no
 CloseApplicationsFilter=*.*
 
 [Files]
-Source: "dist\uartvide\*"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "dist\uartvide\*"; Excludes: "Settings"; DestDir: "{app}"; Flags: recursesubdirs
 Source: "..\LICENSE"; DestDir: "{app}"
 Source: "..\readme.htm"; DestDir: "{app}"
 
@@ -43,8 +43,7 @@ Type: filesandordirs; Name: "{app}\Settings"
 Name: "{autodesktop}\{#Name} {#Version}"; Filename: "{app}\{#Name}.exe"
 
 ; add icons to Start Menu/All Programs
-Name: "{autoprograms}\{#Name} {#Version}\{#Name} {#Version}"; Filename: "{app}\{#Name}.exe"; WorkingDir: "{app}"
-Name: "{autoprograms}\{#Name} {#Version}\Uninstall {#Name} {#Version}"; Filename: "{uninstallexe}"
+Name: "{autoprograms}\{#Name} {#Version}"; Filename: "{app}\{#Name}.exe"; WorkingDir: "{app}"
 
 [Run]
 Filename: "{app}\{#Name}.exe"; Description: "Launch application"; \
