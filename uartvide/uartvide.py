@@ -88,7 +88,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.portMonitorThread = PortMonitorThread(self)
         self.portMonitorThread.start()
         self.loopSendThread = LoopSendThread(self)
-
         self._is_always_on_top = False
         self._viewMode = 'HEX'
         self._is_loop_sending = False
@@ -146,8 +145,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
         self.loopSendThread.trigger.connect(self.onPeriodTrigger)
 
-        self.readerThread.receiveCommand.connect(self.onReceiveCommand)
-        self.readerThread.receiveUnknownData.connect(self.onReceiveUnknownData)
+        self.readerThread.receiveData.connect(self.onReceive)
         self.readerThread.exception.connect(self.onReaderExcept)
 
         self.portMonitorThread.portsListChanged.connect(self.onPortsListChanged)
@@ -1166,7 +1164,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
     def onReaderExcept(self, e):
         self.closePort()
-        print(str(e))
         InfoBar.warning(
             title='Read Failed',
             content=str(e),
@@ -1202,12 +1199,6 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         #     self.lblRxTxCnt.setGeometry(rect)
         # self.lblRxTxCnt.setText(cnt_text)
         # self.lblRxTxCnt_textlen = textlen
-    
-    def onReceiveUnknownData(self, data):
-        self.onReceive(data)
-
-    def onReceiveCommand(self, data):
-        self.onReceive(data, True)
 
     def refreshRecord(self):
         self.txtEdtOutput.clear()
@@ -1232,7 +1223,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         
         return text
 
-    def onReceive(self, data, isCmd = False):
+    def onReceive(self, data):
         ts = data[0]
         ts_text = ''
         if type(ts) == datetime.time:
@@ -1248,7 +1239,8 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.updateRxTxCnt()
 
         self.appendOutput(ts_text, self.ConvTextByViewMode(data[1]), 'R')
-        self.appendOutputText(comments, BgColor='lemonchiffon')
+        if len(comments):
+            self.appendOutputText(comments, BgColor='lemonchiffon')
 
     def appendOutput(self, ts_text, data_text, data_type = 'T'):
         vsb = self.txtEdtOutput.verticalScrollBar()
@@ -1259,7 +1251,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         cursor = self.txtEdtOutput.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)
         self.txtEdtOutput.setTextCursor(cursor)
-        self.txtEdtOutput.setTextBackgroundColor(QColor(Qt.white))
+        self.txtEdtOutput.setTextBackgroundColor(QtGui.QColor(Qt.white))
 
         if data_type == 'R':
             if ts_text:
@@ -1287,6 +1279,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
     def appendOutputText(self, data, color=Qt.black, BgColor=Qt.white):
         # the qEditText's "append" methon will add a unnecessary newline.
         # self.txtEdtOutput.append(data.decode('utf-8'))
+        prev_color = self.txtEdtOutput.textColor()
 
         vsb = self.txtEdtOutput.verticalScrollBar()
         prev_v = vsb.value()
@@ -1296,8 +1289,8 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         cursor = self.txtEdtOutput.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)
         self.txtEdtOutput.setTextCursor(cursor)
-        self.txtEdtOutput.setTextColor(QColor(color))
-        self.txtEdtOutput.setTextBackgroundColor(QColor(BgColor))
+        self.txtEdtOutput.setTextColor(QtGui.QColor(color))
+        self.txtEdtOutput.setTextBackgroundColor(QtGui.QColor(BgColor))
 
         self.txtEdtOutput.insertPlainText(data)
 
@@ -1308,8 +1301,8 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
             self.txtEdtOutput.setTextCursor(prev_cursor)
             vsb.setValue(prev_v)
 
-        self.txtEdtOutput.setTextColor(QColor(Qt.black))
-        self.txtEdtOutput.setTextBackgroundColor(QColor(Qt.white))
+        self.txtEdtOutput.setTextColor(prev_color)
+        self.txtEdtOutput.setTextBackgroundColor(QtGui.QColor(Qt.white))
 
     def getPort(self):
         return self.cmbPort.currentText()
@@ -1625,11 +1618,9 @@ def string_to_hex(hexstring):
                 raise Exception("'%s' is not hexadecimal." % (word))
     return hexarray
 
-
 class ReaderThread(QThread):
     """loop and copy serial->GUI"""
-    receiveCommand = Signal(list)
-    receiveUnknownData = Signal(list)
+    receiveData = Signal(list)
     exception = Signal(str)
 
     def __init__(self, parent=None):
@@ -1639,14 +1630,10 @@ class ReaderThread(QThread):
         self._serialport = None
 
         self.cmdDetector = CommandDetector()
-        self.cmdDetector.commandDetected.connect(self.onCommandDetected)
-        self.cmdDetector.unknownData.connect(self.onUnknownData)
+        self.cmdDetector.cmdDetected.connect(self.onCommandDetected)
 
     def onCommandDetected(self, data):
-        self.receiveCommand.emit(data)
-
-    def onUnknownData(self, data):
-        self.receiveUnknownData.emit(data)
+        self.receiveData.emit(data)
 
     def setPort(self, port: serial.Serial):
         self._serialport = port

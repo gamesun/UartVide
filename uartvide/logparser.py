@@ -54,21 +54,22 @@ class LogParser:
             self._pilogBuf = self._pilogBuf + tmp
         elif cmdId[0] in [0x30, 0x31, 0x32]:
             asc_str_len = cmdId[1]
-            asc_str = data[8:8 + asc_str_len]
-            asc_str = ''.join(chr(b) if b != 0 else ' ' for b in asc_str) + '\n'
-            out = asc_str
+            if 2 < asc_str_len:
+                asc_str = data[8:8 + asc_str_len]
+                asc_str = ''.join(chr(b) if b != 0 else ' ' for b in asc_str) + '\n'
+                out = asc_str
         elif cmdId[0] in [0x34, 0xAC]:
             asc_str_len = data[4] - 1
-            asc_str = data[7:7 + asc_str_len]
-            asc_str = ''.join(chr(b) if b != 0 else ' ' for b in asc_str) + '\n'
-            out = asc_str
+            if 2 < asc_str_len:
+                asc_str = data[7:7 + asc_str_len]
+                asc_str = ''.join(chr(b) if b != 0 else ' ' for b in asc_str) + '\n'
+                out = asc_str
 
         return out
 
 
 class CommandDetector(QObject):
-    commandDetected = Signal(list)
-    unknownData = Signal(list)
+    cmdDetected = Signal(list)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -90,19 +91,18 @@ class CommandDetector(QObject):
             self.__parse_basic(b)
         self.__flush_buff()
 
-    def cmdDetected(self, data):
+    def detected(self, data, isCmd):
         comments = None
-        try:
-            comments = self.logParser.parse(data[1])
-        except Exception as e:
-            print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
-        self.commandDetected.emit([data[0], data[1], comments])
-
-    def unknownDataDetected(self, data):
-        comments = None
-        if data[1][0:2] == b'AT':
-            comments = ''.join(chr(b) if b != 0 else ' ' for b in data[1])
-        self.unknownData.emit([data[0], data[1], comments])
+        if isCmd:
+            try:
+                comments = self.logParser.parse(data[1])
+            except Exception as e:
+                print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
+        else:
+            if data[1][0:2] == b'AT':
+                comments = ''.join(chr(b) if b != 0 else ' ' for b in data[1])
+        
+        self.cmdDetected.emit([data[0], data[1], comments])
 
     def __parse_basic(self, byte):
         byte = byte.to_bytes(1, 'big')
@@ -141,7 +141,7 @@ class CommandDetector(QObject):
             self._basic_buf = self._basic_buf + byte
             self._basic_len_cnt = self._basic_len_cnt + 1
             if self._basic_len <= self._basic_len_cnt:
-                self.cmdDetected([datetime.datetime.now().time(), self._basic_buf])
+                self.detected([datetime.datetime.now().time(), self._basic_buf], True)
                 # print('parser end', 'Rx:'+''.join('%02X ' % t for t in self._parser_buf))
                 self._basic_status = 'h1'
                 self._basic_buf = b''
@@ -151,6 +151,6 @@ class CommandDetector(QObject):
     
     def __flush_buff(self):
         if len(self._basic_buf):
-            self.unknownDataDetected([datetime.datetime.now().time(), self._basic_buf])
+            self.detected([datetime.datetime.now().time(), self._basic_buf], False)
             self._basic_buf = b''
 
