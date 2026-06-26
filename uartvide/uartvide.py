@@ -218,17 +218,20 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         self.actionExit = Action(FluentIcon.CLOSE, self.tr('Exit'))
         self.actionExit.triggered.connect(self.close)   # -> closeEvent
 
-        self.actionSend_Panel = Action(FluentIcon.VIEW, self.tr('Send Panel'))
+        self.actionSend_Panel = Action(FluentIcon.TILES, self.tr('Send Panel'))
         self.actionSend_Panel.setCheckable(True)
         self.actionSend_Panel.triggered.connect(self.onToggleSndPnl)
 
         self.actionAbout = Action(self.tr('About'))
         self.actionAbout.triggered.connect(self.onAbout)
 
-        self.actionOpen_Cmd_File = Action(FluentIcon.EDIT, self.tr('Load Quick Send CSV'))
+        self.actionOpen_Cmd_File = Action(FluentIcon.SYNC, self.tr('Load Quick Send CSV'))
         self.actionOpen_Cmd_File.triggered.connect(self.openQuickSendFile)
 
-        self.actionQuick_Send_Panel = Action(FluentIcon.VIEW, self.tr('Quick Send Panel'))
+        self.actionSaveCmdFile = Action(FluentIcon.SAVE, self.tr('Save Quick Send CSV'))
+        self.actionSaveCmdFile.triggered.connect(self.saveQuickSend)
+
+        self.actionQuick_Send_Panel = Action(FluentIcon.TILES, self.tr('Quick Send Panel'))
         self.actionQuick_Send_Panel.setCheckable(True)
         self.actionQuick_Send_Panel.triggered.connect(self.onToggleQckSndPnl)
         
@@ -236,6 +239,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
 
         self.menuMoreSettings = CheckableMenu(parent=self.titleBar)
         self.menuMoreSettings.addAction(self.actionOpen_Cmd_File)
+        self.menuMoreSettings.addAction(self.actionSaveCmdFile)
         self.menuMoreSettings.addAction(self.actionSave_Log)
         self.menuMoreSettings.addSeparator()
         self.menuMoreSettings.addAction(self.actionQuick_Send_Panel)
