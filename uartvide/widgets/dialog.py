@@ -84,6 +84,81 @@ class AboutDialog(FramelessDialog):
 
 theSolitaryRenameDailog = None
 
+theSolitaryConfirmDialog = None
+
+class ConfirmDialog(FramelessDialog):
+
+    def __init__(self, *args, **kwargs):
+        super(ConfirmDialog, self).__init__(*args, **kwargs)
+
+        self.titleBar.closeBtn.hide()
+
+        self.setAttribute(Qt.WA_DeleteOnClose)
+        self.destroyed.connect(self.close)
+
+        self.confirmed = False
+
+        self.__icon = QLabel(self)
+        self.__icon.setFixedSize(QSize(24, 24))
+        self.__icon.setPixmap(FluentIcon.INFO.icon().pixmap(24, 24))
+        self.__icon.setStyleSheet('QLabel { border: none; }')
+
+        self.__lbl = QLabel()
+        self.__lbl.setWordWrap(True)
+        self.__lbl.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.__lbl.setStyleSheet('QLabel { border: none; padding: 8px; color: #202020; font-family: Tahoma; font-size: 10.5pt; }')
+
+        contentLayout = QHBoxLayout()
+        contentLayout.setContentsMargins(0, 0, 0, 0)
+        contentLayout.setSpacing(10)
+        contentLayout.addWidget(self.__icon)
+        contentLayout.addWidget(self.__lbl, 1)
+
+        vLayout = QVBoxLayout(self)
+        vLayout.setContentsMargins(12, 12, 12, 12)
+        vLayout.setSpacing(10)
+        vLayout.addLayout(contentLayout)
+
+        btnOK = PushButton('OK')
+        btnOK.setFixedSize(QSize(70, 28))
+        btnOK.clicked.connect(self.onOK)
+
+        btnCancel = PushButton('Cancel')
+        btnCancel.setFixedSize(QSize(70, 28))
+        btnCancel.clicked.connect(self.onCancel)
+
+        hLayout = QHBoxLayout()
+        hLayout.setContentsMargins(0, 0, 0, 0)
+        hLayout.addStretch(1)
+        hLayout.addWidget(btnOK)
+        hLayout.addWidget(btnCancel)
+
+        vLayout.addLayout(hLayout)
+
+        self.setStyleSheet('QWidget { background-color: white; outline: none; border: 1px solid rgba(0, 0, 0, 0.1); }')
+        self.setFixedSize(QSize(280, 120))
+
+    def onOK(self):
+        self.confirmed = True
+        self.close()
+
+    def onCancel(self):
+        self.confirmed = False
+        self.close()
+
+    @staticmethod
+    def confirm(message, pos):
+        global theSolitaryConfirmDialog
+        theSolitaryConfirmDialog = ConfirmDialog()
+        theSolitaryConfirmDialog.__confirm(message, pos)
+        return theSolitaryConfirmDialog.confirmed
+
+    def __confirm(self, message, pos):
+        self.move(pos.x(), pos.y())
+        self.__lbl.setText(message)
+        self.exec_()
+
+
 class RenameDailog(FramelessDialog):
 
     def __init__(self, *args, **kwargs):

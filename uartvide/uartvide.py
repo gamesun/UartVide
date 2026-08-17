@@ -937,20 +937,34 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
     def initQuickSend(self):
         self.qckSndTbl.setSendFunc(self.onQuickSend)
 
-        if os.path.isfile(get_config_path('QuickSend.csv')):
-            self.loadQuickSendByFile(get_config_path('QuickSend.csv'))
+        json_path = get_config_path('QuickSend.json')
+        csv_path = get_config_path('QuickSend.csv')
+        if os.path.isfile(json_path):
+            self.qckSndTbl.loadAllFromJSON(json_path)
+        elif os.path.isfile(csv_path):
+            self.loadQuickSendByFile(csv_path)
         else:
             self.qckSndTbl.setRowCount(10)
 
     def openQuickSendFile(self):
         fileName = QFileDialog.getOpenFileName(self, "Select a file",
-            os.getcwd(), "CSV Files (*.csv)")[0]
+            os.getcwd(), "CSV Files (*.csv);;JSON Files (*.json)")[0]
         if fileName:
-            self.loadQuickSendByFile(fileName, notifyExcept = True)
+            if fileName.lower().endswith('.json'):
+                self.qckSndTbl.loadAllFromJSON(fileName)
+            else:
+                self.loadQuickSendByFile(fileName, notifyExcept = True)
 
     def saveQuickSend(self):
         try:
             self.qckSndTbl.saveToCSV(get_config_path('QuickSend.csv'))
+        except Exception as e:
+            print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
+            raise
+
+    def saveQuickSendConfig(self):
+        try:
+            self.qckSndTbl.saveAllToJSON(get_config_path('QuickSend.json'))
         except Exception as e:
             print("(line {}){}".format(sys.exc_info()[-1].tb_lineno, str(e)))
             raise
@@ -1550,7 +1564,7 @@ class MainWindow(FramelessMainWindow, Ui_MainWindow):
         
         self.portMonitorThread.join()
         self.saveLayout()
-        self.saveQuickSend()
+        self.saveQuickSendConfig()
         self.saveSettings()
         event.accept()
 
